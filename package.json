@@ -2,7 +2,7 @@
   "name": "tvos-soap4.me",
   "version": "1.0.0",
   "description": "tvOS app for soap4.me video service https://soap4.me/",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -10,8 +10,15 @@
     "type": "git",
     "url": "git+https://github.com/a-ignatov-parc/tvos-soap4.me.git"
   },
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "atvjs",
+    "tvos",
+    "tvjs",
+    "appletv",
+    "soap4.me"
+  ],
+  "author": "Anton Ignatov <abietis@gmail.com>",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/a-ignatov-parc/tvos-soap4.me/issues"
   },
