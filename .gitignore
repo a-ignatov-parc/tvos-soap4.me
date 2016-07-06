@@ -3,7 +3,9 @@
 .DS_Store
 
 # Build files
-npm-debug.log
+build.json
+
+# Build directories
 node_modules/
 releases/
 out/
