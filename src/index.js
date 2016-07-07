@@ -12,8 +12,8 @@ ATV.Page.create({
 	},
 	data: {
 		title: 'Homepage',
-		description: 'Test page.'
-	}
+		description: 'Test page.',
+	},
 });
 
 ATV.start({

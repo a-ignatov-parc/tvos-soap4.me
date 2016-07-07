@@ -1,6 +1,7 @@
 import gulp from 'gulp';
 import gutil from 'gulp-util';
 
+import rm from 'gulp-rm';
 import watch from 'gulp-watch';
 import uglify from 'gulp-uglify';
 import connect from 'gulp-connect';
@@ -26,6 +27,12 @@ const CACHE = './build.json';
 function pass() {
 	return through.obj();
 }
+
+gulp.task('clear-cache', () => {
+	return gulp
+		.src(CACHE, {read: false})
+		.pipe(rm());
+});
 
 gulp.task('build', () => {
 	let build = browserify(xtend(incremental.args, {
@@ -62,7 +69,7 @@ gulp.task('build', () => {
 		.pipe(connect.reload());
 });
 
-gulp.task('watch', () => {
+gulp.task('watch', ['clear-cache'], () => {
 	gulp.start('build');
 	watch([`${SOURCE}/**/*.js`], () => gulp.start('build'));
 });
