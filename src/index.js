@@ -1,10 +1,10 @@
 /** @jsx TVDML.jsx */
 
-import TVDML from 'tvdml';
+import * as TVDML from 'tvdml';
 
 TVDML
 	.handleRoute(TVDML.route.LAUNCH)
-	.then(TVDML.render(
+	.pipe(TVDML.render(
 		<document>
 			<alertTemplate>
 				<title>
@@ -22,4 +22,4 @@ TVDML
 			</alertTemplate>
 		</document>
 	))
-	.then(TVDML.pushDocument());
+	.pipe(TVDML.pushDocument());
