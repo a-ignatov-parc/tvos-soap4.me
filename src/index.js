@@ -1,32 +1,25 @@
-import ATV from 'atvjs/src/index';
+/** @jsx TVDML.jsx */
 
-ATV.Page.create({
-	name: 'home',
-	template(data) {
-		return `<document>
+import TVDML from 'tvdml';
+
+TVDML
+	.handleRoute(TVDML.route.LAUNCH)
+	.then(TVDML.render(
+		<document>
 			<alertTemplate>
-				<title>${data.title}</title>
-				<description>${data.description}</description>
+				<title>
+					Test pop
+				</title>
+				<description>
+					Description
+				</description>
 				<button>
-					<text>${data.button}</text>
+					<text>Go to Next Page</text>
 				</button>
 				<button>
-					<text>${data.button}</text>
+					<text>Close</text>
 				</button>
-				<text>${data.text}</text>
 			</alertTemplate>
-		</document>`;
-	},
-	data: {
-		title: 'Homepage',
-		description: 'Test page.',
-		button: 'Button',
-		text: 'Some small text.',
-	},
-});
-
-ATV.start({
-	onLaunch(options) {
-		ATV.Navigation.navigate('home');
-	}
-});
+		</document>
+	))
+	.then(TVDML.pushDocument());

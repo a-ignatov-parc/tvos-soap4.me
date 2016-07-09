@@ -11,7 +11,7 @@
     "url": "git+https://github.com/a-ignatov-parc/tvos-soap4.me.git"
   },
   "keywords": [
-    "atvjs",
+    "tvdml",
     "tvos",
     "tvjs",
     "appletv",
@@ -24,12 +24,11 @@
   },
   "homepage": "https://github.com/a-ignatov-parc/tvos-soap4.me#readme",
   "dependencies": {
-    "atvjs": "a-ignatov-parc/atvjs#master",
-    "babel-polyfill": "^6.9.1"
+    "tvdml": "a-ignatov-parc/tvdml#master"
   },
   "devDependencies": {
-    "babel-core": "^6.10.4",
     "babel-preset-es2015": "^6.9.0",
+    "babel-preset-react": "^6.11.1",
     "babelify": "^7.3.0",
     "browserify": "^13.0.1",
     "browserify-incremental": "^3.1.1",
@@ -41,6 +40,7 @@
     "gulp-util": "^3.0.7",
     "gulp-watch": "^4.3.8",
     "pretty-bytes": "^3.0.1",
+    "through2": "^2.0.1",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
     "xtend": "^4.0.1"
