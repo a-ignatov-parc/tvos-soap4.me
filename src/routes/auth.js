@@ -58,12 +58,7 @@ TVDML
 	}))
 	.pipe(payload => {
 		let {credentials: {loginPromise}} = payload;
-		return loginPromise
-			.then(() => {
-				navigationDocument.dismissModal();
-				return new Promise((resolve) => setTimeout(resolve, 1000));
-			})
-			.then(() => payload);
+		return loginPromise.then(() => payload);
 	})
 	.pipe(TVDML.renderModal(({credentials: {password}}) => {
 		const {BASEURL} = getStartParams();
@@ -89,10 +84,7 @@ TVDML
 	}))
 	.pipe(payload => {
 		let {credentials: {passwordPromise}} = payload;
-		return passwordPromise.then(() => {
-			navigationDocument.dismissModal();
-			return payload;
-		});
+		return passwordPromise.then(() => payload);
 	})
 	.pipe(TVDML.render(<Loader title="Authorizing..." />));
 
