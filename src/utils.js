@@ -10,3 +10,7 @@ export function log(message = '') {
 export function link(route, params) {
 	return event => navigate(route, params);
 }
+
+export function getStartParams() {
+	return JSON.parse(sessionStorage.getItem('startParams') || '{}');
+}

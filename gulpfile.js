@@ -23,6 +23,7 @@ var PORT = 9001;
 var DEST = './out';
 var SOURCE = './src';
 var CACHE = './build.json';
+var ASSETS = SOURCE + '/assets';
 
 function pass() {
 	return through.obj();
@@ -68,10 +69,21 @@ gulp.task('build', function() {
 		.pipe(connect.reload());
 });
 
+gulp.task('assets', function() {
+	return gulp
+		.src(ASSETS + '/**/*')
+		.pipe(gulp.dest(DEST + '/assets'));
+});
+
 gulp.task('watch', ['clear-cache'], function() {
-	gulp.start('build');
-	watch([`${SOURCE}/**/*.js`], function() {
-		gulp.start('build')
+	gulp.start('build', 'assets');
+
+	watch([SOURCE + '/**/*.js'], function() {
+		gulp.start('build');
+	});
+
+	watch([ASSETS + '/**/*'], function() {
+		gulp.start('assets');
 	});
 });
 
@@ -82,4 +94,4 @@ gulp.task('serve', ['watch'], function() {
 	});
 });
 
-gulp.task('default', ['build']);
+gulp.task('default', ['build', 'assets']);

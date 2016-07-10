@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/a-ignatov-parc/tvos-soap4.me#readme",
   "dependencies": {
+    "object-assign": "^4.1.0",
     "tvdml": "a-ignatov-parc/tvdml#master"
   },
   "devDependencies": {
