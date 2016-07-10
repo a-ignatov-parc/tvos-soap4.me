@@ -19,19 +19,17 @@ TVDML
 		let loginPromise = new Promise((resolve) => login = resolve);
 		let passwordPromise = new Promise((resolve) => password = resolve);
 
-		Promise
-			.all([loginPromise, passwordPromise])
-			.then(([login, password]) => {
-				console.log(666, {login, password});
-			});
-
 		return assign({}, payload, {
 			credentials: {
 				login, 
 				password,
 				loginPromise,
 				passwordPromise,
-			}
+			},
+			callbacks: {
+				onSuccess,
+				onFailure,
+			},
 		});
 	})
 	.pipe(TVDML.renderModal(({credentials: {login}}) => {
@@ -86,7 +84,17 @@ TVDML
 		let {credentials: {passwordPromise}} = payload;
 		return passwordPromise.then(() => payload);
 	})
-	.pipe(TVDML.render(<Loader title="Authorizing..." />));
+	.pipe(TVDML.render(<Loader title="Authorizing..." />))
+	.pipe(({credentials, callbacks}) => {
+		let {loginPromise, passwordPromise} = credentials;
+		let {onSuccess, onFailure} = callbacks;
+
+		Promise
+			.all([loginPromise, passwordPromise])
+			.then(([login, password]) => {
+				console.log(666, {login, password}, {onSuccess, onFailure});
+			});
+	})
 
 function onSubmit(resolve) {
 	return (event) => {
