@@ -14,3 +14,7 @@ export function link(route, params) {
 export function getStartParams() {
 	return JSON.parse(sessionStorage.getItem('startParams') || '{}');
 }
+
+export function noop() {
+	return () => {};
+}
