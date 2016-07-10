@@ -11,7 +11,7 @@ const {Promise} = TVDML;
 
 TVDML
 	.handleRoute('auth')
-	.pipe((payload) => {
+	.pipe(TVDML.passthrough((payload) => {
 		let {onSuccess, onFailure} = payload.navigation || {};
 
 		let login;
@@ -19,19 +19,20 @@ TVDML
 		let loginPromise = new Promise((resolve) => login = resolve);
 		let passwordPromise = new Promise((resolve) => password = resolve);
 
-		return assign({}, payload, {
+		return {
 			credentials: {
 				login, 
 				password,
 				loginPromise,
 				passwordPromise,
 			},
+
 			callbacks: {
 				onSuccess,
 				onFailure,
 			},
-		});
-	})
+		};
+	}))
 	.pipe(TVDML.renderModal(({credentials: {login}}) => {
 		const {BASEURL} = getStartParams();
 
@@ -54,10 +55,7 @@ TVDML
 			</document>
 		);
 	}))
-	.pipe(payload => {
-		let {credentials: {loginPromise}} = payload;
-		return loginPromise.then(() => payload);
-	})
+	.pipe(TVDML.passthrough(({credentials: {loginPromise}}) => loginPromise))
 	.pipe(TVDML.renderModal(({credentials: {password}}) => {
 		const {BASEURL} = getStartParams();
 
@@ -80,10 +78,7 @@ TVDML
 			</document>
 		);
 	}))
-	.pipe(payload => {
-		let {credentials: {passwordPromise}} = payload;
-		return passwordPromise.then(() => payload);
-	})
+	.pipe(TVDML.passthrough(({credentials: {passwordPromise}}) => passwordPromise))
 	.pipe(TVDML.render(<Loader title="Authorizing..." />))
 	.pipe(({credentials, callbacks}) => {
 		let {loginPromise, passwordPromise} = credentials;
