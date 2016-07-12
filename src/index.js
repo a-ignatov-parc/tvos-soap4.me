@@ -12,8 +12,8 @@ TVDML
 			TVDML.redirect('home');
 		} else {
 			TVDML.redirect('auth', {
-				onSuccess(apiToken) {
-					console.log(777, apiToken);
+				onSuccess(ticket) {
+					console.log(777, ticket);
 				},
 
 				onFailure(error) {

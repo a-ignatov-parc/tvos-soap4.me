@@ -4,8 +4,13 @@ import * as TVDML from 'tvdml';
 import assign from 'object-assign';
 
 import {getStartParams} from '../utils';
-import {get, post} from '../request';
 import * as token from '../token';
+
+import {
+	get,
+	post,
+	nativeAuthorization,
+} from '../request';
 
 import Loader from '../components/loader';
 
@@ -89,20 +94,10 @@ TVDML
 
 		Promise
 			.all([loginPromise, passwordPromise])
-			.then(([login, password]) => post('https://soap4.me/login/', {
-				login,
-				password,
-			}, (XHR) => {
-				XHR.setRequestHeader('User-Agent', 'xbmc for soap');
-				return XHR;
-			}))
-			.then((response) => {
-				console.log(777, response.status, response.responseText);
-			})
-			.catch((error) => {
-				console.error(888, error);
-			})
-	})
+			.then(([login, password]) => nativeAuthorization(login, password))
+			.then(onSuccess)
+			.catch(onFailure);
+	});
 
 function onSubmit(resolve) {
 	return (event) => {

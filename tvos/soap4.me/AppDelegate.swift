@@ -8,6 +8,7 @@
 
 import UIKit
 import TVMLKit
+import Alamofire
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, TVApplicationControllerDelegate {
@@ -114,6 +115,29 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TVApplicationControllerDe
     
     func appController(appController: TVApplicationController, didStopWithOptions options: [String: AnyObject]?) {
         print("\(#function) invoked with options: \(options)")
+    }
+    
+    func appController(appController: TVApplicationController, evaluateAppJavaScriptInContext jsContext: JSContext)
+    {
+        jsContext.evaluateScript("var requests = {}")
+        
+        let headers = [
+            "User-Agent": "xbmc for soap"
+        ]
+
+        let authorize: @convention(block) (String, String, String) -> Void = { (login:String, password:String, callbackId:String) in
+            let parameters = [
+                "login": login,
+                "password": password
+            ]
+            
+            Alamofire.request(.POST, "https://soap4.me/login/", parameters: parameters, headers: headers)
+                .responseString { response in
+                    jsContext.evaluateScript("requests." + callbackId + "(" + response.result.value! + ")")
+            }
+        }
+        
+        jsContext.setObject(unsafeBitCast(authorize, AnyObject.self), forKeyedSubscript: "authorize");
     }
 }
 

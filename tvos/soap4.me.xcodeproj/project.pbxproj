@@ -9,13 +9,30 @@
 /* Begin PBXBuildFile section */
 		135F90921D2D887B006ACB5B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 135F90911D2D887B006ACB5B /* AppDelegate.swift */; };
 		135F90961D2D887B006ACB5B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 135F90951D2D887B006ACB5B /* Assets.xcassets */; };
+		137C11A91D35971000514062 /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 137C11A81D35971000514062 /* Alamofire.framework */; };
+		137C11AA1D35971000514062 /* Alamofire.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 137C11A81D35971000514062 /* Alamofire.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		137C11AB1D35971000514062 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				137C11AA1D35971000514062 /* Alamofire.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		135F908E1D2D887B006ACB5B /* soap4.me.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = soap4.me.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		135F90911D2D887B006ACB5B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		135F90951D2D887B006ACB5B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		135F90971D2D887B006ACB5B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		137C11A81D35971000514062 /* Alamofire.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Alamofire.framework; path = Carthage/Build/tvOS/Alamofire.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -23,6 +40,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				137C11A91D35971000514062 /* Alamofire.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -32,6 +50,7 @@
 		135F90851D2D887B006ACB5B = {
 			isa = PBXGroup;
 			children = (
+				137C11A81D35971000514062 /* Alamofire.framework */,
 				135F90901D2D887B006ACB5B /* soap4.me */,
 				135F908F1D2D887B006ACB5B /* Products */,
 			);
@@ -65,6 +84,7 @@
 				135F908A1D2D887B006ACB5B /* Sources */,
 				135F908B1D2D887B006ACB5B /* Frameworks */,
 				135F908C1D2D887B006ACB5B /* Resources */,
+				137C11AB1D35971000514062 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -218,6 +238,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/tvOS",
+				);
 				INFOPLIST_FILE = soap4.me/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "anton.ignatov.soap4-me";
@@ -230,6 +254,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/tvOS",
+				);
 				INFOPLIST_FILE = soap4.me/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "anton.ignatov.soap4-me";
@@ -256,6 +284,7 @@
 				135F909C1D2D887B006ACB5B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

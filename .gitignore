@@ -42,6 +42,10 @@ playground.xcworkspace
 # Swift Package Manager
 build/
 
+# Carthage
+Carthage/Checkouts
+Carthage/Build
+
 fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots

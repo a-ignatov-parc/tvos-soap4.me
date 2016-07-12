@@ -64,6 +64,14 @@ export function post(url, data, prepare) {
 	});
 }
 
+export function nativeAuthorization(login, password) {
+	return new Promise((resolve) => {
+		const callbackId = `authorization${Date.now()}`;
+		requests[callbackId] = resolve;
+		authorize(login, password, callbackId);
+	});
+}
+
 function result(handler) {
 	return ({target}) => handler(target);
 }
