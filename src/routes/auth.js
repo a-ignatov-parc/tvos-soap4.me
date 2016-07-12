@@ -35,7 +35,7 @@ TVDML
 			},
 		};
 	}))
-	.pipe(TVDML.renderModal(({credentials: {login}}) => {
+	.pipe(TVDML.render(({credentials: {login}}) => {
 		const {BASEURL} = getStartParams();
 
 		return (
@@ -58,7 +58,8 @@ TVDML
 		);
 	}))
 	.pipe(TVDML.passthrough(({credentials: {loginPromise}}) => loginPromise))
-	.pipe(TVDML.renderModal(({credentials: {password}}) => {
+	.pipe(TVDML.render(<document />))
+	.pipe(TVDML.render(({credentials: {password}}) => {
 		const {BASEURL} = getStartParams();
 
 		return (
