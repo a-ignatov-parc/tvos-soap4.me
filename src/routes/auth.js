@@ -5,12 +5,7 @@ import assign from 'object-assign';
 
 import {getStartParams} from '../utils';
 import * as token from '../token';
-
-import {
-	get,
-	post,
-	nativeAuthorization,
-} from '../request';
+import {post} from '../request';
 
 import Loader from '../components/loader';
 
@@ -91,10 +86,13 @@ TVDML
 	.pipe(({credentials, callbacks}) => {
 		let {loginPromise, passwordPromise} = credentials;
 		let {onSuccess, onFailure} = callbacks;
+		let headers = {'User-Agent': 'xbmc for soap'};
 
 		Promise
 			.all([loginPromise, passwordPromise])
-			.then(([login, password]) => nativeAuthorization(login, password))
+			.then(([login, password]) => {
+				return post('https://soap4.me/login/', {login, password}, headers);
+			})
 			.then(onSuccess)
 			.catch(onFailure);
 	});

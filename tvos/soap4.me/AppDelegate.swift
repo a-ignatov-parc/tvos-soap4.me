@@ -119,25 +119,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TVApplicationControllerDe
     
     func appController(appController: TVApplicationController, evaluateAppJavaScriptInContext jsContext: JSContext)
     {
-        jsContext.evaluateScript("var requests = {}")
-        
-        let headers = [
-            "User-Agent": "xbmc for soap"
-        ]
+        let requests = [String : AnyObject]()
 
-        let authorize: @convention(block) (String, String, String) -> Void = { (login:String, password:String, callbackId:String) in
-            let parameters = [
-                "login": login,
-                "password": password
-            ]
+        let get: @convention(block) (String, String, [String : String]?) -> Void = { (cId:String, url:String, headers:[String : String]?) in
             
-            Alamofire.request(.POST, "https://soap4.me/login/", parameters: parameters, headers: headers)
+            Alamofire.request(.GET, url, headers: headers)
                 .responseString { response in
-                    jsContext.evaluateScript("requests." + callbackId + "(" + response.result.value! + ")")
+                    jsContext.evaluateScript("requests." + cId + "(" + response.result.value! + ")")
             }
         }
         
-        jsContext.setObject(unsafeBitCast(authorize, AnyObject.self), forKeyedSubscript: "authorize");
+        let post: @convention(block) (String, String, [String : AnyObject]?, [String : String]?) -> Void = { (cId:String, url:String, parameters:[String : AnyObject]?, headers:[String : String]?) in
+            
+            Alamofire.request(.POST, url, parameters: parameters, headers: headers)
+                .responseString { response in
+                    jsContext.evaluateScript("requests." + cId + "(" + response.result.value! + ")")
+            }
+        }
+        
+        jsContext.setObject(requests, forKeyedSubscript: "requests");
+        jsContext.setObject(unsafeBitCast(get, AnyObject.self), forKeyedSubscript: "nativeGET");
+        jsContext.setObject(unsafeBitCast(post, AnyObject.self), forKeyedSubscript: "nativePOST");
     }
 }
 
