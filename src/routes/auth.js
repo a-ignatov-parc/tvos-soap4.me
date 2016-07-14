@@ -1,101 +1,104 @@
 /** @jsx TVDML.jsx */
 
 import * as TVDML from 'tvdml';
-import assign from 'object-assign';
 
 import {getStartParams} from '../utils';
-import * as token from '../token';
 import {post} from '../request';
 
 import Loader from '../components/loader';
 
-const {Promise} = TVDML;
+const headers = {
+	'User-Agent': 'xbmc for soap',
+};
 
-TVDML
-	.handleRoute('auth')
-	.pipe(TVDML.passthrough((payload) => {
-		let {onSuccess, onFailure} = payload.navigation || {};
+export default TVDML
+	.createPipeline()
+	.pipe((payload) => {
+		let {onSuccess, error} = payload.navigation || {};
+		let {route} = payload;
 
-		let login;
-		let password;
-		let loginPromise = new Promise((resolve) => login = resolve);
-		let passwordPromise = new Promise((resolve) => password = resolve);
+		let loginDocument;
+		let passwordDocument;
 
-		return {
-			credentials: {
-				login, 
-				password,
-				loginPromise,
-				passwordPromise,
-			},
+		gatherInfo('Enter login', false, (login) => {
+			TVDML
+				.render(<document />)
+				.pipe(gatherInfo('Enter password', true, (password) => {
+					TVDML
+						.render(<Loader title="Authorizing..." />)
+						.pipe(() => {
+							navigationDocument.removeDocument(loginDocument);
+							navigationDocument.removeDocument(passwordDocument);
 
-			callbacks: {
-				onSuccess,
-				onFailure,
-			},
-		};
-	}))
-	.pipe(TVDML.render(({credentials: {login}}) => {
-		const {BASEURL} = getStartParams();
+							post('https://soap4.me/login/', {login, password}, headers)
+								.then(response => {
+									if (response.ok) {
+										onSuccess({
+											token: response.token,
+											expires: response.till,
+										});
+									} else {
+										TVDML.redirect(route, {
+											error: 'Incorrect login or password',
+											onSuccess,
+										});
+									}
+								})
+								.catch(error => {
+									console.error(error);
 
-		return (
-			<document>
-				<formTemplate>
-					<banner>
-						<img src={`${BASEURL}/assets/logo.png`} width="218" height="218"/>
-						<description>
-							Enter login
-						</description>
-					</banner>
-					<textField />
-					<footer>
-						<button onSelect={onSubmit(login)}>
-							<text>Submit</text>
-						</button>
-					</footer>
-				</formTemplate>
-			</document>
-		);
-	}))
-	.pipe(TVDML.passthrough(({credentials: {loginPromise}}) => loginPromise))
-	.pipe(TVDML.render(<document />))
-	.pipe(TVDML.render(({credentials: {password}}) => {
-		const {BASEURL} = getStartParams();
-
-		return (
-			<document>
-				<formTemplate>
-					<banner>
-						<img src={`${BASEURL}/assets/logo.png`} width="218" height="218"/>
-						<description>
-							Enter password
-						</description>
-					</banner>
-					<textField secure="true" />
-					<footer>
-						<button onSelect={onSubmit(password)}>
-							<text>Submit</text>
-						</button>
-					</footer>
-				</formTemplate>
-			</document>
-		);
-	}))
-	.pipe(TVDML.passthrough(({credentials: {passwordPromise}}) => passwordPromise))
-	.pipe(TVDML.render(<Loader title="Authorizing..." />))
-	.pipe(({credentials, callbacks}) => {
-		let {loginPromise, passwordPromise} = credentials;
-		let {onSuccess, onFailure} = callbacks;
-		let headers = {'User-Agent': 'xbmc for soap'};
-
-		Promise
-			.all([loginPromise, passwordPromise])
-			.then(([login, password]) => {
-				return post('https://soap4.me/login/', {login, password}, headers);
-			})
-			.then(onSuccess)
-			.catch(onFailure);
+									TVDML.redirect(route, {
+										error: 'Something went wrong =(',
+										onSuccess,
+									});
+								});
+						})
+						.sink({route});
+				}))
+				.pipe(({document}) => passwordDocument = document)
+				.sink({route});
+		})
+		.pipe(({document}) => loginDocument = document)
+		.pipe(() => {
+			if (error) {
+				TVDML.renderModal(
+					<document>
+						<alertTemplate>
+							<title>{error}</title>
+							<button onSelect={TVDML.removeModal}>
+								<text>Ok</text>
+							</button>
+						</alertTemplate>
+					</document>
+				)
+				.sink({route});
+			}
+		})
+		.sink({route})
 	});
+
+function gatherInfo(description, secure, callback) {
+	const {BASEURL} = getStartParams();
+
+	return TVDML.render(
+		<document>
+			<formTemplate>
+				<banner>
+					<img src={`${BASEURL}/assets/logo.png`} width="218" height="218"/>
+					<description>
+						{description}
+					</description>
+				</banner>
+				<textField secure={secure} />
+				<footer>
+					<button onSelect={onSubmit(callback)}>
+						<text>Submit</text>
+					</button>
+				</footer>
+			</formTemplate>
+		</document>
+	);
+}
 
 function onSubmit(resolve) {
 	return (event) => {

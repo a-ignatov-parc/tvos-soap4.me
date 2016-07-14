@@ -3,40 +3,30 @@
 import * as TVDML from 'tvdml';
 import * as token from './token';
 
-import './routes/auth';
+import Loader from './components/loader';
+
+import HomeRoute from './routes/home';
+import AuthRoute from './routes/auth';
 
 TVDML
-	.handleRoute(TVDML.route.LAUNCH)
-	.pipe((payload) => {
+	.subscribe(TVDML.event.LAUNCH)
+	.pipe(() => {
 		if (token.get()) {
-			TVDML.redirect('home');
+			TVDML.navigate('home');
 		} else {
-			TVDML.redirect('auth', {
+			TVDML.navigate('auth', {
 				onSuccess(ticket) {
-					console.log(777, ticket);
-				},
-
-				onFailure(error) {
-					console.log(888, error);
+					token.set(ticket.token, ticket.expires);
+					TVDML.redirect('home');
 				}
 			});
 		}
 	});
 
 TVDML
-	.handleRoute(TVDML.route.RESUME)
-	.pipe(() => {
-		if (!navigationDocument.documents.length) {
-			TVDML.redirect(TVDML.route.LAUNCH);
-		}
-	});
+	.handleRoute('home')
+	.pipe(HomeRoute);
 
 TVDML
-	.handleRoute(TVDML.route.SUSPEND)
-	.pipe(() => {
-		let document = getActiveDocument();
-
-		if (document && document.route === 'auth') {
-			navigationDocument.removeDocument(document);
-		}
-	});
+	.handleRoute('auth')
+	.pipe(AuthRoute);
