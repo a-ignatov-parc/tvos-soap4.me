@@ -5,14 +5,15 @@ import * as token from './token';
 
 import Loader from './components/loader';
 
-import HomeRoute from './routes/home';
+import MyRoute from './routes/my';
+import AllRoute from './routes/all';
 import AuthRoute from './routes/auth';
 
 TVDML
 	.subscribe(TVDML.event.LAUNCH)
 	.pipe(() => {
 		if (token.get()) {
-			TVDML.navigate('home');
+			TVDML.navigate('main');
 		} else {
 			TVDML.navigate('auth', {
 				onSuccess(ticket) {
@@ -24,9 +25,34 @@ TVDML
 	});
 
 TVDML
-	.handleRoute('home')
-	.pipe(HomeRoute);
+	.handleRoute('auth')
+	.pipe(AuthRoute());
 
 TVDML
-	.handleRoute('auth')
-	.pipe(AuthRoute);
+	.handleRoute('main')
+	.pipe(TVDML.render(
+		<document>
+			<menuBarTemplate>
+				<menuBar>
+					<menuItem autoHighlight="true" route="my">
+						<title>My Series</title>
+					</menuItem>
+					<menuItem route="all">
+						<title>All Series</title>
+					</menuItem>
+				</menuBar>
+			</menuBarTemplate>
+		</document>
+	));
+
+TVDML
+	.handleRoute('my')
+	.pipe(MyRoute('My Series'));
+
+TVDML
+	.handleRoute('all')
+	.pipe(AllRoute('All Series'));
+
+TVDML
+	.handleRoute('search')
+	.pipe(TVDML.render(<Loader title="Search" />));

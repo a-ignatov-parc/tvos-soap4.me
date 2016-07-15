@@ -1,81 +1,78 @@
 /** @jsx TVDML.jsx */
 
 import * as TVDML from 'tvdml';
-
+import {post} from '../request/soap';
 import {getStartParams} from '../utils';
-import {post} from '../request';
 
 import Loader from '../components/loader';
 
-const headers = {
-	'User-Agent': 'xbmc for soap',
-};
+export default function() {
+	return TVDML
+		.createPipeline()
+		.pipe((payload) => {
+			let {onSuccess, error} = payload.navigation || {};
+			let {route} = payload;
 
-export default TVDML
-	.createPipeline()
-	.pipe((payload) => {
-		let {onSuccess, error} = payload.navigation || {};
-		let {route} = payload;
+			let loginDocument;
+			let passwordDocument;
 
-		let loginDocument;
-		let passwordDocument;
+			gatherInfo('Enter login', false, (login) => {
+				TVDML
+					.render(<document />)
+					.pipe(gatherInfo('Enter password', true, (password) => {
+						TVDML
+							.render(<Loader title="Authorizing..." />)
+							.pipe(() => {
+								navigationDocument.removeDocument(loginDocument);
+								navigationDocument.removeDocument(passwordDocument);
 
-		gatherInfo('Enter login', false, (login) => {
-			TVDML
-				.render(<document />)
-				.pipe(gatherInfo('Enter password', true, (password) => {
-					TVDML
-						.render(<Loader title="Authorizing..." />)
-						.pipe(() => {
-							navigationDocument.removeDocument(loginDocument);
-							navigationDocument.removeDocument(passwordDocument);
+								post('https://soap4.me/login/', {login, password})
+									.then(response => {
+										if (response.ok) {
+											onSuccess({
+												token: response.token,
+												expires: response.till,
+											});
+										} else {
+											TVDML.redirect(route, {
+												error: 'Incorrect login or password',
+												onSuccess,
+											});
+										}
+									})
+									.catch(error => {
+										console.error(error);
 
-							post('https://soap4.me/login/', {login, password}, headers)
-								.then(response => {
-									if (response.ok) {
-										onSuccess({
-											token: response.token,
-											expires: response.till,
-										});
-									} else {
 										TVDML.redirect(route, {
-											error: 'Incorrect login or password',
+											error: 'Something went wrong =(',
 											onSuccess,
 										});
-									}
-								})
-								.catch(error => {
-									console.error(error);
-
-									TVDML.redirect(route, {
-										error: 'Something went wrong =(',
-										onSuccess,
 									});
-								});
-						})
-						.sink({route});
-				}))
-				.pipe(({document}) => passwordDocument = document)
-				.sink({route});
-		})
-		.pipe(({document}) => loginDocument = document)
-		.pipe(() => {
-			if (error) {
-				TVDML.renderModal(
-					<document>
-						<alertTemplate>
-							<title>{error}</title>
-							<button onSelect={TVDML.removeModal}>
-								<text>Ok</text>
-							</button>
-						</alertTemplate>
-					</document>
-				)
-				.sink({route});
-			}
-		})
-		.sink({route})
-	});
+							})
+							.sink({route});
+					}))
+					.pipe(({document}) => passwordDocument = document)
+					.sink({route});
+			})
+			.pipe(({document}) => loginDocument = document)
+			.pipe(() => {
+				if (error) {
+					TVDML.renderModal(
+						<document>
+							<alertTemplate>
+								<title>{error}</title>
+								<button onSelect={TVDML.removeModal}>
+									<text>Ok</text>
+								</button>
+							</alertTemplate>
+						</document>
+					)
+					.sink({route});
+				}
+			})
+			.sink({route})
+		});
+}
 
 function gatherInfo(description, secure, callback) {
 	const {BASEURL} = getStartParams();
