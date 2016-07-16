@@ -8,6 +8,7 @@ import Loader from './components/loader';
 import MyRoute from './routes/my';
 import AllRoute from './routes/all';
 import AuthRoute from './routes/auth';
+import TVSeriesRoute from './routes/tv-series';
 
 TVDML
 	.subscribe(TVDML.event.LAUNCH)
@@ -56,3 +57,7 @@ TVDML
 TVDML
 	.handleRoute('search')
 	.pipe(TVDML.render(<Loader title="Search" />));
+
+TVDML
+	.handleRoute('tv-series')
+	.pipe(TVSeriesRoute());
