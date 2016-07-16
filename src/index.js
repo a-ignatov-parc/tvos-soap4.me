@@ -9,7 +9,7 @@ import MyRoute from './routes/my';
 import AllRoute from './routes/all';
 import AuthRoute from './routes/auth';
 import SeasonRoute from './routes/season';
-import TVSeriesRoute from './routes/tv-series';
+import TVShowRoute from './routes/tvshow';
 
 TVDML
 	.subscribe(TVDML.event.LAUNCH)
@@ -60,8 +60,8 @@ TVDML
 	.pipe(TVDML.render(<Loader title="Search" />));
 
 TVDML
-	.handleRoute('tv-series')
-	.pipe(TVSeriesRoute());
+	.handleRoute('tvshow')
+	.pipe(TVShowRoute());
 
 TVDML
 	.handleRoute('season')

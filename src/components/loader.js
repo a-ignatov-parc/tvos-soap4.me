@@ -2,14 +2,14 @@
 
 import {jsx} from 'tvdml';
 
-export default function Loader({attrs: {title}}) {
+export default function Loader({attrs = {}}) {
+	let {title} = attrs;
+
 	return (
 		<document>
 			<loadingTemplate>
 				<activityIndicator>
-					<title>
-						{title || 'Loading'}
-					</title>
+					<title>{title}</title>
 				</activityIndicator>
 			</loadingTemplate>
 		</document>

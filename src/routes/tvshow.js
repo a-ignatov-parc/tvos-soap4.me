@@ -4,23 +4,23 @@ import plur from 'plur';
 import * as TVDML from 'tvdml';
 import formatNumber from 'simple-format-number';
 
-import {link} from '../utils';
 import {get} from '../request/soap';
 import {getDefault} from '../quality';
 
+import Tile from '../components/tile';
 import Loader from '../components/loader';
 
 export default function() {
 	return TVDML
 		.createPipeline()
-		.pipe(TVDML.passthrough(({navigation: {TVSeries}}) => ({TVSeries})))
-		.pipe(TVDML.render(({TVSeries: {title}}) => {
+		.pipe(TVDML.passthrough(({navigation: {tvshow}}) => ({tvshow})))
+		.pipe(TVDML.render(({tvshow: {title}}) => {
 			return <Loader title={title} />;
 		}))
-		.pipe(TVDML.passthrough(({TVSeries: {sid}}) => {
+		.pipe(TVDML.passthrough(({tvshow: {sid}}) => {
 			return get(`https://soap4.me/api/episodes/${sid}/`).then(episodes => ({episodes}));
 		}))
-		.pipe(TVDML.render(({TVSeries, episodes}) => {
+		.pipe(TVDML.render(({tvshow, episodes}) => {
 			let {
 				sid,
 				year,
@@ -30,9 +30,9 @@ export default function() {
 				kinopoisk_votes,
 				kinopoisk_rating,
 				description,
-			} = TVSeries;
+			} = tvshow;
 
-			let posterUrl = `http://covers.soap4.me/soap/big/${sid}.jpg`;
+			let poster = `http://covers.soap4.me/soap/big/${sid}.jpg`;
 
 			let seasons = episodes.reduce((result, item) => {
 				let seasonIndex = item.season - 1;
@@ -60,7 +60,7 @@ export default function() {
 				return result;
 			}, []);
 
-			console.log(111, TVSeries, episodes, seasons);
+			console.log(111, tvshow, episodes, seasons);
 
 			return (
 				<document>
@@ -75,7 +75,7 @@ export default function() {
 								<description
 									allowsZooming="true"
 									moreLabel="more"
-									onSelect={showFullDescription(TVSeries)}
+									onSelect={showFullDescription(tvshow)}
 								>
 									{description}
 								</description>
@@ -86,7 +86,7 @@ export default function() {
 									</buttonLockup>
 								</row>
 							</stack>
-							<heroImg src={posterUrl} />
+							<heroImg src={poster} />
 						</banner>
 						<shelf>
 							<header>
@@ -95,21 +95,19 @@ export default function() {
 							<section>
 								{seasons.map((season, i) => {
 									let {id, episodes} = season;
-									let posterUrl = `http://covers.soap4.me/season/big/${id}.jpg`;
+									let poster = `http://covers.soap4.me/season/big/${id}.jpg`;
 									let unwatched = episodes.reduce((result, episode) => {
 										return result + +!getDefault(episode).watched;
 									}, 0);
 
 									return (
-										<lockup onSelect={link('season', {TVSeries, season})}>
-											<img src={posterUrl} width="250" height="250" />
-											<title>Season {season.season}</title>
-											<overlay>
-												<title style="background-color: rgba(0, 0, 0, 0.7); tv-position: footer">
-													{unwatched && `${unwatched} ${plur('episode', unwatched)}`}
-												</title>
-											</overlay>
-										</lockup>
+										<Tile
+											route="season"
+											poster={poster}
+											payload={{tvshow, season}}
+											title={`Season ${season.season}`}
+											subtitle={unwatched && `${unwatched} ${plur('episode', unwatched)}`}
+										/>
 									);
 								})}
 							</section>

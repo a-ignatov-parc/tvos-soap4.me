@@ -2,16 +2,15 @@
 
 import plur from 'plur';
 import * as TVDML from 'tvdml';
-
-import {link} from '../utils';
 import {get} from '../request/soap';
 
+import Tile from '../components/tile';
 import Loader from '../components/loader';
 
 export default function(title) {
 	return TVDML
 		.createPipeline()
-		.pipe(TVDML.render(<Loader title={title} />))
+		.pipe(TVDML.render(<Loader />))
 		.pipe(TVDML.passthrough(() => {
 			return get('https://soap4.me/api/soap/my/').then(series => ({series}));
 		}))
@@ -56,18 +55,18 @@ function renderSectionGrid(collection, title) {
 		<grid>
 			{header}
 			<section>
-				{collection.map(TVSeries => {
-					let {title, sid, unwatched} = TVSeries;
-					let posterUrl = `http://covers.soap4.me/soap/big/${sid}.jpg`;
+				{collection.map(tvshow => {
+					let {title, sid, unwatched} = tvshow;
+					let poster = `http://covers.soap4.me/soap/big/${sid}.jpg`;
 
 					return (
-						<lockup onSelect={link('tv-series', {TVSeries})}>
-							<img src={posterUrl} width="250" height="250" />
-							<title>{title}</title>
-							<title>
-								{unwatched && `${unwatched} ${plur('episode', unwatched)}`}
-							</title>
-						</lockup>
+						<Tile
+							title={title}
+							poster={poster}
+							route="tvshow"
+							payload={{tvshow}}
+							subtitle={unwatched && `${unwatched} ${plur('episode', unwatched)}`}
+						/>
 					);
 				})}
 			</section>
