@@ -8,6 +8,7 @@ import Loader from './components/loader';
 import MyRoute from './routes/my';
 import AllRoute from './routes/all';
 import AuthRoute from './routes/auth';
+import SeasonRoute from './routes/season';
 import TVSeriesRoute from './routes/tv-series';
 
 TVDML
@@ -61,3 +62,7 @@ TVDML
 TVDML
 	.handleRoute('tv-series')
 	.pipe(TVSeriesRoute());
+
+TVDML
+	.handleRoute('season')
+	.pipe(SeasonRoute());

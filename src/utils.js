@@ -18,3 +18,7 @@ export function getStartParams() {
 export function noop() {
 	return () => {};
 }
+
+export function fixSpecialSymbols(text) {
+	return text.replace('&#039;', `'`);
+}

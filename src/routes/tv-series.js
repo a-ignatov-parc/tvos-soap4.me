@@ -4,7 +4,9 @@ import plur from 'plur';
 import * as TVDML from 'tvdml';
 import formatNumber from 'simple-format-number';
 
+import {link} from '../utils';
 import {get} from '../request/soap';
+import {getDefault} from '../quality';
 
 import Loader from '../components/loader';
 
@@ -63,7 +65,6 @@ export default function() {
 			return (
 				<document>
 					<productBundleTemplate>
-						<background />
 						<banner>
 							<stack>
 								<title>{title}</title>
@@ -87,7 +88,7 @@ export default function() {
 							</stack>
 							<heroImg src={posterUrl} />
 						</banner>
-						<shelf style="padding: 0 90 60">
+						<shelf>
 							<header>
 								<title>Seasons</title>
 							</header>
@@ -96,16 +97,18 @@ export default function() {
 									let {id, episodes} = season;
 									let posterUrl = `http://covers.soap4.me/season/big/${id}.jpg`;
 									let unwatched = episodes.reduce((result, episode) => {
-										return result + +!episode.SD.watched;
+										return result + +!getDefault(episode).watched;
 									}, 0);
 
 									return (
-										<lockup>
+										<lockup onSelect={link('season', {TVSeries, season})}>
 											<img src={posterUrl} width="250" height="250" />
-											<title>Season {i + 1}</title>
-											<title>
-												{unwatched && `${unwatched} ${plur('episode', unwatched)}`}
-											</title>
+											<title>Season {season.season}</title>
+											<overlay>
+												<title style="background-color: rgba(0, 0, 0, 0.7); tv-position: footer">
+													{unwatched && `${unwatched} ${plur('episode', unwatched)}`}
+												</title>
+											</overlay>
 										</lockup>
 									);
 								})}
