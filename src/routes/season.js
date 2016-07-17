@@ -28,13 +28,14 @@ export default function() {
 
 			return (
 				<document>
-					<listTemplate>
-						<banner>
-							<title>{title}</title>
-						</banner>
+					<compilationTemplate theme="light">
+						<background>
+							<heroImg src={poster} />
+						</background>
 						<list>
 							<header>
-								<title>Season {season.season}</title>
+								<title>{title}</title>
+								<subtitle>Season {season.season}</subtitle>
 							</header>
 							<section>
 								{episodes.map(episode => {
@@ -43,10 +44,12 @@ export default function() {
 										spoiler,
 										watched,
 										quality,
+										episode: episodeIndex,
 									} = episode;
 
 									return (
-										<listItemLockup onSelect={showEpisode(episode)}>
+										<listItemLockup onSelect={playEpisode(episode)}>
+											<ordinal minLength="2">{episodeIndex}</ordinal>
 											<title style="tv-labels-state: marquee-on-highlight">
 												{fixSpecialSymbols(title_en)}
 											</title>
@@ -56,60 +59,29 @@ export default function() {
 												{!!~[FULLHD, HD].indexOf(quality) && <badge src="resource://hd" />}
 											</decorationLabel>
 											<relatedContent>
-												<lockup>
+												<itemBanner>
 													<img src={poster} width="400" height="400" />
 													<description>{spoiler}</description>
-												</lockup>
+													<row>
+														<buttonLockup>
+															<badge src="resource://button-checkmark"/>
+															<title>Watched</title>
+														</buttonLockup>
+													</row>
+												</itemBanner>
 											</relatedContent>
 										</listItemLockup>
 									);
 								})}
 							</section>
 						</list>
-					</listTemplate>
+					</compilationTemplate>
 				</document>
 			);
 		}));
 }
 
-function showEpisode(episode) {
-	let {
-		spoiler,
-		watched,
-		title_en,
-		season_id,
-	} = episode;
-
-	let poster = `http://covers.soap4.me/season/big/${season_id}.jpg`;
-
-	return (event) => {
-		TVDML
-			.renderModal(
-				<document>
-					<descriptiveAlertTemplate>
-						<title>
-							{title_en}
-						</title>
-						<img src={poster} width="400" height="400" />
-						<description>
-							{spoiler}
-						</description>
-						<row>
-							<button onSelect={playEpisodeHandler(episode)}>
-								<text>Play</text>
-							</button>
-							<button>
-								<text>Mark As Played</text>
-							</button>
-						</row>
-					</descriptiveAlertTemplate>
-				</document>
-			)
-			.sink()
-	}
-}
-
-function playEpisodeHandler(episode) {
+function playEpisode(episode) {
 	return (event) => {
 		console.log(222, episode);
 

@@ -6,6 +6,7 @@ import formatNumber from 'simple-format-number';
 
 import {get} from '../request/soap';
 import {getDefault} from '../quality';
+import {capitalizeText, getTVShowExtraInfo} from '../utils';
 
 import Tile from '../components/tile';
 import Loader from '../components/loader';
@@ -20,7 +21,10 @@ export default function() {
 		.pipe(TVDML.passthrough(({tvshow: {sid}}) => {
 			return get(`https://soap4.me/api/episodes/${sid}/`).then(episodes => ({episodes}));
 		}))
-		.pipe(TVDML.render(({tvshow, episodes}) => {
+		.pipe(TVDML.passthrough(({tvshow: {sid}}) => {
+			return getTVShowExtraInfo(sid).then(extra => ({extra}));
+		}))
+		.pipe(TVDML.render(({tvshow, episodes, extra}) => {
 			let {
 				sid,
 				year,
@@ -31,6 +35,14 @@ export default function() {
 				kinopoisk_rating,
 				description,
 			} = tvshow;
+
+			let {
+				genres,
+				status,
+				actors,
+				country,
+				duration,
+			} = extra;
 
 			let poster = `http://covers.soap4.me/soap/big/${sid}.jpg`;
 
@@ -60,29 +72,51 @@ export default function() {
 				return result;
 			}, []);
 
-			console.log(111, tvshow, episodes, seasons);
+			console.log(111, tvshow, episodes, seasons, extra);
 
 			return (
 				<document>
-					<productBundleTemplate>
+					<productTemplate theme="light">
 						<banner>
+							<infoList>
+								<info>
+									<header>
+										<title>Status</title>
+									</header>
+									<text>{capitalizeText(status)}</text>
+								</info>
+								<info>
+									<header>
+										<title>Genres</title>
+									</header>
+									{genres.map(capitalizeText).map(genre => {
+										return <text>{genre}</text>;
+									})}
+								</info>
+								<info>
+									<header>
+										<title>Actors</title>
+									</header>
+									{actors.map(actor => {
+										return <text>{actor}</text>;
+									})}
+								</info>
+							</infoList>
 							<stack>
 								<title>{title}</title>
 								<row>
-									<ratingBadge value={imdb_rating / 10} />
+									<text>{duration}</text>
 									<text>{year}</text>
 								</row>
 								<description
 									allowsZooming="true"
 									moreLabel="more"
 									onSelect={showFullDescription(tvshow)}
-								>
-									{description}
-								</description>
+								>{description}</description>
 								<row>
 									<buttonLockup>
 										<badge src="resource://button-add" />
-										<title>Add to My Series</title>
+										<title>Add</title>
 									</buttonLockup>
 								</row>
 							</stack>
@@ -117,23 +151,27 @@ export default function() {
 								<title>Ratings</title>
 							</header>
 							<section>
-								<ratingCard>
-									<title>{(`${imdb_rating}`).slice(0, 3)} / 10</title>
-									<ratingBadge value={imdb_rating / 10} />
-									<description>
-										Average of {formatNumber(+imdb_votes, {fractionDigits: 0})} IMDB user ratings.
-									</description>
-								</ratingCard>
-								<ratingCard>
-									<title>{(`${kinopoisk_rating}`).slice(0, 3)} / 10</title>
-									<ratingBadge value={kinopoisk_rating / 10} />
-									<description>
-										Average of {formatNumber(+kinopoisk_votes, {fractionDigits: 0})} Kinopoisk user ratings.
-									</description>
-								</ratingCard>
+								{!!+imdb_rating && (
+									<ratingCard>
+										<title>{(`${imdb_rating}`).slice(0, 3)} / 10</title>
+										<ratingBadge value={imdb_rating / 10} />
+										<description>
+											Average of {formatNumber(+imdb_votes, {fractionDigits: 0})} IMDB user ratings.
+										</description>
+									</ratingCard>
+								)}
+								{!!+kinopoisk_rating && (
+									<ratingCard>
+										<title>{(`${kinopoisk_rating}`).slice(0, 3)} / 10</title>
+										<ratingBadge value={kinopoisk_rating / 10} />
+										<description>
+											Average of {formatNumber(+kinopoisk_votes, {fractionDigits: 0})} Kinopoisk user ratings.
+										</description>
+									</ratingCard>
+								)}
 							</section>
 						</shelf>
-					</productBundleTemplate>
+					</productTemplate>
 				</document>
 			);
 		}));
