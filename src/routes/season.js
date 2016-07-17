@@ -3,8 +3,11 @@
 import plur from 'plur';
 import * as TVDML from 'tvdml';
 
+import {getSeasonsSpoilers} from '../info';
 import {getDefault, quality} from '../quality';
 import {link, fixSpecialSymbols} from '../utils';
+
+import Loader from '../components/loader';
 
 const {SD, HD, FULLHD} = quality;
 
@@ -12,7 +15,13 @@ export default function() {
 	return TVDML
 		.createPipeline()
 		.pipe(TVDML.passthrough(({navigation: {tvshow, season}}) => ({tvshow, season})))
-		.pipe(TVDML.render(({tvshow, season}) => {
+		.pipe(TVDML.render(({season: {season}}) => {
+			return <Loader title={`Season ${season}`} />;
+		}))
+		.pipe(TVDML.passthrough(({tvshow, season: {season}}) => {
+			return getSeasonsSpoilers(tvshow, season).then(spoilers => ({spoilers}));
+		}))
+		.pipe(TVDML.render(({tvshow, season, spoilers}) => {
 			let {
 				sid,
 				title,
@@ -47,11 +56,14 @@ export default function() {
 										episode: episodeIndex,
 									} = episode;
 
+									let title = fixSpecialSymbols(title_en);
+									let description = fixSpecialSymbols(spoilers[episodeIndex - 1]);
+
 									return (
 										<listItemLockup onSelect={playEpisode(episode)}>
 											<ordinal minLength="2">{episodeIndex}</ordinal>
 											<title style="tv-labels-state: marquee-on-highlight">
-												{fixSpecialSymbols(title_en)}
+												{title}
 											</title>
 											<decorationLabel>
 												{watched && (
@@ -63,12 +75,12 @@ export default function() {
 											<relatedContent>
 												<itemBanner>
 													<heroImg src={poster} />
-													<title style="tv-align: center; margin: 20 0 0">
-														{fixSpecialSymbols(title_en)}
-													</title>
-													<description style="margin: 20 0 0">
-														{spoiler}
-													</description>
+													<description
+														moreLabel="more"
+														allowsZooming="true"
+														style="margin: 20 0 0"
+														onSelect={showDescription({title, description})}
+													>{description}</description>
 													<row>
 														{watched ? (
 															<buttonLockup>
@@ -108,5 +120,26 @@ function playEpisode(episode) {
 		player.playlist = playlist;
 		player.playlist.push(mediaItem);
 		player.present();
+	}
+}
+
+function showDescription({title, description}) {
+	return (event) => {
+		event.stopPropagation();
+
+		TVDML
+			.renderModal(
+				<document>
+					<descriptiveAlertTemplate>
+						<title>
+							{title}
+						</title>
+						<description>
+							{description}
+						</description>
+					</descriptiveAlertTemplate>
+				</document>
+			)
+			.sink()
 	}
 }

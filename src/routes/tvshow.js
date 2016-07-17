@@ -6,7 +6,8 @@ import formatNumber from 'simple-format-number';
 
 import {get} from '../request/soap';
 import {getDefault} from '../quality';
-import {capitalizeText, getTVShowExtraInfo} from '../utils';
+import {capitalizeText} from '../utils';
+import {getTVShowExtraInfo} from '../info';
 
 import Tile from '../components/tile';
 import Loader from '../components/loader';
@@ -21,8 +22,8 @@ export default function() {
 		.pipe(TVDML.passthrough(({tvshow: {sid}}) => {
 			return get(`https://soap4.me/api/episodes/${sid}/`).then(episodes => ({episodes}));
 		}))
-		.pipe(TVDML.passthrough(({tvshow: {sid}}) => {
-			return getTVShowExtraInfo(sid).then(extra => ({extra}));
+		.pipe(TVDML.passthrough(({tvshow}) => {
+			return getTVShowExtraInfo(tvshow).then(extra => ({extra}));
 		}))
 		.pipe(TVDML.render(({tvshow, episodes, extra}) => {
 			let {
