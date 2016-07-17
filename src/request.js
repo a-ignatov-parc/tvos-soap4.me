@@ -1,16 +1,38 @@
 import {Promise} from 'tvdml';
 
+const cache = {};
+const timeouts = {};
+
 const GET = 'GET';
 const POST = 'POST';
 
+const REQUEST_TTL = min(10);
+
+export function invalidateCache(url) {
+	timeouts[url] && clearTimeout(timeouts[url]);
+	delete cache[url];
+}
+
 export function get(url, headers = {}) {
-	return new Promise((resolve) => {
+	if (cache[url]) {
+		return cache[url];
+	}
+
+	return cache[url] = new Promise((resolve) => {
 		const cId = `get${Date.now()}`;
 		requests[cId] = response => {
 			delete requests[cId];
 			resolve(response);
 		}
 		nativeGET(cId, url, headers);
+	})
+	.then(response => {
+		timeouts[url] = setTimeout(() => invalidateCache(url), REQUEST_TTL);
+		return response;
+	})
+	.catch((error) => {
+		invalidateCache(url);
+		return Promise.reject(error);
 	});
 }
 
@@ -73,4 +95,8 @@ export function request(url, params = {}) {
 
 function result(handler) {
 	return ({target}) => handler(target);
+}
+
+function min(amount) {
+	return amount * 60 * 1000;
 }

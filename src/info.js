@@ -2,17 +2,28 @@ import {request} from './request';
 
 const parser = new DOMParser();
 
-export function getTVShowExtraInfo({sid}) {
+export function parseTVShowPage({sid}) {
 	return request(`https://soap4.me/soap/${sid}/`).then(({responseText}) => {
 		let infoRegex = /"right">(.+)<\/div>/g;
-		let result = [];
-		let match;
+		let infoResult = [];
+		let infoMatch;
 
-		while(match = infoRegex.exec(responseText)) {
-			result.push(match[1]);
+		let recomendationsRegex = /covers\/soap\/(\d+)\..*title="([^"]+)"/g;
+		let recomendationsResult = [];
+		let recomendationsMatch;
+
+		while(infoMatch = infoRegex.exec(responseText)) {
+			infoResult.push(infoMatch[1]);
 		}
 
-		return result
+		while(recomendationsMatch = recomendationsRegex.exec(responseText)) {
+			recomendationsResult.push({
+				sid: recomendationsMatch[1],
+				title: recomendationsMatch[2],
+			});
+		}
+
+		return infoResult
 			.map(content => parser.parseFromString(`<div>${content}</div>`, 'application/xml'))
 			.reduce((result, document, i) => {
 				let root = document.childNodes.item(0);
@@ -45,11 +56,13 @@ export function getTVShowExtraInfo({sid}) {
 				}
 
 				return result;
-			}, {});
+			}, {
+				recomendations: recomendationsResult.filter(filterDuplicates(({sid}) => sid)),
+			});
 	});
 }
 
-export function getSeasonsSpoilers({title}, season) {
+export function parseTVShowSeasonPage({title}, season) {
 	return request(`https://soap4.me/soap/${titleToSlug(title)}/${season}`).then(({responseText}) => {
 		let infoRegex = /<p[^>]*>(.+)<\/p>/g;
 		let result = [];
@@ -59,10 +72,20 @@ export function getSeasonsSpoilers({title}, season) {
 			result.push(match[1]);
 		}
 
-		return result.filter((item, i, arr) => arr.indexOf(item) === i);
+		return {
+			spoilers: result.filter(filterDuplicates()),
+		};
 	});
 }
 
 function titleToSlug(title) {
 	return title.replace(' ', '_');
+}
+
+function filterDuplicates(traverse = item => item) {
+	let collection = {};
+	return (...args) => {
+		let key = traverse(...args);
+		return !collection[key] && (collection[key] = true);
+	};
 }

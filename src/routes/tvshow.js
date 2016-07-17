@@ -7,10 +7,12 @@ import formatNumber from 'simple-format-number';
 import {get} from '../request/soap';
 import {getDefault} from '../quality';
 import {capitalizeText} from '../utils';
-import {getTVShowExtraInfo} from '../info';
+import {parseTVShowPage} from '../info';
 
 import Tile from '../components/tile';
 import Loader from '../components/loader';
+
+const {Promise} = TVDML;
 
 export default function() {
 	return TVDML
@@ -20,12 +22,17 @@ export default function() {
 			return <Loader title={title} />;
 		}))
 		.pipe(TVDML.passthrough(({tvshow: {sid}}) => {
-			return get(`https://soap4.me/api/episodes/${sid}/`).then(episodes => ({episodes}));
+			return Promise
+				.all([
+					get(`https://soap4.me/api/soap/`),
+					get(`https://soap4.me/api/episodes/${sid}/`),
+				])
+				.then(([series, episodes]) => ({series, episodes}));
 		}))
 		.pipe(TVDML.passthrough(({tvshow}) => {
-			return getTVShowExtraInfo(tvshow).then(extra => ({extra}));
+			return parseTVShowPage(tvshow).then(extra => ({extra}));
 		}))
-		.pipe(TVDML.render(({tvshow, episodes, extra}) => {
+		.pipe(TVDML.render(({tvshow, episodes, extra, series}) => {
 			let {
 				sid,
 				year,
@@ -44,6 +51,7 @@ export default function() {
 				actors,
 				country,
 				duration,
+				recomendations,
 			} = extra;
 
 			let isWatching = watching > 0;
@@ -75,7 +83,7 @@ export default function() {
 				return result;
 			}, []);
 
-			console.log(111, tvshow, episodes, seasons, extra);
+			console.log(111, tvshow, episodes, seasons, extra, series);
 
 			return (
 				<document>
@@ -143,7 +151,7 @@ export default function() {
 								<title>Seasons</title>
 							</header>
 							<section>
-								{seasons.map((season, i) => {
+								{seasons.map(season => {
 									let {id, episodes} = season;
 									let poster = `http://covers.soap4.me/season/big/${id}.jpg`;
 									let unwatched = episodes.reduce((result, episode) => {
@@ -157,6 +165,38 @@ export default function() {
 											payload={{tvshow, season}}
 											title={`Season ${season.season}`}
 											subtitle={unwatched && `${unwatched} ${plur('episode', unwatched)}`}
+										/>
+									);
+								})}
+							</section>
+						</shelf>
+						<shelf>
+							<header>
+								<title>Viewers Also Watched</title>
+							</header>
+							<section>
+								{recomendations.map(recomendation => {
+									let {sid} = recomendation;
+									let poster = `http://covers.soap4.me/soap/big/${sid}.jpg`;
+									let tvshow;
+
+									series.some((item) => {
+										if (item.sid === sid) {
+											tvshow = item;
+											return true;
+										}
+									});
+
+									if (!tvshow) return null;
+
+									let {title} = tvshow;
+
+									return (
+										<Tile
+											title={title}
+											poster={poster}
+											route="tvshow"
+											payload={{tvshow}}
 										/>
 									);
 								})}

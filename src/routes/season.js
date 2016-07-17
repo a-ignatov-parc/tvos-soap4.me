@@ -3,7 +3,7 @@
 import plur from 'plur';
 import * as TVDML from 'tvdml';
 
-import {getSeasonsSpoilers} from '../info';
+import {parseTVShowSeasonPage} from '../info';
 import {getDefault, quality} from '../quality';
 import {link, fixSpecialSymbols} from '../utils';
 
@@ -19,7 +19,7 @@ export default function() {
 			return <Loader title={`Season ${season}`} />;
 		}))
 		.pipe(TVDML.passthrough(({tvshow, season: {season}}) => {
-			return getSeasonsSpoilers(tvshow, season).then(spoilers => ({spoilers}));
+			return parseTVShowSeasonPage(tvshow, season).then(({spoilers}) => ({spoilers}));
 		}))
 		.pipe(TVDML.render(({tvshow, season, spoilers}) => {
 			let {
