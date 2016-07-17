@@ -59,7 +59,7 @@ export default function() {
 
 			let seasons = episodes.reduce((result, item) => {
 				let seasonIndex = item.season - 1;
-				let episodeIndex = item.episode - 1;
+				let episodeIndex = item.episode;
 
 				if (!result[seasonIndex]) {
 					result[seasonIndex] = {
@@ -83,7 +83,7 @@ export default function() {
 				return result;
 			}, []);
 
-			console.log(111, tvshow, episodes, seasons, extra, series);
+			console.log('tvshow', tvshow, episodes, seasons, extra, series);
 
 			return (
 				<document>

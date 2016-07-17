@@ -64,7 +64,7 @@ export function parseTVShowPage({sid}) {
 
 export function parseTVShowSeasonPage({title}, season) {
 	return request(`https://soap4.me/soap/${titleToSlug(title)}/${season}`).then(({responseText}) => {
-		let infoRegex = /<p[^>]*>(.+)<\/p>/g;
+		let infoRegex = /<p[^>]*>([^<]+)/g;
 		let result = [];
 		let match;
 

@@ -8,6 +8,8 @@ const POST = 'POST';
 
 const REQUEST_TTL = min(10);
 
+let counter = 0;
+
 export function invalidateCache(url) {
 	timeouts[url] && clearTimeout(timeouts[url]);
 	delete cache[url];
@@ -19,7 +21,7 @@ export function get(url, headers = {}) {
 	}
 
 	return cache[url] = new Promise((resolve) => {
-		const cId = `get${Date.now()}`;
+		const cId = `get${getUID()}`;
 		requests[cId] = response => {
 			delete requests[cId];
 			resolve(response);
@@ -38,7 +40,7 @@ export function get(url, headers = {}) {
 
 export function post(url, parameters = {}, headers = {}) {
 	return new Promise((resolve) => {
-		const cId = `post${Date.now()}`;
+		const cId = `post${getUID()}`;
 		requests[cId] = response => {
 			delete requests[cId];
 			resolve(response);
@@ -99,4 +101,8 @@ function result(handler) {
 
 function min(amount) {
 	return amount * 60 * 1000;
+}
+
+function getUID() {
+	return ++counter;
 }

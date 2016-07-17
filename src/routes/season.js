@@ -32,8 +32,12 @@ export default function() {
 				id,
 			} = season;
 
-			let episodes = season.episodes.map(getDefault);
 			let poster = `http://covers.soap4.me/season/big/${id}.jpg`;
+			let episodes = season.episodes
+				.filter(Boolean)
+				.map(getDefault);
+
+			console.log('season', tvshow, season, spoilers);
 
 			return (
 				<document>
@@ -47,7 +51,7 @@ export default function() {
 								<subtitle>Season {season.season}</subtitle>
 							</header>
 							<section>
-								{episodes.map(episode => {
+								{episodes.map((episode, i) => {
 									let {
 										title_en,
 										spoiler,
@@ -57,7 +61,7 @@ export default function() {
 									} = episode;
 
 									let title = fixSpecialSymbols(title_en);
-									let description = fixSpecialSymbols(spoilers[episodeIndex - 1]);
+									let description = fixSpecialSymbols(spoilers[i]);
 
 									return (
 										<listItemLockup onSelect={playEpisode(episode)}>

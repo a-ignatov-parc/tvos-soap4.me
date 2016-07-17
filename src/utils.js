@@ -22,7 +22,7 @@ export function noop() {
 	return () => {};
 }
 
-export function fixSpecialSymbols(text) {
+export function fixSpecialSymbols(text = '') {
 	return text.replace(/&#039;/g, `'`);
 }
 
