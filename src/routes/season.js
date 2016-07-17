@@ -54,19 +54,33 @@ export default function() {
 												{fixSpecialSymbols(title_en)}
 											</title>
 											<decorationLabel>
-												{watched && <badge src="resource://button-checkmark" />}
-												{' '}
+												{watched && (
+													<badge src="resource://button-checkmark" />
+												)}
+												{'  '}
 												{!!~[FULLHD, HD].indexOf(quality) && <badge src="resource://hd" />}
 											</decorationLabel>
 											<relatedContent>
 												<itemBanner>
-													<img src={poster} width="400" height="400" />
-													<description>{spoiler}</description>
+													<heroImg src={poster} />
+													<title style="tv-align: center; margin: 20 0 0">
+														{fixSpecialSymbols(title_en)}
+													</title>
+													<description style="margin: 20 0 0">
+														{spoiler}
+													</description>
 													<row>
-														<buttonLockup>
-															<badge src="resource://button-checkmark"/>
-															<title>Watched</title>
-														</buttonLockup>
+														{watched ? (
+															<buttonLockup>
+																<badge src="resource://button-remove"/>
+																<title>Mark as New</title>
+															</buttonLockup>
+														) : (
+															<buttonLockup>
+																<badge src="resource://button-add"/>
+																<title>Mark as Watched</title>
+															</buttonLockup>
+														)}
 													</row>
 												</itemBanner>
 											</relatedContent>

@@ -29,11 +29,12 @@ export default function() {
 				sid,
 				year,
 				title,
+				watching,
 				imdb_votes,
 				imdb_rating,
+				description,
 				kinopoisk_votes,
 				kinopoisk_rating,
-				description,
 			} = tvshow;
 
 			let {
@@ -44,6 +45,7 @@ export default function() {
 				duration,
 			} = extra;
 
+			let isWatching = watching > 0;
 			let poster = `http://covers.soap4.me/soap/big/${sid}.jpg`;
 
 			let seasons = episodes.reduce((result, item) => {
@@ -113,12 +115,25 @@ export default function() {
 									moreLabel="more"
 									onSelect={showFullDescription(tvshow)}
 								>{description}</description>
-								<row>
-									<buttonLockup>
-										<badge src="resource://button-add" />
-										<title>Add</title>
-									</buttonLockup>
-								</row>
+								{isWatching ? (
+									<row>
+										<buttonLockup>
+											<badge src="resource://button-play" />
+											<title>Continue Watching</title>
+										</buttonLockup>
+										<buttonLockup>
+											<badge src="resource://button-remove" />
+											<title>Stop Watching</title>
+										</buttonLockup>
+									</row>
+								) : (
+									<row>
+										<buttonLockup>
+											<badge src="resource://button-add" />
+											<title>Watch</title>
+										</buttonLockup>
+									</row>
+								)}
 							</stack>
 							<heroImg src={poster} />
 						</banner>
