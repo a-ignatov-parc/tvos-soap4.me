@@ -113,7 +113,7 @@ export default function() {
 
 function playEpisode(episode) {
 	return (event) => {
-		console.log(222, episode);
+		console.log('playEpisode', episode);
 
 		let videoURL = 'http://www.rwdevcon.com/videos/Ray-Wenderlich-Teamwork.mp4';
 
