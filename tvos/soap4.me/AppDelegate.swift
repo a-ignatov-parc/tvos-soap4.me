@@ -16,7 +16,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TVApplicationControllerDe
     var window: UIWindow?
     var appController: TVApplicationController?
     
-    static let tvBaseURL = "http://localhost:9001/"
+    #if RELEASE
+        static let tvBaseURL = "https://a-ignatov-parc.github.io/tvos-soap4.me-releases/1.0.0/"
+    #else
+        static let tvBaseURL = "http://localhost:9001/"
+    #endif
+    
     static let tvBootURL = "\(AppDelegate.tvBaseURL)/application.js"
     
     // MARK: Javascript Execution Helper
