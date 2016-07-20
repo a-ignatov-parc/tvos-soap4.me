@@ -1,4 +1,5 @@
 import {request} from './request';
+import {parseHTML, nodesToArray} from './utils/parser';
 
 const parser = new DOMParser();
 
@@ -64,17 +65,13 @@ export function parseTVShowPage({sid}) {
 
 export function parseTVShowSeasonPage({title}, season) {
 	return request(`https://soap4.me/soap/${titleToSlug(title)}/${season}`).then(({responseText}) => {
-		let infoRegex = /<p[^>]*>([^<]+)/g;
-		let result = [];
-		let match;
+		let fragment = parseHTML(responseText);
+		let result = fragment.getElementsByTagName('p');
+		let spoilers = nodesToArray(result)
+			.map(node => node.textContent)
+			.filter(filterDuplicates());
 
-		while(match = infoRegex.exec(responseText)) {
-			result.push(match[1]);
-		}
-
-		return {
-			spoilers: result.filter(filterDuplicates()),
-		};
+		return {spoilers};
 	});
 }
 

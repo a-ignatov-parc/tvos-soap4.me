@@ -1,8 +1,6 @@
 import {navigate} from 'tvdml';
 import {request} from './request';
 
-const parser = new DOMParser();
-
 export function log(message = '') {
 	return (payload) => {
 		console.log(message, payload);
