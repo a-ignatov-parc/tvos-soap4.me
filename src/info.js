@@ -1,65 +1,55 @@
 import {request} from './request';
 import {parseHTML, nodesToArray} from './utils/parser';
 
-const parser = new DOMParser();
-
 export function parseTVShowPage({sid}) {
 	return request(`https://soap4.me/soap/${sid}/`).then(({responseText}) => {
-		let infoRegex = /"right">(.+)<\/div>/g;
-		let infoResult = [];
-		let infoMatch;
+		let fixedHtml = responseText.replace(/<\/h5>/g, '</h4>');
+		let fragment = parseHTML(fixedHtml);
 
-		let recomendationsRegex = /covers\/soap\/(\d+)\..*title="([^"]+)"/g;
-		let recomendationsResult = [];
-		let recomendationsMatch;
+		let infoNodes = nodesToArray(fragment.getElementsByTagName('div'))
+			.filter(node => ~node.getAttribute('class').indexOf('info'))
+			.map(node => node.getElementsByTagName('div'))
+			.map(nodesToArray)
+			.reduce((prev, next) => prev.concat(next))
+			.filter(node => ~node.getAttribute('class').indexOf('right'));
 
-		while(infoMatch = infoRegex.exec(responseText)) {
-			infoResult.push(infoMatch[1]);
-		}
+		let recomendations = nodesToArray(fragment.getElementsByTagName('img'))
+			.filter(node => ~node.getAttribute('src').indexOf('covers/soap'))
+			.map(node => ({
+				sid: node.getAttribute('src').match(/covers\/soap\/(\d+)/)[1],
+				title: node.getAttribute('title'),
+			}))
+			.filter(filterDuplicates(({sid}) => sid));
 
-		while(recomendationsMatch = recomendationsRegex.exec(responseText)) {
-			recomendationsResult.push({
-				sid: recomendationsMatch[1],
-				title: recomendationsMatch[2],
-			});
-		}
-
-		return infoResult
-			.map(content => parser.parseFromString(`<div>${content}</div>`, 'application/xml'))
-			.reduce((result, document, i) => {
-				let root = document.childNodes.item(0);
-
-				switch(i) {
-					case 0:
-						result.status = root.textContent;
-						break;
-					case 1:
-						result.year = root.textContent;
-						break;
-					case 2:
-						result.duration = root.textContent;
-						break;
-					case 3:
-						result.country = root.textContent;
-						break;
-					case 4:
-						result.genres = Array
-							.apply(null, Array(root.children.length))
-							.map((item, i) => root.children.item(i))
-							.map(node => node.textContent);
-						break;
-					case 5:
-						result.actors = Array
-							.apply(null, Array(root.children.length))
-							.map((item, i) => root.children.item(i))
-							.map(node => node.textContent);
-						break;
-				}
-
-				return result;
-			}, {
-				recomendations: recomendationsResult.filter(filterDuplicates(({sid}) => sid)),
-			});
+		return infoNodes.reduce((result, fragment, i) => {
+			switch(i) {
+				case 0:
+					result.status = fragment.textContent;
+					break;
+				case 3:
+					result.year = fragment.textContent;
+					break;
+				case 4:
+					result.duration = fragment.textContent;
+					break;
+				case 5:
+					result.country = fragment.textContent;
+					break;
+				case 6:
+					result.genres = Array
+						.apply(null, Array(fragment.children.length))
+						.map((item, i) => fragment.children.item(i))
+						.map(node => node.textContent);
+					break;
+				case 7:
+					result.actors = Array
+						.apply(null, Array(fragment.children.length))
+						.map((item, i) => fragment.children.item(i))
+						.map(node => node.textContent);
+					break;
+			}
+			return result;
+		}, {recomendations});
 	});
 }
 
