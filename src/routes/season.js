@@ -36,6 +36,7 @@ export default function() {
 			let episodes = season.episodes
 				.filter(Boolean)
 				.map(getDefault);
+			let highlighted = false;
 
 			console.log('season', tvshow, season, spoilers);
 
@@ -62,9 +63,15 @@ export default function() {
 
 									let title = fixSpecialSymbols(title_en);
 									let description = fixSpecialSymbols(spoilers[i]);
+									let highlight = false;
+
+									if (!highlighted && !watched) {
+										highlight = true;
+										highlighted = true;
+									}
 
 									return (
-										<listItemLockup onSelect={playEpisode(episode)}>
+										<listItemLockup autoHighlight={highlight ? 'true' : undefined} onSelect={playEpisode(episode)}>
 											<ordinal minLength="2">{episodeIndex}</ordinal>
 											<title style="tv-labels-state: marquee-on-highlight">
 												{title}
@@ -85,19 +92,10 @@ export default function() {
 														style="margin: 20 0 0"
 														onSelect={showDescription({title, description})}
 													>{description}</description>
-													<row>
-														{watched ? (
-															<buttonLockup>
-																<badge src="resource://button-remove"/>
-																<title>Mark as New</title>
-															</buttonLockup>
-														) : (
-															<buttonLockup>
-																<badge src="resource://button-add"/>
-																<title>Mark as Watched</title>
-															</buttonLockup>
-														)}
-													</row>
+													<Controls
+														partial={`episode-${episodeIndex}`}
+														scenario={watched ? 'watched' : 'not-watched'}
+													/>
 												</itemBanner>
 											</relatedContent>
 										</listItemLockup>
@@ -108,6 +106,29 @@ export default function() {
 					</compilationTemplate>
 				</document>
 			);
+		}))
+		.pipe(TVDML.passthrough(({document: {partials}}) => {
+			let actions = {
+				add(controls) {
+					controls.update(<Controls scenario="watched" />);
+				},
+
+				remove(controls) {
+					controls.update(<Controls scenario="not-watched" />);
+				},
+			};
+
+			Object
+				.keys(partials)
+				.map(name => ({name, controls: partials[name]}))
+				.forEach(({name, controls}) => {
+					controls.onSelect((event) => {
+						let {target} = event;
+						let action = actions[target.getAttribute('id')];
+						event.stopPropagation();
+						action && action(controls);
+					});
+				});
 		}));
 }
 
@@ -146,4 +167,39 @@ function showDescription({title, description}) {
 			)
 			.sink()
 	}
+}
+
+function Controls({attrs = {}}) {
+	let {
+		partial,
+		scenario = 'not-watched',
+	} = attrs;
+
+	let scenarios = {
+		'watched': [
+			{
+				id: 'remove',
+				title: 'Mark as New',
+				badge: 'resource://button-remove',
+			},
+		],
+		'not-watched': [
+			{
+				id: 'add',
+				title: 'Mark as Watched',
+				badge: 'resource://button-add',
+			},
+		],
+	};
+
+	return (
+		<row partial={partial}>
+			{scenarios[scenario].map(({id, title, badge}) => (
+				<buttonLockup id={id}>
+					<badge src={badge} />
+					<title>{title}</title>
+				</buttonLockup>
+			))}
+		</row>
+	);
 }

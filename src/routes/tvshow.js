@@ -32,32 +32,8 @@ export default function() {
 		.pipe(TVDML.passthrough(({tvshow}) => {
 			return parseTVShowPage(tvshow).then(extra => ({extra}));
 		}))
-		.pipe(TVDML.render(({tvshow, episodes, extra, series}) => {
-			let {
-				sid,
-				year,
-				title,
-				watching,
-				imdb_votes,
-				imdb_rating,
-				description,
-				kinopoisk_votes,
-				kinopoisk_rating,
-			} = tvshow;
-
-			let {
-				genres,
-				status,
-				actors,
-				country,
-				duration,
-				recomendations,
-			} = extra;
-
-			let isWatching = watching > 0;
-			let poster = `http://covers.soap4.me/soap/big/${sid}.jpg`;
-
-			let seasons = episodes.reduce((result, item) => {
+		.pipe(TVDML.passthrough(({episodes}) => ({
+			seasons: episodes.reduce((result, item) => {
 				let seasonIndex = item.season - 1;
 				let episodeIndex = item.episode;
 
@@ -81,7 +57,32 @@ export default function() {
 				}
 				episodeCollection[episodeIndex][item.quality] = item;
 				return result;
-			}, []);
+			}, []),
+		})))
+		.pipe(TVDML.render(({tvshow, episodes, extra, series, seasons}) => {
+			let {
+				sid,
+				year,
+				title,
+				watching,
+				imdb_votes,
+				imdb_rating,
+				description,
+				kinopoisk_votes,
+				kinopoisk_rating,
+			} = tvshow;
+
+			let {
+				genres,
+				status,
+				actors,
+				country,
+				duration,
+				recomendations,
+			} = extra;
+
+			let isWatching = watching > 0;
+			let poster = `http://covers.soap4.me/soap/big/${sid}.jpg`;
 
 			console.log('tvshow', tvshow, episodes, seasons, extra, series);
 
@@ -124,25 +125,10 @@ export default function() {
 									moreLabel="more"
 									onSelect={showFullDescription(tvshow)}
 								>{description}</description>
-								{isWatching ? (
-									<row>
-										<buttonLockup>
-											<badge src="resource://button-play" />
-											<title>Continue Watching</title>
-										</buttonLockup>
-										<buttonLockup>
-											<badge src="resource://button-remove" />
-											<title>Stop Watching</title>
-										</buttonLockup>
-									</row>
-								) : (
-									<row>
-										<buttonLockup>
-											<badge src="resource://button-add" />
-											<title>Watch</title>
-										</buttonLockup>
-									</row>
-								)}
+								<Controls
+									partial="controls"
+									scenario={isWatching ? 'subscribed' : 'not-subscribed'}
+								/>
 							</stack>
 							<heroImg src={poster} />
 						</banner>
@@ -152,11 +138,9 @@ export default function() {
 							</header>
 							<section>
 								{seasons.map(season => {
-									let {id, episodes} = season;
+									let {id} = season;
 									let poster = `http://covers.soap4.me/season/big/${id}.jpg`;
-									let unwatched = episodes.reduce((result, episode) => {
-										return result + +!getDefault(episode).watched;
-									}, 0);
+									let unwatched = calculateUnwatchedCount(season);
 
 									return (
 										<Tile
@@ -230,7 +214,36 @@ export default function() {
 					</productTemplate>
 				</document>
 			);
+		}))
+		.pipe(TVDML.passthrough(({tvshow, seasons, document: {partials: {controls}}}) => {
+			let season = seasons.reduce((result, season) => {
+				if (!result && calculateUnwatchedCount(season)) return season;
+				return result;
+			}, null);
+
+			let actions = {
+				play() {
+					TVDML.navigate('season', {tvshow, season})
+				},
+
+				add() {
+					controls.update(<Controls scenario="subscribed" />);
+				},
+
+				remove() {
+					controls.update(<Controls scenario="not-subscribed" />);
+				},
+			};
+
+			controls.onSelect(({target}) => {
+				let action = actions[target.getAttribute('id')];
+				action && action();
+			});
 		}));
+}
+
+function calculateUnwatchedCount({episodes}) {
+	return episodes.reduce((result, episode) => result + +!getDefault(episode).watched, 0);
 }
 
 function showFullDescription({title, description}) {
@@ -250,4 +263,43 @@ function showFullDescription({title, description}) {
 			)
 			.sink()
 	}
+}
+
+function Controls({attrs = {}}) {
+	let {
+		partial,
+		scenario = 'not-subscribed',
+	} = attrs;
+
+	let scenarios = {
+		'subscribed': [
+			{
+				id: 'play',
+				title: 'Continue Watching',
+				badge: 'resource://button-play',
+			}, {
+				id: 'remove',
+				title: 'Stop Watching',
+				badge: 'resource://button-remove',
+			},
+		],
+		'not-subscribed': [
+			{
+				id: 'add',
+				title: 'Watch',
+				badge: 'resource://button-add',
+			},
+		],
+	};
+
+	return (
+		<row partial={partial}>
+			{scenarios[scenario].map(({id, title, badge}) => (
+				<buttonLockup id={id}>
+					<badge src={badge} />
+					<title>{title}</title>
+				</buttonLockup>
+			))}
+		</row>
+	);
 }
