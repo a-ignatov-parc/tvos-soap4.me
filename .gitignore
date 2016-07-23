@@ -11,8 +11,7 @@ releases/
 out/
 
 ## Build generated
-build/
-DerivedData/
+tvos/DerivedData/
 
 ## Various settings
 *.pbxuser
@@ -40,13 +39,8 @@ timeline.xctimeline
 playground.xcworkspace
 
 # Swift Package Manager
-build/
+tvos/build/
 
 # Carthage
-Carthage/Checkouts
-Carthage/Build
-
-fastlane/report.xml
-fastlane/Preview.html
-fastlane/screenshots
-fastlane/test_output
+tvos/Carthage/Checkouts/
+tvos/Carthage/Build/
