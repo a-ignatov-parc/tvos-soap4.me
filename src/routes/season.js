@@ -1,8 +1,11 @@
 /** @jsx TVDML.jsx */
 
 import plur from 'plur';
+import md5 from 'blueimp-md5';
 import * as TVDML from 'tvdml';
+import {get as getToken} from '../token';
 
+import {post} from '../request/soap';
 import {parseTVShowSeasonPage} from '../info';
 import {getDefault, quality} from '../quality';
 import {link, fixSpecialSymbols} from '../utils';
@@ -132,19 +135,27 @@ export default function() {
 		}));
 }
 
-function playEpisode(episode) {
+function playEpisode({eid, sid, hash: episodeHash}) {
 	return (event) => {
-		console.log('playEpisode', episode);
+		let token = getToken();
+		let hash = md5(token + eid + sid + episodeHash);
 
-		let videoURL = 'http://www.rwdevcon.com/videos/Ray-Wenderlich-Teamwork.mp4';
+		post('https://soap4.me/callback/', {
+			eid,
+			hash,
+			token,
+			do: 'load',
+			what: 'player',
+		}).then(({ok, server}) => {
+			let url = `https://${server}.soap4.me/${token}/${eid}/${hash}/`;
+			let player = new Player();
+			let playlist = new Playlist();
+			let mediaItem = new MediaItem('video', url);
 
-		let player = new Player();
-		let playlist = new Playlist();
-		let mediaItem = new MediaItem('video', videoURL);
-
-		player.playlist = playlist;
-		player.playlist.push(mediaItem);
-		player.present();
+			player.playlist = playlist;
+			player.playlist.push(mediaItem);
+			player.present();
+		});
 	}
 }
 
