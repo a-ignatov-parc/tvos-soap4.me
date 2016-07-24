@@ -1,5 +1,4 @@
 import {navigate} from 'tvdml';
-import {request} from './request';
 
 export function log(message = '') {
 	return (payload) => {
@@ -31,4 +30,16 @@ export function capitalize(word) {
 
 export function capitalizeText(text) {
 	return `${text}`.split(' ').map(capitalize).join(' ');
+}
+
+export function seconds(amount) {
+	return amount * 1000;
+}
+
+export function minutes(amount) {
+	return seconds(amount) * 60;
+}
+
+export function hours(amount) {
+	return minutes(amount) * 60;
 }

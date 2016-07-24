@@ -8,6 +8,7 @@ import {get} from '../request/soap';
 import {getDefault} from '../quality';
 import {capitalizeText} from '../utils';
 import {parseTVShowPage} from '../info';
+import {getActor, getActorPhoto} from '../info/tmdb';
 
 import Tile from '../components/tile';
 import Loader from '../components/loader';
@@ -31,6 +32,15 @@ export default function() {
 		}))
 		.pipe(TVDML.passthrough(({tvshow}) => {
 			return parseTVShowPage(tvshow).then(extra => ({extra}));
+		}))
+		.pipe(TVDML.passthrough(({extra: {actors}}) => {
+			return Promise
+				.all(actors.map(getActor))
+				.then(actorsProfiles => actorsProfiles.reduce((result, actor, i) => {
+					if (actor) result[actors[i]] = getActorPhoto(actor);
+					return result;
+				}, {}))
+				.then(actorsPhotos => ({actorsPhotos}));
 		}))
 		.pipe(TVDML.passthrough(({episodes}) => ({
 			seasons: episodes.reduce((result, item) => {
@@ -59,7 +69,14 @@ export default function() {
 				return result;
 			}, []),
 		})))
-		.pipe(TVDML.render(({tvshow, episodes, extra, series, seasons}) => {
+		.pipe(TVDML.render(({
+			extra,
+			tvshow,
+			series,
+			seasons,
+			episodes,
+			actorsPhotos,
+		}) => {
 			let {
 				sid,
 				year,
@@ -73,10 +90,13 @@ export default function() {
 			} = tvshow;
 
 			let {
+				count,
 				genres,
 				status,
 				actors,
 				country,
+				runtime,
+				reviews,
 				duration,
 				recomendations,
 			} = extra;
@@ -84,7 +104,7 @@ export default function() {
 			let isWatching = watching > 0;
 			let poster = `http://covers.soap4.me/soap/big/${sid}.jpg`;
 
-			console.log('tvshow', tvshow, episodes, seasons, extra, series);
+			console.log('tvshow', tvshow, episodes, seasons, extra, series, actorsPhotos);
 
 			return (
 				<document>
@@ -117,8 +137,7 @@ export default function() {
 							<stack>
 								<title>{title}</title>
 								<row>
-									<text>{duration}</text>
-									<text>{year}</text>
+									<text>Watched by {count > 0 ? `${count} people` : `no one`}</text>
 								</row>
 								<description
 									allowsZooming="true"
@@ -209,8 +228,82 @@ export default function() {
 										</description>
 									</ratingCard>
 								)}
+								{reviews.map(review => {
+									let {user, date, text} = review;
+									return (
+										<reviewCard onSelect={showFullReview(review)}>
+											<title>{user}</title>
+											<description>{text}</description>
+											<text>{date}</text>
+										</reviewCard>
+									);
+								})}
 							</section>
 						</shelf>
+						<shelf>
+							<header>
+								<title>Cast and Crew</title>
+							</header>
+							<section>
+								{actors.map(name => {
+									let [firstName, lastName] = name.split(' ');
+
+									return (
+										<monogramLockup>
+											<monogram 
+												src={actorsPhotos[name]}
+												firstName={firstName}
+												lastName={lastName}
+											/>
+											<title>{name}</title>
+											<subtitle>Actor</subtitle>
+										</monogramLockup>
+									);
+								})}
+							</section>
+						</shelf>
+						<productInfo>
+							<infoTable>
+								<header>
+									<title>Information</title>
+								</header>
+								<info>
+									<header>
+										<title>Year</title>
+									</header>
+									<text>{year}</text>
+								</info>
+								<info>
+									<header>
+										<title>Country</title>
+									</header>
+									<text>{country}</text>
+								</info>
+								<info>
+									<header>
+										<title>Runtime</title>
+									</header>
+									<text>{runtime}</text>
+								</info>
+								<info>
+									<header>
+										<title>Duration</title>
+									</header>
+									<text>{duration}</text>
+								</info>
+							</infoTable>
+							<infoTable>
+								<header>
+									<title>Languages</title>
+								</header>
+								<info>
+									<header>
+										<title>Primary</title>
+									</header>
+									<text>Russian, English</text>
+								</info>
+							</infoTable>
+						</productInfo>
 					</productTemplate>
 				</document>
 			);
@@ -252,12 +345,23 @@ function showFullDescription({title, description}) {
 			.renderModal(
 				<document>
 					<descriptiveAlertTemplate>
-						<title>
-							{title}
-						</title>
-						<description>
-							{description}
-						</description>
+						<title>{title}</title>
+						<description>{description}</description>
+					</descriptiveAlertTemplate>
+				</document>
+			)
+			.sink()
+	}
+}
+
+function showFullReview({user, text}) {
+	return (event) => {
+		TVDML
+			.renderModal(
+				<document>
+					<descriptiveAlertTemplate>
+						<title>{user}</title>
+						<description>{text}</description>
 					</descriptiveAlertTemplate>
 				</document>
 			)

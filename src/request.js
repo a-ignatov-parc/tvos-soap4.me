@@ -1,52 +1,24 @@
 import {Promise} from 'tvdml';
-
-const cache = {};
-const timeouts = {};
+import assign from 'object-assign';
 
 const GET = 'GET';
 const POST = 'POST';
 
-const REQUEST_TTL = min(10);
-
-let counter = 0;
-
-export function invalidateCache(url) {
-	timeouts[url] && clearTimeout(timeouts[url]);
-	delete cache[url];
+export function get(url, params = {}) {
+	return request(url, assign({method: GET}, params));
 }
 
-export function get(url, headers = {}) {
-	if (cache[url]) {
-		return cache[url];
-	}
-
-	return cache[url] = new Promise((resolve) => {
-		const cId = `get${getUID()}`;
-		requests[cId] = response => {
-			delete requests[cId];
-			resolve(response);
-		}
-		nativeGET(cId, url, headers);
-	})
-	.then(response => {
-		timeouts[url] = setTimeout(() => invalidateCache(url), REQUEST_TTL);
-		return response;
-	})
-	.catch((error) => {
-		invalidateCache(url);
-		return Promise.reject(error);
-	});
+export function post(url, data, params = {}) {
+	return request(url, assign({method: POST, data}, params));
 }
 
-export function post(url, parameters = {}, headers = {}) {
-	return new Promise((resolve) => {
-		const cId = `post${getUID()}`;
-		requests[cId] = response => {
-			delete requests[cId];
-			resolve(response);
-		}
-		nativePOST(cId, url, parameters, headers);
-	});
+export function toString() {
+	return ({responseText}) => responseText;
+}
+
+export function toJSON() {
+	let stringify = toString();
+	return xhr => JSON.parse(stringify(xhr));
 }
 
 export function request(url, params = {}) {
@@ -97,12 +69,4 @@ export function request(url, params = {}) {
 
 function result(handler) {
 	return ({target}) => handler(target);
-}
-
-function min(amount) {
-	return amount * 60 * 1000;
-}
-
-function getUID() {
-	return ++counter;
 }
