@@ -103,7 +103,7 @@ export function parseTVShowPage({sid}) {
 }
 
 export function parseTVShowSeasonPage({title}, season) {
-	return get(`https://soap4.me/soap/${titleToSlug(title)}/${season}`)
+	return get(`https://soap4.me/soap/${titleToSlug(title)}/${season}/`)
 		.then(toString())
 		.then(response => {
 			let fragment = parseHTML(response);
@@ -113,6 +113,23 @@ export function parseTVShowSeasonPage({title}, season) {
 				.filter(filterDuplicates());
 
 			return {spoilers};
+		});
+}
+
+export function parseActorPage(actorName) {
+	return get(`https://soap4.me/actors/${titleToSlug(actorName)}/`)
+		.then(toString())
+		.then(response => {
+			let fragment = parseHTML(response);
+			let tvshows = nodesToArray(fragment.getElementsByTagName('img'))
+				.filter(node => ~node.getAttribute('src').indexOf('covers/soap'))
+				.map(node => ({
+					sid: node.getAttribute('src').match(/covers\/soap\/(\d+)/)[1],
+					title: node.getAttribute('title'),
+				}))
+				.filter(filterDuplicates(({sid}) => sid));
+
+			return {tvshows};
 		});
 }
 

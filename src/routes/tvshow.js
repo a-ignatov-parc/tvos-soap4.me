@@ -6,8 +6,8 @@ import formatNumber from 'simple-format-number';
 
 import {get} from '../request/soap';
 import {getDefault} from '../quality';
-import {capitalizeText} from '../utils';
 import {parseTVShowPage} from '../info';
+import {link, capitalizeText} from '../utils';
 import {getActor, getActorPhoto} from '../info/tmdb';
 
 import Tile from '../components/tile';
@@ -178,8 +178,7 @@ export default function() {
 								<title>Viewers Also Watched</title>
 							</header>
 							<section>
-								{recomendations.map(recomendation => {
-									let {sid} = recomendation;
+								{recomendations.map(({sid}) => {
 									let poster = `http://covers.soap4.me/soap/big/${sid}.jpg`;
 									let tvshow;
 
@@ -249,7 +248,7 @@ export default function() {
 									let [firstName, lastName] = name.split(' ');
 
 									return (
-										<monogramLockup>
+										<monogramLockup onSelect={link('actor', {actor: name})}>
 											<monogram 
 												src={actorsPhotos[name]}
 												firstName={firstName}
