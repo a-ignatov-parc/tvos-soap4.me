@@ -21,7 +21,7 @@ TVDML
 			TVDML.navigate('auth', {
 				onSuccess(ticket) {
 					token.set(ticket.token, ticket.expires);
-					TVDML.redirect('home');
+					TVDML.redirect('main');
 				}
 			});
 		}

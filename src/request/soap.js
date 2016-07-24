@@ -1,4 +1,4 @@
-import * as token from '../token';
+import {get as getToken} from '../token';
 import * as request from '../request/native';
 
 export function get(url) {
@@ -10,8 +10,14 @@ export function post(url, parameters) {
 }
 
 function headers() {
-	return {
-		'X-Api-Token': token.get(),
+	let token = getToken();
+	let headers = {
 		'User-Agent': 'xbmc for soap',
 	};
+
+	if (token) {
+		headers['X-Api-Token'] = token;
+	}
+
+	return headers;
 }
