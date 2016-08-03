@@ -19,7 +19,7 @@ export default function Tile({attrs = {}}) {
 			autoHighlight={autoHighlight ? 'true' : undefined}
 		>
 			<img src={poster} width="250" height="250" />
-			<title style="tv-labels-state: marquee-on-highlight">{title}</title>
+			<title style="tv-text-highlight-style: marquee-on-highlight">{title}</title>
 			<subtitle>{subtitle}</subtitle>
 		</lockup>
 	);

@@ -79,7 +79,7 @@ export default function() {
 									return (
 										<listItemLockup autoHighlight={highlight ? 'true' : undefined} onSelect={playEpisode(eid, episodes)}>
 											<ordinal minLength="2">{episodeIndex}</ordinal>
-											<title style="tv-labels-state: marquee-on-highlight">
+											<title style="tv-text-highlight-style: marquee-on-highlight">
 												{title}
 											</title>
 											<decorationLabel>

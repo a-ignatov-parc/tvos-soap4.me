@@ -134,7 +134,7 @@ export function parseActorPage(actorName) {
 }
 
 function titleToSlug(title) {
-	return title.replace(' ', '_');
+	return title.replace(/\s/g, '_');
 }
 
 function filterDuplicates(traverse = item => item) {
