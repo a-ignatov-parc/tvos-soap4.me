@@ -54,10 +54,10 @@ export default function() {
 							<heroImg src={poster} />
 						</background>
 						<list>
-							<header>
+							<segmentBarHeader>
 								<title>{title}</title>
 								<subtitle>Season {season.season}</subtitle>
-							</header>
+							</segmentBarHeader>
 							<section>
 								{episodes.map((episode, i) => {
 									let {
