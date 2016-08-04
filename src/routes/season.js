@@ -4,16 +4,18 @@ import plur from 'plur';
 import md5 from 'blueimp-md5';
 import * as TVDML from 'tvdml';
 import assign from 'object-assign';
-import {get as getToken} from '../token';
 
 import {post} from '../request/soap';
+import {get as getToken} from '../token';
 import {parseTVShowSeasonPage} from '../info';
 import {getDefault, quality} from '../quality';
 import {link, fixSpecialSymbols} from '../utils';
 
-import Loader from '../components/loader';
+import execAction from './season/actions';
 
-const {SD, HD, FULLHD} = quality;
+import Loader from '../components/loader';
+import Labels from './season/components/labels';
+import Controls from './season/components/controls';
 
 export default function() {
 	return TVDML
@@ -82,13 +84,11 @@ export default function() {
 											<title style="tv-text-highlight-style: marquee-on-highlight">
 												{title}
 											</title>
-											<decorationLabel>
-												{watched && (
-													<badge src="resource://button-checkmark" />
-												)}
-												{'  '}
-												{!!~[FULLHD, HD].indexOf(quality) && <badge src="resource://hd" />}
-											</decorationLabel>
+											<Labels
+												partial={`label-${eid}`}
+												watched={watched}
+												quality={quality}
+											/>
 											<relatedContent>
 												<itemBanner>
 													<heroImg src={poster} />
@@ -99,7 +99,7 @@ export default function() {
 														onSelect={showDescription({title, description})}
 													>{description}</description>
 													<Controls
-														partial={`episode-${episodeIndex}`}
+														partial={`episode-${eid}`}
 														scenario={watched ? 'watched' : 'not-watched'}
 													/>
 												</itemBanner>
@@ -114,28 +114,44 @@ export default function() {
 			);
 		}))
 		.pipe(TVDML.passthrough(({document: {partials}}) => {
-			let actions = {
-				add(controls) {
-					controls.update(<Controls scenario="watched" />);
-				},
-
-				remove(controls) {
-					controls.update(<Controls scenario="not-watched" />);
-				},
-			};
-
 			Object
 				.keys(partials)
 				.map(name => ({name, controls: partials[name]}))
 				.forEach(({name, controls}) => {
-					controls.onSelect((event) => {
-						let {target} = event;
-						let action = actions[target.getAttribute('id')];
-						event.stopPropagation();
-						action && action(controls);
-					});
+					let [namespace, eid] = name.split('-');
+
+					if (namespace === 'episode') {
+						controls.onSelect((event) => {
+							let {target} = event;
+							let actionName = target.getAttribute('id');
+
+							event.stopPropagation();
+							execAction(actionName, eid, partials);
+						});
+					}
 				});
 		}));
+}
+
+function showDescription({title, description}) {
+	return (event) => {
+		event.stopPropagation();
+
+		TVDML
+			.renderModal(
+				<document>
+					<descriptiveAlertTemplate>
+						<title>
+							{title}
+						</title>
+						<description>
+							{description}
+						</description>
+					</descriptiveAlertTemplate>
+				</document>
+			)
+			.sink()
+	}
 }
 
 function playEpisode(eid, episodes) {
@@ -161,14 +177,10 @@ function playEpisode(eid, episodes) {
 				},
 
 				markAsWatched({eid}) {
-					let token = getToken();
-					let payload = {
-						eid,
-						token,
-						what: 'mark_watched',
-					};
-
-					return post('https://soap4.me/callback/', payload);
+					if (!getActiveDocument()) {
+						let {partials} = navigationDocument.documents.pop();
+						return execAction('add', eid, partials);
+					}
 				},
 
 				uidResolver({eid}) {
@@ -217,60 +229,4 @@ function getEpisodeItem(id, episodes) {
 		artworkImageURL: poster,
 		url: `https://${server}.soap4.me/${token}/${eid}/${hash}/`,
 	}));
-}
-
-function showDescription({title, description}) {
-	return (event) => {
-		event.stopPropagation();
-
-		TVDML
-			.renderModal(
-				<document>
-					<descriptiveAlertTemplate>
-						<title>
-							{title}
-						</title>
-						<description>
-							{description}
-						</description>
-					</descriptiveAlertTemplate>
-				</document>
-			)
-			.sink()
-	}
-}
-
-function Controls({attrs = {}}) {
-	let {
-		partial,
-		scenario = 'not-watched',
-	} = attrs;
-
-	let scenarios = {
-		'watched': [
-			{
-				id: 'remove',
-				title: 'Mark as New',
-				badge: 'resource://button-remove',
-			},
-		],
-		'not-watched': [
-			{
-				id: 'add',
-				title: 'Mark as Watched',
-				badge: 'resource://button-add',
-			},
-		],
-	};
-
-	return (
-		<row partial={partial}>
-			{scenarios[scenario].map(({id, title, badge}) => (
-				<buttonLockup id={id}>
-					<badge src={badge} />
-					<title>{title}</title>
-				</buttonLockup>
-			))}
-		</row>
-	);
 }
