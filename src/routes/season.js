@@ -1,194 +1,215 @@
 /** @jsx TVDML.jsx */
 
 import plur from 'plur';
-import md5 from 'blueimp-md5';
 import * as TVDML from 'tvdml';
 import assign from 'object-assign';
 
-import {post} from '../request/soap';
 import {get as getToken} from '../token';
 import {parseTVShowSeasonPage} from '../info';
 import {getDefault, quality} from '../quality';
 import {link, fixSpecialSymbols} from '../utils';
-
-import execAction from './season/actions';
+import {
+	getTVShow,
+	getTVShowSeason,
+	getEpisodeMediaURL,
+	markEpisodeAsWatched,
+	markEpisodeAsUnWatched,
+} from '../request/soap';
 
 import Loader from '../components/loader';
-import Labels from './season/components/labels';
-import Controls from './season/components/controls';
+
+const {Promise} = TVDML;
+const {SD, HD, FULLHD} = quality;
 
 export default function() {
 	return TVDML
 		.createPipeline()
-		.pipe(TVDML.passthrough(({navigation: {tvshow, season}}) => ({tvshow, season})))
-		.pipe(TVDML.render(({season: {season}}) => {
-			return <Loader title={`Season ${season}`} />;
+		.pipe(TVDML.passthrough(({navigation: {sid, id, title}}) => ({sid, id, title})))
+		.pipe(TVDML.render(({title}) => {
+			return <Loader title={title} />;
+		}))
+		.pipe(TVDML.passthrough(({sid, id}) => {
+			return Promise
+				.all([
+					getTVShow(sid),
+					getTVShowSeason(sid, id),
+				])
+				.then(([tvshow, season]) => ({tvshow, season}));
 		}))
 		.pipe(TVDML.passthrough(({tvshow, season: {season}}) => {
 			return parseTVShowSeasonPage(tvshow, season).then(({spoilers}) => ({spoilers}));
 		}))
-		.pipe(TVDML.render(({tvshow, season, spoilers}) => {
-			let {
-				sid,
-				title,
-				description,
-			} = tvshow;
+		.pipe(TVDML.createComponent({
+			getInitialState() {
+				let episodes = this.props.season.episodes
+					.filter(Boolean)
+					.map(getDefault)
+					.map((episode, i) => assign({}, episode, {
+						spoiler: this.props.spoilers[i],
+					}));
 
-			let {
-				id,
-			} = season;
-
-			let highlighted = false;
-			let poster = `http://covers.soap4.me/season/big/${id}.jpg`;
-			let episodes = season.episodes
-				.filter(Boolean)
-				.map(getDefault)
-				.map((episode, i) => assign({}, episode, {spoiler: spoilers[i]}));
-
-			console.log('season', tvshow, season, spoilers);
-
-			return (
-				<document>
-					<compilationTemplate theme="light">
-						<background>
-							<heroImg src={poster} />
-						</background>
-						<list>
-							<segmentBarHeader>
-								<title>{title}</title>
-								<subtitle>Season {season.season}</subtitle>
-							</segmentBarHeader>
-							<section>
-								{episodes.map((episode, i) => {
-									let {
-										eid,
-										title_en,
-										spoiler,
-										watched,
-										quality,
-										episode: episodeIndex,
-									} = episode;
-
-									let title = fixSpecialSymbols(title_en);
-									let description = fixSpecialSymbols(spoiler);
-									let highlight = false;
-
-									if (!highlighted && !watched) {
-										highlight = true;
-										highlighted = true;
-									}
-
-									return (
-										<listItemLockup autoHighlight={highlight ? 'true' : undefined} onSelect={playEpisode(eid, episodes)}>
-											<ordinal minLength="2">{episodeIndex}</ordinal>
-											<title style="tv-text-highlight-style: marquee-on-highlight">
-												{title}
-											</title>
-											<Labels
-												partial={`label-${eid}`}
-												watched={watched}
-												quality={quality}
-											/>
-											<relatedContent>
-												<itemBanner>
-													<heroImg src={poster} />
-													<description
-														moreLabel="more"
-														allowsZooming="true"
-														style="margin: 20 0 0"
-														onSelect={showDescription({title, description})}
-													>{description}</description>
-													<Controls
-														partial={`episode-${eid}`}
-														scenario={watched ? 'watched' : 'not-watched'}
-													/>
-												</itemBanner>
-											</relatedContent>
-										</listItemLockup>
-									);
-								})}
-							</section>
-						</list>
-					</compilationTemplate>
-				</document>
-			);
-		}))
-		.pipe(TVDML.passthrough(({document: {partials}}) => {
-			Object
-				.keys(partials)
-				.map(name => ({name, controls: partials[name]}))
-				.forEach(({name, controls}) => {
-					let [namespace, eid] = name.split('-');
-
-					if (namespace === 'episode') {
-						controls.onSelect((event) => {
-							let {target} = event;
-							let actionName = target.getAttribute('id');
-
-							event.stopPropagation();
-							execAction(actionName, eid, partials);
-						});
-					}
+				return episodes.reduce((result, {eid, watched}) => {
+					result[eid] = !!watched;
+					return result;
+				}, {
+					episodes,
+					poster: `http://covers.soap4.me/season/big/${this.props.id}.jpg`,
 				});
+			},
+
+			render() {
+				let {title} = this.props.tvshow;
+				let highlighted = false;
+
+				return (
+					<document>
+						<compilationTemplate theme="light">
+							<background>
+								<heroImg src={this.state.poster} />
+							</background>
+							<list>
+								<segmentBarHeader>
+									<title>{title}</title>
+									<subtitle>Season {this.props.season.season}</subtitle>
+								</segmentBarHeader>
+								<section>
+									{this.state.episodes.map((episode, i) => {
+										let {
+											eid,
+											title_en,
+											spoiler,
+											watched,
+											quality,
+											episode: episodeIndex,
+										} = episode;
+
+										let title = fixSpecialSymbols(title_en);
+										let description = fixSpecialSymbols(spoiler);
+										let highlight = false;
+
+										if (!highlighted && !watched) {
+											highlight = true;
+											highlighted = true;
+										}
+
+										return (
+											<listItemLockup
+												autoHighlight={highlight ? 'true' : undefined}
+												onSelect={this.onPlayEpisode.bind(this, eid)}
+											>
+												<ordinal minLength="3">{episodeIndex}</ordinal>
+												<title style="tv-text-highlight-style: marquee-on-highlight">
+													{title}
+												</title>
+												<decorationLabel>
+													{this.state[eid] && (
+														<badge src="resource://button-checkmark" />
+													)}
+													{'  '}
+													{!!~[FULLHD, HD].indexOf(quality) && (
+														<badge src="resource://hd" />
+													)}
+												</decorationLabel>
+												<relatedContent>
+													<itemBanner>
+														<heroImg src={this.state.poster} />
+														<description
+															moreLabel="more"
+															allowsZooming="true"
+															style="margin: 20 0 0"
+															onSelect={this.onShowDescription.bind(this, {title, description})}
+														>{description}</description>
+														{this.state[eid] ? (
+															<row>
+																<buttonLockup onSelect={this.onMarkAsNew.bind(this, eid)}>
+																	<badge src="resource://button-remove" />
+																	<title>Mark as New</title>
+																</buttonLockup>
+															</row>
+														) : (
+															<row>
+																<buttonLockup onSelect={this.onMarkAsWatched.bind(this, eid)}>
+																	<badge src="resource://button-add" />
+																	<title>Mark as Watched</title>
+																</buttonLockup>
+															</row>
+														)}
+													</itemBanner>
+												</relatedContent>
+											</listItemLockup>
+										);
+									})}
+								</section>
+							</list>
+						</compilationTemplate>
+					</document>
+				);
+			},
+
+			onPlayEpisode(eid) {
+				let {episodes} = this.state;
+				let markAsWatched = this.onMarkAsWatched.bind(this);
+
+				let resolvers = {
+					initial() {
+						return eid;
+					},
+
+					next({eid}) {
+						let episode = getEpisode(eid, episodes);
+						let index = episodes.indexOf(episode);
+						let nextEpisode = ~index ? episodes[index + 1] : {};
+						return nextEpisode.eid || null;
+					},
+				};
+
+				TVDML
+					.createPlayer({
+						items(item, request) {
+							let id = resolvers[request] && resolvers[request](item);
+							return getEpisodeItem(id, episodes);
+						},
+
+						markAsWatched({eid}) {
+							if (!getActiveDocument()) {
+								return markAsWatched(eid);
+							}
+						},
+
+						uidResolver({eid}) {
+							return eid;
+						},
+					})
+					.then(player => player.play());
+			},
+
+			onMarkAsNew(eid) {
+				this.setState({[eid]: false});
+				return markEpisodeAsUnWatched(eid);
+			},
+
+			onMarkAsWatched(eid) {
+				this.setState({[eid]: true});
+				return markEpisodeAsWatched(eid);
+			},
+
+			onShowDescription({title, description}) {
+				TVDML
+					.renderModal(
+						<document>
+							<descriptiveAlertTemplate>
+								<title>
+									{title}
+								</title>
+								<description>
+									{description}
+								</description>
+							</descriptiveAlertTemplate>
+						</document>
+					)
+					.sink();
+			},
 		}));
-}
-
-function showDescription({title, description}) {
-	return (event) => {
-		event.stopPropagation();
-
-		TVDML
-			.renderModal(
-				<document>
-					<descriptiveAlertTemplate>
-						<title>
-							{title}
-						</title>
-						<description>
-							{description}
-						</description>
-					</descriptiveAlertTemplate>
-				</document>
-			)
-			.sink()
-	}
-}
-
-function playEpisode(eid, episodes) {
-	let resolvers = {
-		initial() {
-			return eid;
-		},
-
-		next({eid}) {
-			let episode = getEpisode(eid, episodes);
-			let index = episodes.indexOf(episode);
-			let nextEpisode = ~index ? episodes[index + 1] : {};
-			return nextEpisode.eid || null;
-		},
-	};
-
-	return () => {
-		TVDML
-			.createPlayer({
-				items(item, request) {
-					let id = resolvers[request] && resolvers[request](item);
-					return getEpisodeItem(id, episodes);
-				},
-
-				markAsWatched({eid}) {
-					if (!getActiveDocument()) {
-						let {partials} = navigationDocument.documents.pop();
-						return execAction('add', eid, partials);
-					}
-				},
-
-				uidResolver({eid}) {
-					return eid;
-				},
-			})
-			.then(player => player.play());
-	}
 }
 
 function getEpisode(eid, episodes) {
@@ -204,29 +225,19 @@ function getEpisodeItem(id, episodes) {
 	let {
 		eid,
 		sid,
+		hash,
 		spoiler,
 		title_en,
 		season_id,
-		hash: episodeHash,
 	} = episode;
 
 	let poster = `http://covers.soap4.me/season/big/${season_id}.jpg`;
 
-	let token = getToken();
-	let hash = md5(token + eid + sid + episodeHash);
-	let payload = {
+	return getEpisodeMediaURL(eid, sid, hash).then(url => ({
 		eid,
-		hash,
-		token,
-		do: 'load',
-		what: 'player',
-	};
-
-	return post('https://soap4.me/callback/', payload).then(({server}) => ({
-		eid,
+		url,
 		title: title_en,
 		description: spoiler,
 		artworkImageURL: poster,
-		url: `https://${server}.soap4.me/${token}/${eid}/${hash}/`,
 	}));
 }

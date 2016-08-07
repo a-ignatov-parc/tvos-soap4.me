@@ -15,29 +15,10 @@ export default function(title) {
 		.pipe(TVDML.render(({actor}) => {
 			return <Loader title={actor} />;
 		}))
-		.pipe(TVDML.passthrough(() => {
-			return get(`https://soap4.me/api/soap/`).then(series => ({series}));
-		}))
-		.pipe(TVDML.passthrough(({actor, series}) => {
-			return parseActorPage(actor).then(({tvshows}) => ({
-				tvshows: tvshows
-					.map(({sid}) => {
-						let tvshow;
-
-						series.some((item) => {
-							if (item.sid === sid) {
-								tvshow = item;
-								return true;
-							}
-						});
-
-						return tvshow;
-					})
-					.filter(Boolean)
-			}));
+		.pipe(TVDML.passthrough(({actor}) => {
+			return parseActorPage(actor);
 		}))
 		.pipe(TVDML.render(({actor, tvshows}) => {
-			console.log('actor', actor, tvshows);
 			return (
 				<document>
 					<stackTemplate>
@@ -48,7 +29,7 @@ export default function(title) {
 							<grid>
 								<section>
 									{tvshows.map(tvshow => {
-										let {title, sid, unwatched} = tvshow;
+										let {title, sid} = tvshow;
 										let poster = `http://covers.soap4.me/soap/big/${sid}.jpg`;
 
 										return (
@@ -56,8 +37,7 @@ export default function(title) {
 												title={title}
 												poster={poster}
 												route="tvshow"
-												payload={{tvshow}}
-												subtitle={unwatched && `${unwatched} ${plur('episode', unwatched)}`}
+												payload={{sid, title}}
 											/>
 										);
 									})}
