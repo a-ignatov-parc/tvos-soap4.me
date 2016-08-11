@@ -130,7 +130,7 @@ export default function() {
 															<row>
 																<buttonLockup onSelect={this.onMarkAsWatched.bind(this, eid)}>
 																	<badge src="resource://button-add" />
-																	<title>Mark as Watched</title>
+																	<title>Mark as Seen</title>
 																</buttonLockup>
 															</row>
 														)}
