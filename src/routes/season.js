@@ -39,7 +39,7 @@ export default function() {
 		.pipe(TVDML.passthrough(({tvshow, season: {season}}) => {
 			return parseTVShowSeasonPage(tvshow, season).then(({spoilers}) => ({spoilers}));
 		}))
-		.pipe(TVDML.createComponent({
+		.pipe(TVDML.render(TVDML.createComponent({
 			getInitialState() {
 				let episodes = this.props.season.episodes
 					.filter(Boolean)
@@ -209,7 +209,7 @@ export default function() {
 					)
 					.sink();
 			},
-		}));
+		})));
 }
 
 function getEpisode(eid, episodes) {

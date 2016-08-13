@@ -47,7 +47,7 @@ export default function() {
 				}, {}))
 				.then(actorsPhotos => ({actorsPhotos}));
 		}))
-		.pipe(TVDML.createComponent({
+		.pipe(TVDML.render(TVDML.createComponent({
 			getInitialState() {
 				return {
 					watching: this.props.tvshow.watching > 0,
@@ -377,7 +377,7 @@ export default function() {
 					)
 					.sink();
 			},
-		}));
+		})));
 }
 
 function calculateUnwatchedCount({episodes}) {
