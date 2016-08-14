@@ -24,7 +24,7 @@ const {SD, HD, FULLHD} = quality;
 export default function() {
 	return TVDML
 		.createPipeline()
-		.pipe(TVDML.passthrough(({navigation: {sid, id, title}}) => ({sid, id, title})))
+		.pipe(TVDML.passthrough(({navigation: {sid, id, title, episode}}) => ({sid, id, title, episode})))
 		.pipe(TVDML.render(({title}) => {
 			return <Loader title={title} />;
 		}))
@@ -87,7 +87,9 @@ export default function() {
 										let description = fixSpecialSymbols(spoiler);
 										let highlight = false;
 
-										if (!highlighted && !watched) {
+										if (this.props.episode) {
+											highlight = episodeIndex === this.props.episode;
+										} else if (!highlighted && !watched) {
 											highlight = true;
 											highlighted = true;
 										}

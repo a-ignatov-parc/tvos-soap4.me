@@ -118,6 +118,10 @@ export function removeFromMyTVShows(sid) {
 	return post(`https://soap4.me/api/soap/unwatch/${sid}/`, {token});
 }
 
+export function getSearchResults(query) {
+	return get(`https://soap4.me/api/search/?q=${encodeURIComponent(query)}`);
+}
+
 function headers() {
 	let token = getToken();
 	let headers = {

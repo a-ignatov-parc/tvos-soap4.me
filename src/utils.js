@@ -43,3 +43,11 @@ export function minutes(amount) {
 export function hours(amount) {
 	return minutes(amount) * 60;
 }
+
+export function prettifyEpisodeNum(season = 0, episode = 0) {
+	return `s${prettifyNum(season)}e${prettifyNum(episode)}`;
+}
+
+export function prettifyNum(num, ordinal = 2) {
+	return `${Math.pow(10, ordinal)}${num}`.slice(-ordinal);
+}

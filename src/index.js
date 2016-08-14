@@ -3,14 +3,13 @@
 import * as TVDML from 'tvdml';
 import * as token from './token';
 
-import Loader from './components/loader';
-
 import MyRoute from './routes/my';
 import AllRoute from './routes/all';
 import AuthRoute from './routes/auth';
 import ActorRoute from './routes/actor';
 import SeasonRoute from './routes/season';
 import TVShowRoute from './routes/tvshow';
+import SearchRoute from './routes/search';
 
 TVDML
 	.subscribe(TVDML.event.LAUNCH)
@@ -37,6 +36,9 @@ TVDML
 		<document>
 			<menuBarTemplate>
 				<menuBar>
+					<menuItem route="search">
+						<title>Search</title>
+					</menuItem>
 					<menuItem autoHighlight="true" route="my">
 						<title>My Series</title>
 					</menuItem>
@@ -58,7 +60,7 @@ TVDML
 
 TVDML
 	.handleRoute('search')
-	.pipe(TVDML.render(<Loader title="Search" />));
+	.pipe(SearchRoute());
 
 TVDML
 	.handleRoute('tvshow')
