@@ -2,6 +2,7 @@
 
 import plur from 'plur';
 import * as TVDML from 'tvdml';
+import assign from 'object-assign';
 import formatNumber from 'simple-format-number';
 
 import {getDefault} from '../quality';
@@ -24,38 +25,72 @@ export default function() {
 	return TVDML
 		.createPipeline()
 		.pipe(TVDML.passthrough(({navigation: {sid, title}}) => ({sid, title})))
-		.pipe(TVDML.render(({title}) => {
-			return <Loader title={title} />;
-		}))
-		.pipe(TVDML.passthrough(({sid}) => {
-			return Promise
-				.all([
-					getTVShow(sid),
-					getTVShowSeasons(sid),
-				])
-				.then(([tvshow, seasons]) => ({tvshow, seasons}));
-		}))
-		.pipe(TVDML.passthrough(({tvshow}) => {
-			return parseTVShowPage(tvshow).then(extra => ({extra}));
-		}))
-		.pipe(TVDML.passthrough(({extra: {actors}}) => {
-			return Promise
-				.all(actors.map(getActor))
-				.then(actorsProfiles => actorsProfiles.reduce((result, actor, i) => {
-					if (actor) result[actors[i]] = getActorPhoto(actor);
-					return result;
-				}, {}))
-				.then(actorsPhotos => ({actorsPhotos}));
-		}))
 		.pipe(TVDML.render(TVDML.createComponent({
 			getInitialState() {
 				return {
-					watching: this.props.tvshow.watching > 0,
+					loading: true,
+					watching: false,
 					poster: `http://covers.soap4.me/soap/big/${this.props.sid}.jpg`,
 				};
 			},
 
+			componentDidMount() {
+				let {sid} = this.props;
+				let currentDocument = this._rootNode.ownerDocument;
+
+				this.menuButtonPressPipeline = TVDML
+					.subscribe('menu-button-press')
+					.pipe(({to: {document}}) => {
+						if (currentDocument === document) {
+							this.loadData(sid).then(this.setState.bind(this));
+						}
+					});
+
+				this.loadData(sid).then(payload => {
+					this.setState(assign({loading: false}, payload));
+				});
+			},
+
+			componentWillUnmount() {
+				this.menuButtonPressPipeline.unsubscribe();
+			},
+
+			shouldComponentUpdate(nextProps, nextState) {
+				let propsAreEqual = JSON.stringify(this.props) === JSON.stringify(nextProps);
+				let stateAreEqual = JSON.stringify(this.state) === JSON.stringify(nextState);
+
+				return !propsAreEqual || !stateAreEqual;
+			},
+
+			loadData(sid) {
+				return Promise
+					.all([
+						getTVShow(sid),
+						getTVShowSeasons(sid),
+					])
+					.then(([tvshow, seasons]) => ({tvshow, seasons}))
+					.then(({tvshow, seasons}) => {
+						return parseTVShowPage(tvshow).then(extra => ({tvshow, seasons, extra}));
+					})
+					.then(({tvshow, seasons, extra}) => {
+						let {actors} = extra;
+
+						return Promise
+							.all(actors.map(getActor))
+							.then(actorsProfiles => actorsProfiles.reduce((result, actor, i) => {
+								if (actor) result[actors[i]] = getActorPhoto(actor);
+								return result;
+							}, {}))
+							.then(actorsPhotos => ({actorsPhotos, tvshow, seasons, extra}));
+					})
+					.then(payload => assign({watching: payload.tvshow.watching > 0}, payload));
+			},
+
 			render() {
+				if (this.state.loading) {
+					return <Loader title={this.props.title} />
+				}
+
 				return (
 					<document>
 						<productTemplate theme="light">
@@ -75,7 +110,7 @@ export default function() {
 			},
 
 			renderStatus() {
-				let {status, genres, actors} = this.props.extra;
+				let {status, genres, actors} = this.state.extra;
 
 				return (
 					<infoList>
@@ -90,7 +125,7 @@ export default function() {
 								<title>Genres</title>
 							</header>
 							{genres.map(capitalizeText).map(genre => {
-								return <text>{genre}</text>;
+								return <text key={genre}>{genre}</text>;
 							})}
 						</info>
 						<info>
@@ -98,7 +133,7 @@ export default function() {
 								<title>Actors</title>
 							</header>
 							{actors.map(actor => {
-								return <text>{actor}</text>;
+								return <text key={actor}>{actor}</text>;
 							})}
 						</info>
 					</infoList>
@@ -106,8 +141,8 @@ export default function() {
 			},
 
 			renderInfo() {
-				let {title, description} = this.props.tvshow;
-				let {count} = this.props.extra;
+				let {title, description} = this.state.tvshow;
+				let {count} = this.state.extra;
 
 				return (
 					<stack>
@@ -144,7 +179,7 @@ export default function() {
 			},
 
 			renderSeasons() {
-				let {sid, title} = this.props.tvshow;
+				let {sid, title} = this.state.tvshow;
 
 				return (
 					<shelf>
@@ -152,7 +187,7 @@ export default function() {
 							<title>Seasons</title>
 						</header>
 						<section>
-							{this.props.seasons.map(season => {
+							{this.state.seasons.map(season => {
 								let {id} = season;
 								let seasonTitle = `Season ${season.season}`;
 								let poster = `http://covers.soap4.me/season/big/${id}.jpg`;
@@ -160,6 +195,7 @@ export default function() {
 
 								return (
 									<Tile
+										key={id}
 										title={seasonTitle}
 										route="season"
 										poster={poster}
@@ -174,7 +210,7 @@ export default function() {
 			},
 
 			renderRecomendations() {
-				let {recomendations} = this.props.extra;
+				let {recomendations} = this.state.extra;
 
 				return (
 					<shelf>
@@ -187,6 +223,7 @@ export default function() {
 
 								return (
 									<Tile
+										key={sid}
 										title={title}
 										poster={poster}
 										route="tvshow"
@@ -205,8 +242,9 @@ export default function() {
 					imdb_rating,
 					kinopoisk_votes,
 					kinopoisk_rating,
-				} = this.props.tvshow;
-				let {reviews} = this.props.extra;
+				} = this.state.tvshow;
+
+				let {reviews} = this.state.extra;
 
 				return (
 					<shelf>
@@ -235,7 +273,10 @@ export default function() {
 							{reviews.map(review => {
 								let {user, date, text} = review;
 								return (
-									<reviewCard onSelect={this.onShowFullReview.bind(this, review)}>
+									<reviewCard
+										key={`${user}-${date}`}
+										onSelect={this.onShowFullReview.bind(this, review)}
+									>
 										<title>{user}</title>
 										<description>{text}</description>
 										<text>{date}</text>
@@ -248,7 +289,7 @@ export default function() {
 			},
 
 			renderCrew() {
-				let {actors} = this.props.extra;
+				let {actors} = this.state.extra;
 
 				return (
 					<shelf>
@@ -260,9 +301,12 @@ export default function() {
 								let [firstName, lastName] = name.split(' ');
 
 								return (
-									<monogramLockup onSelect={link('actor', {actor: name})}>
+									<monogramLockup
+										key={name}
+										onSelect={link('actor', {actor: name})}
+									>
 										<monogram 
-											src={this.props.actorsPhotos[name]}
+											src={this.state.actorsPhotos[name]}
 											firstName={firstName}
 											lastName={lastName}
 										/>
@@ -277,8 +321,8 @@ export default function() {
 			},
 
 			renderAdditionalInfo() {
-				let {year} = this.props.tvshow;
-				let {duration, country, runtime} = this.props.extra;
+				let {year} = this.state.tvshow;
+				let {duration, country, runtime} = this.state.extra;
 
 				return (
 					<productInfo>
@@ -327,31 +371,31 @@ export default function() {
 			},
 
 			onContinueWatching() {
-				let uncompletedSeason = this.props.seasons.reduce((result, season) => {
+				let uncompletedSeason = this.state.seasons.reduce((result, season) => {
 					if (!result && calculateUnwatchedCount(season)) return season;
 					return result;
 				}, null);
 
-				let {sid, title} = this.props.tvshow;
+				let {sid, title} = this.state.tvshow;
 				let {id, season} = uncompletedSeason;
 
 				TVDML.navigate('season', {sid, id, title: `${title} — Season ${season}`});
 			},
 
 			onAddToSubscription() {
-				let {sid} = this.props.tvshow;
+				let {sid} = this.state.tvshow;
 				this.setState({watching: true});
 				return addToMyTVShows(sid);
 			},
 
 			onRemoveFromSubscription() {
-				let {sid} = this.props.tvshow;
+				let {sid} = this.state.tvshow;
 				this.setState({watching: false});
 				return removeFromMyTVShows(sid);
 			},
 
 			onShowFullDescription() {
-				let {title, description} = this.props.tvshow;
+				let {title, description} = this.state.tvshow;
 
 				TVDML
 					.renderModal(

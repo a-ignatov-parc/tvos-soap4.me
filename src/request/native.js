@@ -6,7 +6,7 @@ let uid = 0;
 const cache = {};
 const timeouts = {};
 
-const REQUEST_TTL = minutes(10);
+const REQUEST_TTL = minutes(0);
 
 export function invalidateCache(url) {
 	timeouts[url] && clearTimeout(timeouts[url]);
