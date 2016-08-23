@@ -26,10 +26,15 @@ export default function(title) {
 				this.menuButtonPressPipeline = TVDML
 					.subscribe('menu-button-press')
 					.pipe(({to: {document}}) => {
-						console.log(document, currentDocument);
-						// if (currentDocument === document) {
-						// 	this.loadData().then(this.setState.bind(this));
-						// }
+						let {menuBarDocument} = document;
+
+						if (menuBarDocument) {
+							document = menuBarDocument.getDocument(menuBarDocument.getSelectedItem());
+						}
+
+						if (currentDocument === document) {
+							this.loadData().then(this.setState.bind(this));
+						}
 					});
 
 				this.loadData().then(payload => {
