@@ -9,7 +9,7 @@ export function get(url, headers = {}) {
 			delete requests[cId];
 			resolve(response);
 		}
-		nativeGET(cId, url, headers);
+		nativeGET(cId, url, prepareHeaders(headers));
 	});
 }
 
@@ -20,10 +20,21 @@ export function post(url, parameters = {}, headers = {}) {
 			delete requests[cId];
 			resolve(response);
 		}
-		nativePOST(cId, url, parameters, headers);
+		nativePOST(cId, url, parameters, prepareHeaders(headers));
 	});
 }
 
 function getUID() {
 	return ++uid;
+}
+
+function prepareHeaders(headers = {}) {
+	return Object
+		.keys(headers)
+		.reduce((result, key) => {
+			if (headers[key] != null) {
+				result[key] = headers[key];
+			}
+			return result;
+		}, {});
 }

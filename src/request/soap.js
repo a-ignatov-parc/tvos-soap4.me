@@ -125,12 +125,9 @@ export function getSearchResults(query) {
 function headers() {
 	let token = getToken();
 	let headers = {
+		'X-Api-Token': token,
 		'User-Agent': 'xbmc for soap',
 	};
-
-	if (token) {
-		headers['X-Api-Token'] = token;
-	}
 
 	return headers;
 }
