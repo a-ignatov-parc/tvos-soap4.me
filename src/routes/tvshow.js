@@ -37,6 +37,7 @@ export default function() {
 				return {
 					loading: true,
 					watching: false,
+					continueWatching: false,
 					poster: `http://covers.soap4.me/soap/big/${this.props.sid}.jpg`,
 				};
 			},
@@ -82,7 +83,10 @@ export default function() {
 							}, {}))
 							.then(actorsPhotos => ({actorsPhotos, tvshow, seasons, extra}));
 					})
-					.then(payload => assign({watching: payload.tvshow.watching > 0}, payload));
+					.then(payload => assign({
+						watching: payload.tvshow.watching > 0,
+						continueWatching: !!this.getSeasonToWatch(payload.seasons),
+					}, payload));
 			},
 
 			render() {
@@ -142,6 +146,43 @@ export default function() {
 			renderInfo() {
 				let {title, description} = this.state.tvshow;
 				let {count} = this.state.extra;
+				let buttons = <row />;
+
+				let continueWatchingBtn = (
+					<buttonLockup onSelect={this.onContinueWatching}>
+						<badge src="resource://button-play" />
+						<title>Continue Watching</title>
+					</buttonLockup>
+				);
+
+				let startWatchingBtn = (
+					<buttonLockup onSelect={this.onAddToSubscription}>
+						<badge src="resource://button-add" />
+						<title>Start Watching</title>
+					</buttonLockup>
+				);
+
+				let stopWatchingBtn = (
+					<buttonLockup onSelect={this.onRemoveFromSubscription}>
+						<badge src="resource://button-remove" />
+						<title>Stop Watching</title>
+					</buttonLockup>
+				);
+
+				if (this.state.watching) {
+					buttons = (
+						<row>
+							{this.state.continueWatching && continueWatchingBtn}
+							{stopWatchingBtn}
+						</row>
+					);
+				} else {
+					buttons = (
+						<row>
+							{startWatchingBtn}
+						</row>
+					);
+				}
 
 				return (
 					<stack>
@@ -154,25 +195,7 @@ export default function() {
 							moreLabel="more"
 							onSelect={this.onShowFullDescription}
 						>{description}</description>
-						{this.state.watching ? (
-							<row>
-								<buttonLockup onSelect={this.onContinueWatching}>
-									<badge src="resource://button-play" />
-									<title>Continue Watching</title>
-								</buttonLockup>
-								<buttonLockup onSelect={this.onRemoveFromSubscription}>
-									<badge src="resource://button-remove" />
-									<title>Stop Watching</title>
-								</buttonLockup>
-							</row>
-						) : (
-							<row>
-								<buttonLockup onSelect={this.onAddToSubscription}>
-									<badge src="resource://button-add" />
-									<title>Start Watching</title>
-								</buttonLockup>
-							</row>
-						)}
+						{buttons}
 					</stack>
 				);
 			},
@@ -369,12 +392,15 @@ export default function() {
 				);
 			},
 
-			onContinueWatching() {
-				let uncompletedSeason = this.state.seasons.reduce((result, season) => {
+			getSeasonToWatch(seasons = []) {
+				return seasons.reduce((result, season) => {
 					if (!result && calculateUnwatchedCount(season)) return season;
 					return result;
 				}, null);
+			},
 
+			onContinueWatching() {
+				let uncompletedSeason = this.getSeasonToWatch(this.state.seasons);
 				let {sid, title} = this.state.tvshow;
 				let {id, season} = uncompletedSeason;
 
