@@ -1,5 +1,17 @@
 import {navigate} from 'tvdml';
 
+export function isMenuButtonPressNavigatedTo(targetDocument) {
+	return ({to: {document}}) => {
+		let {menuBarDocument} = document;
+
+		if (menuBarDocument) {
+			document = menuBarDocument.getDocument(menuBarDocument.getSelectedItem());
+		}
+
+		return targetDocument === document;
+	}
+}
+
 export function log(message = '') {
 	return (payload) => {
 		console.log(message, payload);

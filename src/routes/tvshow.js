@@ -7,8 +7,15 @@ import formatNumber from 'simple-format-number';
 
 import {getDefault} from '../quality';
 import {parseTVShowPage} from '../info';
-import {link, capitalizeText} from '../utils';
 import {getActor, getActorPhoto} from '../info/tmdb';
+import {deepEqualShouldUpdate} from '../utils/components';
+
+import {
+	link,
+	capitalizeText,
+	isMenuButtonPressNavigatedTo,
+} from '../utils';
+
 import {
 	getTVShow,
 	addToMyTVShows,
@@ -40,11 +47,8 @@ export default function() {
 
 				this.menuButtonPressPipeline = TVDML
 					.subscribe('menu-button-press')
-					.pipe(({to: {document}}) => {
-						if (currentDocument === document) {
-							this.loadData(sid).then(this.setState.bind(this));
-						}
-					});
+					.pipe(isMenuButtonPressNavigatedTo(currentDocument))
+					.pipe(isNavigated => isNavigated && this.loadData(sid).then(this.setState.bind(this)));
 
 				this.loadData(sid).then(payload => {
 					this.setState(assign({loading: false}, payload));
@@ -55,12 +59,7 @@ export default function() {
 				this.menuButtonPressPipeline.unsubscribe();
 			},
 
-			shouldComponentUpdate(nextProps, nextState) {
-				let propsAreEqual = JSON.stringify(this.props) === JSON.stringify(nextProps);
-				let stateAreEqual = JSON.stringify(this.state) === JSON.stringify(nextState);
-
-				return !propsAreEqual || !stateAreEqual;
-			},
+			shouldComponentUpdate: deepEqualShouldUpdate,
 
 			loadData(sid) {
 				return Promise

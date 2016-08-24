@@ -5,6 +5,8 @@ import * as TVDML from 'tvdml';
 import assign from 'object-assign';
 
 import {getAllTVShows} from '../request/soap';
+import {isMenuButtonPressNavigatedTo} from '../utils';
+import {deepEqualShouldUpdate} from '../utils/components';
 
 import Tile from '../components/tile';
 import Loader from '../components/loader';
@@ -25,17 +27,8 @@ export default function(title) {
 
 				this.menuButtonPressPipeline = TVDML
 					.subscribe('menu-button-press')
-					.pipe(({to: {document}}) => {
-						let {menuBarDocument} = document;
-
-						if (menuBarDocument) {
-							document = menuBarDocument.getDocument(menuBarDocument.getSelectedItem());
-						}
-
-						if (currentDocument === document) {
-							this.loadData().then(this.setState.bind(this));
-						}
-					});
+					.pipe(isMenuButtonPressNavigatedTo(currentDocument))
+					.pipe(isNavigated => isNavigated && this.loadData().then(this.setState.bind(this)));
 
 				this.loadData().then(payload => {
 					this.setState(assign({loading: false}, payload));
@@ -46,12 +39,7 @@ export default function(title) {
 				this.menuButtonPressPipeline.unsubscribe();
 			},
 
-			shouldComponentUpdate(nextProps, nextState) {
-				let propsAreEqual = JSON.stringify(this.props) === JSON.stringify(nextProps);
-				let stateAreEqual = JSON.stringify(this.state) === JSON.stringify(nextState);
-
-				return !propsAreEqual || !stateAreEqual;
-			},
+			shouldComponentUpdate: deepEqualShouldUpdate,
 
 			loadData() {
 				return getAllTVShows().then(series => ({series}));

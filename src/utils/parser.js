@@ -28,7 +28,7 @@ export function nodesToArray(IKDOMNodeList) {
 	return result;
 }
 
-function processEntitiesInString(string) {
+export function processEntitiesInString(string) {
 	return string.replace(entitiesRegexp, (match, key) => {
 		if (entities[key] != null) {
 			return entities[key];
