@@ -3,7 +3,7 @@
 import {jsx} from 'tvdml';
 import {link} from '../utils';
 
-export default function Tile({attrs = {}}) {
+export default function Tile({attrs = {}, key}) {
 	let {
 		route,
 		title,
@@ -15,6 +15,7 @@ export default function Tile({attrs = {}}) {
 
 	return (
 		<lockup
+			key={key}
 			onSelect={link(route, payload)}
 			autoHighlight={autoHighlight ? 'true' : undefined}
 		>
