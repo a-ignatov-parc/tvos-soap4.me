@@ -53,7 +53,7 @@ export default function(title) {
 				if (!this.state.authorized) {
 					return (
 						<document>
-							<alertTemplate>
+							<alertTemplate style="background-color: rgba(0, 0, 0, 0.4)">
 								<title>Authorization</title>
 								<description>You need to be authorized in order to see your subscriptions</description>
 								<button>
