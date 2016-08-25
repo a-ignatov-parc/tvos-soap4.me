@@ -1,22 +1,29 @@
 import md5 from 'blueimp-md5';
 
-import {get as getToken} from '../token';
+import {getToken} from '../user';
 import * as request from '../request/native';
 
 export function get(url) {
-	return request.get(url, headers());
+	return request.get(url, headers()).then(response => {
+		console.log(url, response);
+		return response;
+	});
 }
 
 export function post(url, parameters) {
 	return request.post(url, parameters, headers());
 }
 
+export function checkSession() {
+	return get('https://api.soap4.me/v2/auth/check/');
+}
+
 export function getMyTVShows() {
-	return get('https://soap4.me/api/soap/my/');
+	return get('https://api.soap4.me/v2/soap/my/');
 }
 
 export function getAllTVShows() {
-	return get('https://soap4.me/api/soap/');
+	return get('https://api.soap4.me/v2/soap/');
 }
 
 export function getTVShow(sid) {
@@ -126,7 +133,7 @@ function headers() {
 	let token = getToken();
 	let headers = {
 		'X-Api-Token': token,
-		'User-Agent': 'xbmc for soap',
+		'User-Agent': 'ATV: soap4.me v1.0.0',
 	};
 
 	return headers;

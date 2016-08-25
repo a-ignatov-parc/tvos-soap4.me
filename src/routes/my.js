@@ -4,6 +4,7 @@ import plur from 'plur';
 import * as TVDML from 'tvdml';
 import assign from 'object-assign';
 
+import {isAuthorized} from '../user';
 import {getMyTVShows} from '../request/soap';
 import {isMenuButtonPressNavigatedTo} from '../utils';
 import {deepEqualShouldUpdate} from '../utils/components';
@@ -16,8 +17,11 @@ export default function(title) {
 		.createPipeline()
 		.pipe(TVDML.render(TVDML.createComponent({
 			getInitialState() {
+				let authorized = isAuthorized();
+
 				return {
 					title,
+					authorized,
 					loading: true,
 				};
 			},
@@ -46,6 +50,20 @@ export default function(title) {
 			},
 
 			render() {
+				if (!this.state.authorized) {
+					return (
+						<document>
+							<alertTemplate>
+								<title>Authorization</title>
+								<description>You need to be authorized in order to see your subscriptions</description>
+								<button>
+									<text>Authorize</text>
+								</button>
+							</alertTemplate>
+						</document>
+					);
+				}
+
 				if (this.state.loading) {
 					return <Loader />;
 				}

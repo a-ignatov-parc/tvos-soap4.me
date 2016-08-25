@@ -1,7 +1,9 @@
 /** @jsx TVDML.jsx */
 
 import * as TVDML from 'tvdml';
-import * as token from './token';
+import * as user from './user';
+
+import {checkSession} from './request/soap';
 
 import MyRoute from './routes/my';
 import AllRoute from './routes/all';
@@ -11,20 +13,17 @@ import SeasonRoute from './routes/season';
 import TVShowRoute from './routes/tvshow';
 import SearchRoute from './routes/search';
 
+import Loader from './components/loader';
+
 TVDML
 	.subscribe(TVDML.event.LAUNCH)
-	.pipe(() => {
-		if (token.get()) {
-			TVDML.navigate('main');
-		} else {
-			TVDML.navigate('auth', {
-				onSuccess(ticket) {
-					token.set(ticket.token, ticket.expires);
-					TVDML.redirect('main');
-				}
-			});
-		}
-	});
+	.pipe(() => TVDML.navigate('get-token'));
+
+TVDML
+	.handleRoute('get-token')
+	.pipe(TVDML.render(<Loader title="Connecting to soap4.me" />))
+	.pipe(() => checkSession().then(({logged, token, till}) => user.set({logged, token, till})))
+	.pipe(() => TVDML.navigate('main'));
 
 TVDML
 	.handleRoute('auth')

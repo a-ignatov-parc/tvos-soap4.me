@@ -4,6 +4,7 @@ import plur from 'plur';
 import * as TVDML from 'tvdml';
 
 import {getSearchResults} from '../request/soap';
+
 import {
 	fixSpecialSymbols,
 	prettifyEpisodeNum,

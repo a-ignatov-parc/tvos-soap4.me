@@ -4,7 +4,7 @@ import plur from 'plur';
 import * as TVDML from 'tvdml';
 import assign from 'object-assign';
 
-import {get as getToken} from '../token';
+import {getToken} from '../user';
 import {parseTVShowSeasonPage} from '../info';
 import {getDefault, quality} from '../quality';
 import {link, fixSpecialSymbols} from '../utils';
