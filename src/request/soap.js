@@ -1,14 +1,27 @@
 import md5 from 'blueimp-md5';
 
 import {get as getToken} from '../token';
-import * as request from '../request/native';
+import * as request from '../request';
+
+function addHeaders(headers) {
+	return (XHR) => {
+		Object
+			.keys(headers)
+			.forEach(key => XHR.setRequestHeader(key, headers[key]));
+		return XHR;
+	}
+}
 
 export function get(url) {
-	return request.get(url, headers());
+	return request
+		.get(url, {prepare: addHeaders(headers())})
+		.then(request.toJSON());
 }
 
 export function post(url, parameters) {
-	return request.post(url, parameters, headers());
+	return request
+		.post(url, parameters, {prepare: addHeaders(headers())})
+		.then(request.toJSON());
 }
 
 export function getMyTVShows() {
