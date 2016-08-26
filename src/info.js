@@ -102,8 +102,8 @@ export function parseTVShowPage({sid}) {
 		});
 }
 
-export function parseTVShowSeasonPage({title}, season) {
-	return get(`https://soap4.me/soap/${titleToSlug(title)}/${season}/`)
+export function parseTVShowSeasonPage({link}, season) {
+	return get(`https://soap4.me/soap/${link}/${season}/`)
 		.then(toString())
 		.then(response => {
 			let fragment = parseHTML(response);
