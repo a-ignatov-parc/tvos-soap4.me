@@ -20,7 +20,7 @@ TVDML
 			TVDML.navigate('auth', {
 				onSuccess(ticket) {
 					token.set(ticket.token, ticket.expires);
-					TVDML.redirect('main');
+					TVDML.navigate('main');
 				}
 			});
 		}
@@ -32,6 +32,11 @@ TVDML
 
 TVDML
 	.handleRoute('main')
+	.pipe(TVDML.passthrough(({document: currentDocument}) => {
+		navigationDocument.documents
+			.filter((document, i, list) => i < list.indexOf(currentDocument))
+			.forEach(document => navigationDocument.removeDocument(document));
+	}))
 	.pipe(TVDML.render(
 		<document>
 			<menuBarTemplate>

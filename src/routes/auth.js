@@ -70,7 +70,7 @@ export default function() {
 					.sink({route});
 				}
 			})
-			.sink({route})
+			.sink(payload)
 		});
 }
 
