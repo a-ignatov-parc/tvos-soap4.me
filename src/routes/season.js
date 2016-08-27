@@ -48,18 +48,29 @@ export default function() {
 						spoiler: this.props.spoilers[i],
 					}));
 
+				let subtitles = this.props.season.subtitles
+					.filter(Boolean)
+					.map(getDefault)
+					.map((episode, i) => assign({}, episode, {
+						spoiler: this.props.spoilers[i],
+						hasSubtitles: true,
+					}));
+
 				return episodes.reduce((result, {eid, watched}) => {
 					result[eid] = !!watched;
 					return result;
 				}, {
 					episodes,
+					subtitles,
 					poster: `http://covers.soap4.me/season/big/${this.props.id}.jpg`,
 				});
 			},
 
 			render() {
-				let {title} = this.props.tvshow;
 				let highlighted = false;
+				let {title} = this.props.tvshow;
+				let {episodes, subtitles} = this.state;
+				let seasonEpisodes = subtitles.length ? subtitles : episodes;
 
 				return (
 					<document>
@@ -73,13 +84,15 @@ export default function() {
 									<subtitle>Season {this.props.season.season}</subtitle>
 								</segmentBarHeader>
 								<section>
-									{this.state.episodes.map((episode, i) => {
+									{episodes.map((episode, i) => {
 										let {
 											eid,
 											title_en,
 											spoiler,
 											watched,
 											quality,
+											translate,
+											hasSubtitles,
 											episode: episodeIndex,
 										} = episode;
 
@@ -108,6 +121,10 @@ export default function() {
 														<badge src="resource://button-checkmark" />
 													)}
 													{'  '}
+													{hasSubtitles && (
+														<badge src="resource://cc" />
+													)}
+													{hasSubtitles && '  '}
 													{!!~[FULLHD, HD].indexOf(quality) && (
 														<badge src="resource://hd" />
 													)}

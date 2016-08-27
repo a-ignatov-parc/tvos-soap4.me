@@ -449,6 +449,6 @@ export default function() {
 		})));
 }
 
-function calculateUnwatchedCount({episodes}) {
-	return episodes.reduce((result, episode) => result + +!getDefault(episode).watched, 0);
+function calculateUnwatchedCount({episodes, subtitles}) {
+	return (subtitles.length ? subtitles : episodes).reduce((result, episode) => result + +!getDefault(episode).watched, 0);
 }
