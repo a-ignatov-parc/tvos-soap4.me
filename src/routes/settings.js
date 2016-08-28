@@ -96,10 +96,7 @@ export default function() {
 									<header>
 										<title>Account</title>
 									</header>
-									<listItemLockup 
-										onSelect={this.onLogout}
-										style="tv-highlight-color: rgb(255, 140, 140)"
-									>
+									<listItemLockup onSelect={this.onLogoutAttempt}>
 										<title>Logout</title>
 									</listItemLockup>
 								</section>
@@ -146,6 +143,26 @@ export default function() {
 				settings.set(key, value);
 				this.setState(settings.getAll());
 				TVDML.removeModal();
+			},
+
+			onLogoutAttempt() {
+				TVDML
+					.renderModal(
+						<document>
+							<alertTemplate>
+								<title>
+									Are you sure you want to log out?
+								</title>
+								<button onSelect={this.onLogout}>
+									<text>Logout</text>
+								</button>
+								<button onSelect={() => TVDML.removeModal()}>
+									<text>Cancel</text>
+								</button>
+							</alertTemplate>
+						</document>
+					)
+					.sink();
 			},
 
 			onLogout() {
