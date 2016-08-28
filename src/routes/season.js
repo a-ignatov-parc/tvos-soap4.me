@@ -8,7 +8,9 @@ import * as settings from '../settings';
 import {get as getToken} from '../token';
 import {parseTVShowSeasonPage} from '../info';
 import {link, fixSpecialSymbols} from '../utils';
-import {getDefault, qualityMapping} from '../quality';
+
+import {qualityMapping} from '../quality';
+import {getSeasonEpisodes} from '../episodes';
 
 import {
 	getTVShow,
@@ -21,9 +23,8 @@ import {
 import Loader from '../components/loader';
 
 const {Promise} = TVDML;
-const {VIDEO_QUALITY, TRANSLATION} = settings.params;
+const {VIDEO_QUALITY} = settings.params;
 const {SD, HD, FULLHD} = settings.values[VIDEO_QUALITY];
-const {ANY, RUSSIAN, SUBTITLES} = settings.values[TRANSLATION];
 
 export default function() {
 	return TVDML
@@ -45,45 +46,16 @@ export default function() {
 		}))
 		.pipe(TVDML.render(TVDML.createComponent({
 			getInitialState() {
-				let seasonEpisodes;
-				let translationSettings = settings.get(TRANSLATION);
-
-				let episodes = this.props.season.episodes
-					.filter(Boolean)
-					.map(getDefault)
+				let episodes = getSeasonEpisodes(this.props.season)
 					.map((episode, i) => assign({}, episode, {
 						spoiler: this.props.spoilers[i],
 					}));
-
-				let subtitles = this.props.season.subtitles
-					.filter(Boolean)
-					.map(getDefault)
-					.map((episode, i) => assign({}, episode, {
-						spoiler: this.props.spoilers[i],
-						hasSubtitles: true,
-					}));
-
-				if (translationSettings === RUSSIAN || !subtitles.length) {
-					seasonEpisodes = episodes;
-				} else if (translationSettings === SUBTITLES) {
-					seasonEpisodes = subtitles;
-				} else if (translationSettings === ANY) {
-					let episodesIds = episodes.map(({episode}) => episode);
-
-					seasonEpisodes = subtitles.map(episode => {
-						let {episode: id} = episode;
-						let episodesIndex = episodesIds.indexOf(id);
-						return ~episodesIndex ? episodes[episodesIndex] : episode;
-					});
-				}
 
 				return episodes.reduce((result, {eid, watched}) => {
 					result[eid] = !!watched;
 					return result;
 				}, {
 					episodes,
-					subtitles,
-					seasonEpisodes,
 					poster: `http://covers.soap4.me/season/big/${this.props.id}.jpg`,
 				});
 			},
@@ -91,7 +63,7 @@ export default function() {
 			render() {
 				let highlighted = false;
 				let {title} = this.props.tvshow;
-				let {seasonEpisodes} = this.state;
+				let {episodes} = this.state;
 
 				return (
 					<document>
@@ -105,7 +77,7 @@ export default function() {
 									<subtitle>Season {this.props.season.season}</subtitle>
 								</segmentBarHeader>
 								<section>
-									{seasonEpisodes.map((episode, i) => {
+									{episodes.map((episode, i) => {
 										let {
 											eid,
 											title_en,
@@ -196,7 +168,7 @@ export default function() {
 			},
 
 			onPlayEpisode(eid) {
-				let {seasonEpisodes} = this.state;
+				let {episodes} = this.state;
 				let markAsWatched = this.onMarkAsWatched.bind(this);
 
 				let resolvers = {
@@ -205,9 +177,9 @@ export default function() {
 					},
 
 					next({eid}) {
-						let episode = getEpisode(eid, seasonEpisodes);
-						let index = seasonEpisodes.indexOf(episode);
-						let nextEpisode = ~index ? seasonEpisodes[index + 1] : {};
+						let episode = getEpisode(eid, episodes);
+						let index = episodes.indexOf(episode);
+						let nextEpisode = ~index ? episodes[index + 1] : {};
 						return nextEpisode.eid || null;
 					},
 				};
@@ -216,7 +188,7 @@ export default function() {
 					.createPlayer({
 						items(item, request) {
 							let id = resolvers[request] && resolvers[request](item);
-							return getEpisodeItem(id, seasonEpisodes);
+							return getEpisodeItem(id, episodes);
 						},
 
 						markAsWatched({eid}) {

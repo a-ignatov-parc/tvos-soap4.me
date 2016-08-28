@@ -26,8 +26,8 @@ const valueMapping = {
 	[HD]: 'HD',
 	[FULLHD]: 'Full HD',
 	[ANY]: 'Localization + Subtitles',
-	[RUSSIAN]: 'Only localization',
-	[SUBTITLES]: 'Only subtitles',
+	[RUSSIAN]: 'Only Localization',
+	[SUBTITLES]: 'Only Subtitles',
 };
 
 export default function() {
@@ -153,8 +153,13 @@ export default function() {
 								<title>
 									Are you sure you want to log out?
 								</title>
-								<button onSelect={this.onLogout}>
-									<text>Logout</text>
+								<button
+									onSelect={this.onLogout}
+									style="tv-highlight-color: rgb(218, 61, 50)"
+								>
+									<text style="tv-highlight-color: rgb(255, 255, 255)">
+										Logout
+									</text>
 								</button>
 								<button onSelect={() => TVDML.removeModal()}>
 									<text>Cancel</text>
