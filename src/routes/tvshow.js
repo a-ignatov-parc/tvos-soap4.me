@@ -8,8 +8,7 @@ import formatNumber from 'simple-format-number';
 import {parseTVShowPage} from '../info';
 import {getActor, getActorPhoto} from '../info/tmdb';
 import {deepEqualShouldUpdate} from '../utils/components';
-
-import {getSeasonEpisodes} from '../episodes';
+import {getResolvedSeasonEpisodes} from '../request/soap';
 
 import {
 	link,
@@ -451,5 +450,5 @@ export default function() {
 }
 
 function calculateUnwatchedCount(season) {
-	return getSeasonEpisodes(season).reduce((result, episode) => result + +!episode.watched, 0);
+	return getResolvedSeasonEpisodes(season).reduce((result, episode) => result + +!episode.watched, 0);
 }

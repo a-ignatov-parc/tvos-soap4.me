@@ -6,11 +6,10 @@ import assign from 'object-assign';
 
 import * as settings from '../settings';
 import {get as getToken} from '../token';
+import {qualityMapping} from '../quality';
 import {parseTVShowSeasonPage} from '../info';
 import {link, fixSpecialSymbols} from '../utils';
-
-import {qualityMapping} from '../quality';
-import {getSeasonEpisodes} from '../episodes';
+import {getResolvedSeasonEpisodes} from '../request/soap';
 
 import {
 	getTVShow,
@@ -46,7 +45,7 @@ export default function() {
 		}))
 		.pipe(TVDML.render(TVDML.createComponent({
 			getInitialState() {
-				let episodes = getSeasonEpisodes(this.props.season)
+				let episodes = getResolvedSeasonEpisodes(this.props.season)
 					.map((episode, i) => assign({}, episode, {
 						spoiler: this.props.spoilers[i],
 					}));
