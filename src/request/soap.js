@@ -18,6 +18,10 @@ export function post(url, parameters) {
 	return request.post(url, parameters, headers());
 }
 
+export function authorize({login, password}) {
+	return post('https://soap4.me/login/', {login, password});
+}
+
 export function getMyTVShows() {
 	return get('https://soap4.me/api/soap/my/');
 }
