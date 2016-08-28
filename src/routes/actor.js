@@ -2,7 +2,6 @@
 
 import plur from 'plur';
 import * as TVDML from 'tvdml';
-import {get} from '../request/soap';
 import {parseActorPage} from '../info';
 
 import Tile from '../components/tile';

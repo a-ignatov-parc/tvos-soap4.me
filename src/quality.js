@@ -1,18 +1,26 @@
-export const quality = {
-	SD: 'SD',
-	HD: '720p',
-	FULLHD: '720p',
+import * as settings from './settings';
+
+const {VIDEO_QUALITY} = settings.params;
+const {SD, HD, FULLHD} = settings.values[VIDEO_QUALITY];
+
+export const qualityMapping = {
+	[SD]: 'SD',
+	[HD]: '720p',
+	[FULLHD]: '720p',
 };
 
 export const qualityPreferences = [
-	quality.FULLHD,
-	quality.HD,
-	quality.SD,
+	FULLHD,
+	HD,
+	SD,
 ];
 
 export function getDefault(episode) {
-	return qualityPreferences.reduce((result, quality) => {
-		if (!result && episode[quality]) return episode[quality];
-		return result;
-	}, null);
+	return qualityPreferences
+		.slice(qualityPreferences.indexOf(settings.get(VIDEO_QUALITY)))
+		.map(key => qualityMapping[key])
+		.reduce((result, quality) => {
+			if (!result && episode[quality]) return episode[quality];
+			return result;
+		}, null);
 }

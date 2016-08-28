@@ -5,10 +5,10 @@ import * as TVDML from 'tvdml';
 import assign from 'object-assign';
 import formatNumber from 'simple-format-number';
 
-import {getDefault} from '../quality';
 import {parseTVShowPage} from '../info';
 import {getActor, getActorPhoto} from '../info/tmdb';
 import {deepEqualShouldUpdate} from '../utils/components';
+import {getResolvedSeasonEpisodes} from '../request/soap';
 
 import {
 	link,
@@ -449,6 +449,6 @@ export default function() {
 		})));
 }
 
-function calculateUnwatchedCount({episodes}) {
-	return episodes.reduce((result, episode) => result + +!getDefault(episode).watched, 0);
+function calculateUnwatchedCount(season) {
+	return getResolvedSeasonEpisodes(season).reduce((result, episode) => result + +!episode.watched, 0);
 }
