@@ -4,17 +4,11 @@ import {get as getToken} from '../token';
 import * as request from '../request/native';
 
 export function get(url) {
-	return request.get(url, headers()).then(response => {
-		console.log('get', url, response);
-		return response;
-	});
+	return request.get(url, headers());
 }
 
 export function post(url, parameters) {
-	return request.post(url, parameters, headers()).then(response => {
-		console.log('post', url, parameters, response);
-		return response;
-	});
+	return request.post(url, parameters, headers());
 }
 
 export function getMyTVShows() {

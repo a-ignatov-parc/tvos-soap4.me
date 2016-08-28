@@ -30,6 +30,7 @@ export default function() {
 									.then(response => {
 										if (response.ok) {
 											onSuccess({
+												login,
 												token: response.token,
 												expires: response.till,
 											});

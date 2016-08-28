@@ -4,10 +4,12 @@ import plur from 'plur';
 import * as TVDML from 'tvdml';
 import assign from 'object-assign';
 
+import * as settings from '../settings';
 import {get as getToken} from '../token';
 import {parseTVShowSeasonPage} from '../info';
-import {getDefault, quality} from '../quality';
 import {link, fixSpecialSymbols} from '../utils';
+import {getDefault, qualityMapping} from '../quality';
+
 import {
 	getTVShow,
 	getTVShowSeason,
@@ -19,7 +21,9 @@ import {
 import Loader from '../components/loader';
 
 const {Promise} = TVDML;
-const {SD, HD, FULLHD} = quality;
+const {VIDEO_QUALITY, TRANSLATION} = settings.params;
+const {SD, HD, FULLHD} = settings.values[VIDEO_QUALITY];
+const {ANY, RUSSIAN, SUBTITLES} = settings.values[TRANSLATION];
 
 export default function() {
 	return TVDML
@@ -41,6 +45,9 @@ export default function() {
 		}))
 		.pipe(TVDML.render(TVDML.createComponent({
 			getInitialState() {
+				let seasonEpisodes;
+				let translationSettings = settings.get(TRANSLATION);
+
 				let episodes = this.props.season.episodes
 					.filter(Boolean)
 					.map(getDefault)
@@ -56,12 +63,27 @@ export default function() {
 						hasSubtitles: true,
 					}));
 
+				if (translationSettings === RUSSIAN || !subtitles.length) {
+					seasonEpisodes = episodes;
+				} else if (translationSettings === SUBTITLES) {
+					seasonEpisodes = subtitles;
+				} else if (translationSettings === ANY) {
+					let episodesIds = episodes.map(({episode}) => episode);
+
+					seasonEpisodes = subtitles.map(episode => {
+						let {episode: id} = episode;
+						let episodesIndex = episodesIds.indexOf(id);
+						return ~episodesIndex ? episodes[episodesIndex] : episode;
+					});
+				}
+
 				return episodes.reduce((result, {eid, watched}) => {
 					result[eid] = !!watched;
 					return result;
 				}, {
 					episodes,
 					subtitles,
+					seasonEpisodes,
 					poster: `http://covers.soap4.me/season/big/${this.props.id}.jpg`,
 				});
 			},
@@ -69,8 +91,7 @@ export default function() {
 			render() {
 				let highlighted = false;
 				let {title} = this.props.tvshow;
-				let {episodes, subtitles} = this.state;
-				let seasonEpisodes = subtitles.length ? subtitles : episodes;
+				let {seasonEpisodes} = this.state;
 
 				return (
 					<document>
@@ -84,7 +105,7 @@ export default function() {
 									<subtitle>Season {this.props.season.season}</subtitle>
 								</segmentBarHeader>
 								<section>
-									{episodes.map((episode, i) => {
+									{seasonEpisodes.map((episode, i) => {
 										let {
 											eid,
 											title_en,
@@ -96,9 +117,10 @@ export default function() {
 											episode: episodeIndex,
 										} = episode;
 
+										let highlight = false;
 										let title = fixSpecialSymbols(title_en);
 										let description = fixSpecialSymbols(spoiler);
-										let highlight = false;
+										let translation = (translate || '').trim();
 
 										if (this.props.episode) {
 											highlight = episodeIndex === this.props.episode;
@@ -116,6 +138,11 @@ export default function() {
 												<title style="tv-text-highlight-style: marquee-on-highlight">
 													{title}
 												</title>
+												{!hasSubtitles && (
+													<subtitle>
+														Translation: {translation}
+													</subtitle>
+												)}
 												<decorationLabel>
 													{this.state[eid] && (
 														<badge src="resource://button-checkmark" />
@@ -125,7 +152,10 @@ export default function() {
 														<badge src="resource://cc" />
 													)}
 													{hasSubtitles && '  '}
-													{!!~[FULLHD, HD].indexOf(quality) && (
+													{!!~[
+														qualityMapping[HD],
+														qualityMapping[FULLHD],
+													].indexOf(quality) && (
 														<badge src="resource://hd" />
 													)}
 												</decorationLabel>
@@ -166,7 +196,7 @@ export default function() {
 			},
 
 			onPlayEpisode(eid) {
-				let {episodes} = this.state;
+				let {seasonEpisodes} = this.state;
 				let markAsWatched = this.onMarkAsWatched.bind(this);
 
 				let resolvers = {
@@ -175,9 +205,9 @@ export default function() {
 					},
 
 					next({eid}) {
-						let episode = getEpisode(eid, episodes);
-						let index = episodes.indexOf(episode);
-						let nextEpisode = ~index ? episodes[index + 1] : {};
+						let episode = getEpisode(eid, seasonEpisodes);
+						let index = seasonEpisodes.indexOf(episode);
+						let nextEpisode = ~index ? seasonEpisodes[index + 1] : {};
 						return nextEpisode.eid || null;
 					},
 				};
@@ -186,7 +216,7 @@ export default function() {
 					.createPlayer({
 						items(item, request) {
 							let id = resolvers[request] && resolvers[request](item);
-							return getEpisodeItem(id, episodes);
+							return getEpisodeItem(id, seasonEpisodes);
 						},
 
 						markAsWatched({eid}) {
