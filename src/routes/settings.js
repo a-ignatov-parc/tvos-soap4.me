@@ -57,9 +57,25 @@ export default function() {
 
 				return (
 					<document>
+						<head>
+							<style content={`
+								.grey_title {
+									color: rgb(142, 147, 157);
+								}
+
+								.grey_description {
+									color: rgb(84, 82, 80);
+								}
+
+								.item_description {
+									margin: 80 0 0; 
+									text-align: center;
+								}
+							`} />
+						</head>
 						<listTemplate>
 							<banner>
-								<title style="color: rgb(142, 147, 157)">Settings</title>
+								<title class="grey_title">Settings</title>
 							</banner>
 							<list>
 								<relatedContent>
@@ -83,7 +99,7 @@ export default function() {
 												<relatedContent>
 													<lockup>
 														{relatedImage}
-														<description style="margin: 80 0 0; color: rgb(84, 82, 80); text-align: center">
+														<description class="grey_description item_description">
 															{description}
 														</description>
 													</lockup>
