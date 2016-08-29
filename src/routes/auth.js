@@ -1,7 +1,7 @@
 /** @jsx TVDML.jsx */
 
 import * as TVDML from 'tvdml';
-import {post} from '../request/soap';
+import {authorize} from '../request/soap';
 import {getStartParams} from '../utils';
 
 import Loader from '../components/loader';
@@ -26,10 +26,11 @@ export default function() {
 								navigationDocument.removeDocument(loginDocument);
 								navigationDocument.removeDocument(passwordDocument);
 
-								post('https://soap4.me/login/', {login, password})
+								authorize({login, password})
 									.then(response => {
 										if (response.ok) {
 											onSuccess({
+												login,
 												token: response.token,
 												expires: response.till,
 											});

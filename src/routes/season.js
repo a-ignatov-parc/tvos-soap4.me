@@ -4,10 +4,13 @@ import plur from 'plur';
 import * as TVDML from 'tvdml';
 import assign from 'object-assign';
 
+import * as settings from '../settings';
 import {get as getToken} from '../token';
+import {qualityMapping} from '../quality';
 import {parseTVShowSeasonPage} from '../info';
-import {getDefault, quality} from '../quality';
 import {link, fixSpecialSymbols} from '../utils';
+import {getResolvedSeasonEpisodes} from '../request/soap';
+
 import {
 	getTVShow,
 	getTVShowSeason,
@@ -19,7 +22,8 @@ import {
 import Loader from '../components/loader';
 
 const {Promise} = TVDML;
-const {SD, HD, FULLHD} = quality;
+const {VIDEO_QUALITY} = settings.params;
+const {SD, HD, FULLHD} = settings.values[VIDEO_QUALITY];
 
 export default function() {
 	return TVDML
@@ -41,9 +45,7 @@ export default function() {
 		}))
 		.pipe(TVDML.render(TVDML.createComponent({
 			getInitialState() {
-				let episodes = this.props.season.episodes
-					.filter(Boolean)
-					.map(getDefault)
+				let episodes = getResolvedSeasonEpisodes(this.props.season)
 					.map((episode, i) => assign({}, episode, {
 						spoiler: this.props.spoilers[i],
 					}));
@@ -58,8 +60,9 @@ export default function() {
 			},
 
 			render() {
-				let {title} = this.props.tvshow;
 				let highlighted = false;
+				let {title} = this.props.tvshow;
+				let {episodes} = this.state;
 
 				return (
 					<document>
@@ -73,19 +76,22 @@ export default function() {
 									<subtitle>Season {this.props.season.season}</subtitle>
 								</segmentBarHeader>
 								<section>
-									{this.state.episodes.map((episode, i) => {
+									{episodes.map((episode, i) => {
 										let {
 											eid,
 											title_en,
 											spoiler,
 											watched,
 											quality,
+											translate,
+											hasSubtitles,
 											episode: episodeIndex,
 										} = episode;
 
+										let highlight = false;
 										let title = fixSpecialSymbols(title_en);
 										let description = fixSpecialSymbols(spoiler);
-										let highlight = false;
+										let translation = (translate || '').trim();
 
 										if (this.props.episode) {
 											highlight = episodeIndex === this.props.episode;
@@ -103,12 +109,24 @@ export default function() {
 												<title style="tv-text-highlight-style: marquee-on-highlight">
 													{title}
 												</title>
+												{!hasSubtitles && (
+													<subtitle>
+														Translation: {translation}
+													</subtitle>
+												)}
 												<decorationLabel>
 													{this.state[eid] && (
 														<badge src="resource://button-checkmark" />
 													)}
 													{'  '}
-													{!!~[FULLHD, HD].indexOf(quality) && (
+													{hasSubtitles && (
+														<badge src="resource://cc" />
+													)}
+													{hasSubtitles && '  '}
+													{!!~[
+														qualityMapping[HD],
+														qualityMapping[FULLHD],
+													].indexOf(quality) && (
 														<badge src="resource://hd" />
 													)}
 												</decorationLabel>
