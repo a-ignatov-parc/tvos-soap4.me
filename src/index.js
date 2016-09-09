@@ -12,6 +12,21 @@ import ActorRoute from './routes/actor';
 import SeasonRoute from './routes/season';
 import TVShowRoute from './routes/tvshow';
 import SearchRoute from './routes/search';
+import SettingsRoute from './routes/settings';
+
+const clearPreviousDocuments = TVDML
+	.createPipeline()
+	.pipe(TVDML.passthrough(({document}) => {
+		navigationDocument.documents
+			.slice(0, navigationDocument.documents.indexOf(document))
+			.forEach(document => {
+				// Workaround for strange tvOS issue when after deleting document 
+				// from `navigationDocument.documents` it still remains there.
+				while(~navigationDocument.documents.indexOf(document)) {
+					try {navigationDocument.removeDocument(document)} catch(e) {}
+				}
+			});
+	}));
 
 import Loader from './components/loader';
 
@@ -27,10 +42,12 @@ TVDML
 
 TVDML
 	.handleRoute('auth')
+	.pipe(clearPreviousDocuments)
 	.pipe(AuthRoute());
 
 TVDML
 	.handleRoute('main')
+	.pipe(clearPreviousDocuments)
 	.pipe(TVDML.render(
 		<document>
 			<menuBarTemplate>
@@ -43,6 +60,9 @@ TVDML
 					</menuItem>
 					<menuItem route="all">
 						<title>All Series</title>
+					</menuItem>
+					<menuItem route="settings">
+						<title>Settings</title>
 					</menuItem>
 				</menuBar>
 			</menuBarTemplate>
@@ -60,6 +80,10 @@ TVDML
 TVDML
 	.handleRoute('search')
 	.pipe(SearchRoute());
+
+TVDML
+	.handleRoute('settings')
+	.pipe(SettingsRoute());
 
 TVDML
 	.handleRoute('tvshow')

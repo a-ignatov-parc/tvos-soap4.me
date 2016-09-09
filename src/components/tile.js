@@ -3,20 +3,30 @@
 import {jsx} from 'tvdml';
 import {link} from '../utils';
 
-export default function Tile({attrs = {}, key}) {
+export default function Tile({key, attrs = {}, events = {}}) {
 	let {
 		route,
 		title,
 		poster,
 		subtitle,
 		payload = {},
-		autoHighlight
+		autoHighlight,
 	} = attrs;
+
+	let {
+		onPlay,
+		onSelect,
+		onHighlight,
+		onHoldselect,
+	} = events;
 
 	return (
 		<lockup
 			key={key}
-			onSelect={link(route, payload)}
+			onPlay={onPlay}
+			onSelect={onSelect || link(route, payload)}
+			onHighlight={onHighlight}
+			onHoldselect={onHoldselect}
 			autoHighlight={autoHighlight ? 'true' : undefined}
 		>
 			<img src={poster} width="250" height="250" />
