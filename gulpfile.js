@@ -54,6 +54,7 @@ gulp.task('build', function() {
 		.transform(babelify, {
 			global: true,
 			presets: ['es2015', 'react'],
+			ignore: /moment/,
 		})
 		.bundle()
 		.on('error', function(error) {

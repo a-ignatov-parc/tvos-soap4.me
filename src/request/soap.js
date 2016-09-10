@@ -10,6 +10,12 @@ import {getDefault} from '../quality';
 const {TRANSLATION} = settings.params;
 const {ANY, RUSSIAN, SUBTITLES} = settings.values[TRANSLATION];
 
+export const TVShowStatuses = {
+	0: 'Running',
+	1: 'Ended',
+	2: 'Closed',
+};
+
 export function get(url) {
 	return request.get(url, headers()).then(response => {
 		console.log(url, response);
@@ -41,7 +47,53 @@ export function getAllTVShows() {
 	return get('https://api.soap4.me/v2/soap/');
 }
 
-export function getTVShow(sid) {
+export function getTVShowDescription(sid) {
+	return get(`https://api.soap4.me/v2/soap/description/${sid}/`);
+}
+
+export function getTVShowEpisodes(sid) {
+	return get(`https://api.soap4.me/v2/episodes/${sid}/`);
+}
+
+export function getTVShowRecommendations(sid) {
+	return get(`https://api.soap4.me/v2/soap/recommendations/${sid}/`);
+}
+
+export function getTVShowReviews(sid) {
+	return get(`https://api.soap4.me/v2/reviews/${sid}/`);
+}
+
+export function getTVShowSeasons(sid) {
+	return getTVShowEpisodes(sid)
+		.then(({covers, episodes}) => {
+			return episodes.reduce((result, episode) => {
+				if (!result[episode.season]) {
+					result[episode.season] = {
+						episodes: [],
+						unwatched: 0,
+						season: episode.season,
+						covers: covers.filter(({season}) => season === episode.season)[0],
+					};
+				}
+				result[episode.season].episodes.push(episode);
+				episode.watched || result[episode.season].unwatched++;
+				return result;
+			}, {});
+		})
+		.then(seasonsCollection => {
+			return Object
+				.keys(seasonsCollection)
+				.sort((a, b) => a - b)
+				.map(seasonNumber => seasonsCollection[seasonNumber])
+				.map(season => assign({}, season, {episodes: season.episodes.slice(0).sort((a, b) => a.episode - b.episode)}));
+		});
+}
+
+export function getTVShowSeason(sid, id) {
+	return getTVShowSeasons(sid).then(seasons => seasons.filter(season => season.season === id)[0]);
+}
+
+/*export function getTVShow(sid) {
 	return getAllTVShows().then(series => {
 		let tvshow = null;
 
@@ -124,7 +176,7 @@ export function getResolvedSeasonEpisodes(season) {
 		});
 	}
 	return [];
-}
+}*/
 
 export function markEpisodeAsWatched(eid) {
 	let token = getToken();

@@ -6,14 +6,15 @@ import assign from 'object-assign';
 
 import * as settings from '../settings';
 import {qualityMapping} from '../quality';
-import {parseTVShowSeasonPage} from '../info';
 import {link, fixSpecialSymbols} from '../utils';
-import {getResolvedSeasonEpisodes} from '../request/soap';
+import {processEntitiesInString} from '../utils/parser';
 
 import {
-	getTVShow,
 	getTVShowSeason,
-	getEpisodeMediaURL,
+	getTVShowDescription,
+} from '../request/soap';
+
+import {
 	markEpisodeAsWatched,
 	markEpisodeAsUnWatched,
 } from '../request/soap';
@@ -34,27 +35,22 @@ export default function() {
 		.pipe(TVDML.passthrough(({sid, id}) => {
 			return Promise
 				.all([
-					getTVShow(sid),
 					getTVShowSeason(sid, id),
+					getTVShowDescription(sid),
 				])
-				.then(([tvshow, season]) => ({tvshow, season}));
-		}))
-		.pipe(TVDML.passthrough(({tvshow, season: {season}}) => {
-			return parseTVShowSeasonPage(tvshow, season).then(({spoilers}) => ({spoilers}));
+				.then(([season, tvshow]) => ({tvshow, season}));
 		}))
 		.pipe(TVDML.render(TVDML.createComponent({
 			getInitialState() {
-				let episodes = getResolvedSeasonEpisodes(this.props.season)
-					.map((episode, i) => assign({}, episode, {
-						spoiler: this.props.spoilers[i],
-					}));
+				let {episodes, covers: {big: poster}} = this.props.season;
 
-				return episodes.reduce((result, {eid, watched}) => {
-					result[eid] = !!watched;
+				return episodes.reduce((result, {episode, watched}) => {
+					result.watched[episode] = !!watched;
 					return result;
 				}, {
+					poster,
 					episodes,
-					poster: `http://covers.soap4.me/season/big/${this.props.id}.jpg`,
+					watched: {},
 				});
 			},
 
@@ -62,6 +58,8 @@ export default function() {
 				let highlighted = false;
 				let {title} = this.props.tvshow;
 				let {episodes} = this.state;
+
+				console.log(1111, this.state);
 
 				return (
 					<document>
@@ -77,23 +75,22 @@ export default function() {
 								<section>
 									{episodes.map((episode, i) => {
 										let {
-											eid,
 											title_en,
 											spoiler,
 											watched,
 											quality,
 											translate,
 											hasSubtitles,
-											episode: episodeIndex,
+											episode: episodeNumber,
 										} = episode;
 
 										let highlight = false;
-										let title = fixSpecialSymbols(title_en);
-										let description = fixSpecialSymbols(spoiler);
+										let title = title_en;
+										let description = processEntitiesInString(spoiler);
 										let translation = (translate || '').trim();
 
 										if (this.props.episode) {
-											highlight = episodeIndex === this.props.episode;
+											highlight = episodeNumber === this.props.episode;
 										} else if (!highlighted && !watched) {
 											highlight = true;
 											highlighted = true;
@@ -102,9 +99,9 @@ export default function() {
 										return (
 											<listItemLockup
 												autoHighlight={highlight ? 'true' : undefined}
-												onSelect={this.onPlayEpisode.bind(this, eid)}
+												onSelect={this.onPlayEpisode.bind(this, episodeNumber)}
 											>
-												<ordinal minLength="3">{episodeIndex}</ordinal>
+												<ordinal minLength="3">{episodeNumber}</ordinal>
 												<title style="tv-text-highlight-style: marquee-on-highlight">
 													{title}
 												</title>
@@ -114,7 +111,7 @@ export default function() {
 													</subtitle>
 												)}
 												<decorationLabel>
-													{this.state[eid] && (
+													{this.state.watched[episodeNumber] && (
 														<badge src="resource://button-checkmark" />
 													)}
 													{'  '}
@@ -138,16 +135,16 @@ export default function() {
 															style="margin: 20 0 0"
 															onSelect={this.onShowDescription.bind(this, {title, description})}
 														>{description}</description>
-														{this.state[eid] ? (
+														{this.state.watched[episodeNumber] ? (
 															<row>
-																<buttonLockup onSelect={this.onMarkAsNew.bind(this, eid)}>
+																<buttonLockup onSelect={this.onMarkAsNew.bind(this, episodeNumber)}>
 																	<badge src="resource://button-remove" />
 																	<title>Mark as New</title>
 																</buttonLockup>
 															</row>
 														) : (
 															<row>
-																<buttonLockup onSelect={this.onMarkAsWatched.bind(this, eid)}>
+																<buttonLockup onSelect={this.onMarkAsWatched.bind(this, episodeNumber)}>
 																	<badge src="resource://button-add" />
 																	<title>Mark as Seen</title>
 																</buttonLockup>
