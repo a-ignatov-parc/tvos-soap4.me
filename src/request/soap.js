@@ -26,7 +26,11 @@ export function checkSession() {
 }
 
 export function authorize({login, password}) {
-	return post('https://soap4.me/login/', {login, password});
+	return post('https://api.soap4.me/v2/auth/', {login, password});
+}
+
+export function logout() {
+	return post('https://api.soap4.me/v2/auth/logout/');
 }
 
 export function getMyTVShows() {

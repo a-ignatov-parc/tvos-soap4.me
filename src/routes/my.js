@@ -4,7 +4,10 @@ import plur from 'plur';
 import * as TVDML from 'tvdml';
 import assign from 'object-assign';
 
-import {isAuthorized} from '../user';
+import * as user from '../user';
+import authFactory from '../helpers/auth';
+import {defaultErrorHandlers} from '../helpers/auth/handlers';
+
 import {getMyTVShows} from '../request/soap';
 import {isMenuButtonPressNavigatedTo} from '../utils';
 import {deepEqualShouldUpdate} from '../utils/components';
@@ -12,17 +15,19 @@ import {deepEqualShouldUpdate} from '../utils/components';
 import Tile from '../components/tile';
 import Loader from '../components/loader';
 
+const {Promise} = TVDML;
+
 export default function(title) {
 	return TVDML
 		.createPipeline()
 		.pipe(TVDML.render(TVDML.createComponent({
 			getInitialState() {
-				let authorized = isAuthorized();
+				let authorized = user.isAuthorized();
 
 				return {
 					title,
 					authorized,
-					loading: true,
+					loading: !!authorized,
 				};
 			},
 
@@ -34,6 +39,26 @@ export default function(title) {
 					.pipe(isMenuButtonPressNavigatedTo(currentDocument))
 					.pipe(isNavigated => isNavigated && this.loadData().then(this.setState.bind(this)));
 
+				this.userStateChangePipeline = user
+					.subscription()
+					.pipe(() => {
+						this.setState({loading: true});
+						this.loadData().then(payload => {
+							this.setState(assign({
+								loading: false,
+								authorized: user.isAuthorized(),
+							}, payload));
+						});
+					});
+
+				this.authHelper = authFactory({
+					onError: defaultErrorHandlers,
+					onSuccess({token, till}, login) {
+						user.set({token, till, login, logged: 1});
+						this.dismiss();
+					},
+				});
+
 				this.loadData().then(payload => {
 					this.setState(assign({loading: false}, payload));
 				});
@@ -41,31 +66,56 @@ export default function(title) {
 
 			componentWillUnmount() {
 				this.menuButtonPressPipeline.unsubscribe();
+				this.userStateChangePipeline.unsubscribe();
+				this.authHelper.destroy();
+				this.authHelper = null;
 			},
 
 			shouldComponentUpdate: deepEqualShouldUpdate,
 
 			loadData() {
+				if (!user.isAuthorized()) {
+					return Promise.resolve({});
+				}
 				return getMyTVShows().then(series => ({series}));
 			},
 
 			render() {
+				if (this.state.loading) {
+					return <Loader />;
+				}
+
 				if (!this.state.authorized) {
 					return (
 						<document>
-							<alertTemplate style="background-color: rgba(0, 0, 0, 0.4)">
-								<title>Authorization</title>
-								<description>You need to be authorized in order to see your subscriptions</description>
-								<button>
-									<text>Authorize</text>
+							<head>
+								<style content={`
+									.grey_text {
+										color: rgb(84, 82, 80);
+									}
+
+									.grey_description {
+										color: rgb(132, 133, 135);
+									}
+
+									.black_text {
+										color: rgb(0, 0, 0);
+									}
+								`} />
+							</head>
+							<alertTemplate>
+								<title class="grey_text">
+									Authorization
+								</title>
+								<description class="grey_description">
+									You need to be authorized in order to see your subscriptions
+								</description>
+								<button onSelect={this.onLogin}>
+									<text class="black_text">Authorize</text>
 								</button>
 							</alertTemplate>
 						</document>
 					);
-				}
-
-				if (this.state.loading) {
-					return <Loader />;
 				}
 
 				let watching = this.state.series.filter(({watching}) => watching > 0);
@@ -124,6 +174,10 @@ export default function(title) {
 						</section>
 					</grid>
 				);
+			},
+
+			onLogin() {
+				this.authHelper.present();
 			},
 		})));
 }

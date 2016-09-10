@@ -63,3 +63,11 @@ export function prettifyEpisodeNum(season = 0, episode = 0) {
 export function prettifyNum(num, ordinal = 2) {
 	return `${Math.pow(10, ordinal)}${num}`.slice(-ordinal);
 }
+
+export function removeDocumentFromNavigation(document) {
+	// Workaround for strange tvOS issue when after deleting document 
+	// from `navigationDocument.documents` it still remains there.
+	while(~navigationDocument.documents.indexOf(document)) {
+		try {navigationDocument.removeDocument(document)} catch(e) {}
+	}
+}

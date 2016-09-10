@@ -2,9 +2,13 @@
 
 import * as TVDML from 'tvdml';
 
-import * as user from '../user';
 import * as settings from '../settings';
 
+import * as user from '../user';
+import authFactory from '../helpers/auth';
+import {defaultErrorHandlers} from '../helpers/auth/handlers';
+
+import {logout} from '../request/soap';
 import {getStartParams} from '../utils';
 
 const {VIDEO_QUALITY, TRANSLATION} = settings.params;
@@ -35,20 +39,47 @@ export default function() {
 		.createPipeline()
 		.pipe(TVDML.render(TVDML.createComponent({
 			getInitialState() {
-				return settings.getAll();
+				let authorized = user.isAuthorized();
+
+				return {
+					authorized,
+					settings: settings.getAll(),
+				};
+			},
+
+			componentDidMount() {
+				this.userStateChangePipeline = user
+					.subscription()
+					.pipe(() => {
+						this.setState({authorized: user.isAuthorized()});
+					});
+
+				this.authHelper = authFactory({
+					onError: defaultErrorHandlers,
+					onSuccess({token, till}, login) {
+						user.set({token, till, login, logged: 1});
+						this.dismiss();
+					},
+				});
+			},
+
+			componentWillUnmount() {
+				this.userStateChangePipeline.unsubscribe();
+				this.authHelper.destroy();
+				this.authHelper = null;
 			},
 
 			render() {
 				const {BASEURL} = getStartParams();
 
 				let items = Object
-					.keys(this.state)
+					.keys(this.state.settings)
 					.map(key => ({
 						key,
-						value: this.state[key],
+						value: this.state.settings[key],
 						title: getTitleForKey(key),
 						description: getDescriptionForKey(key),
-						result: getTitleForValue(this.state[key]),
+						result: getTitleForValue(this.state.settings[key]),
 					}));
 
 				let relatedImage = (
@@ -63,7 +94,7 @@ export default function() {
 									color: rgb(142, 147, 157);
 								}
 
-								.grey_description {
+								.grey_text {
 									color: rgb(84, 82, 80);
 								}
 
@@ -99,7 +130,7 @@ export default function() {
 												<relatedContent>
 													<lockup>
 														{relatedImage}
-														<description class="grey_description item_description">
+														<description class="grey_text item_description">
 															{description}
 														</description>
 													</lockup>
@@ -112,9 +143,18 @@ export default function() {
 									<header>
 										<title>Account</title>
 									</header>
-									<listItemLockup onSelect={this.onLogoutAttempt}>
-										<title>Logout</title>
-									</listItemLockup>
+									{this.state.authorized ? (
+										<listItemLockup onSelect={this.onLogoutAttempt}>
+											<title>Logout</title>
+											<decorationLabel>
+												{user.getLogin()}
+											</decorationLabel>
+										</listItemLockup>
+									) : (
+										<listItemLockup onSelect={this.onLogin}>
+											<title>Login</title>
+										</listItemLockup>
+									)}
 								</section>
 							</list>
 						</listTemplate>
@@ -157,8 +197,18 @@ export default function() {
 
 			onOptionSelect(key, value) {
 				settings.set(key, value);
-				this.setState(settings.getAll());
+				this.setState({settings: settings.getAll()});
 				TVDML.removeModal();
+			},
+
+			onLogin() {
+				this.authHelper.present();
+			},
+
+			onLogout() {
+				logout()
+					.then(user.clear)
+					.then(() => TVDML.removeModal());
 			},
 
 			onLogoutAttempt() {
@@ -183,14 +233,6 @@ export default function() {
 							</alertTemplate>
 						</document>
 					)
-					.sink();
-			},
-
-			onLogout() {
-				TVDML
-					.render(<document />)
-					.pipe(user.clear)
-					.pipe(() => TVDML.navigate('start'))
 					.sink();
 			},
 		})));
