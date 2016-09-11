@@ -2,7 +2,8 @@
 
 import plur from 'plur';
 import * as TVDML from 'tvdml';
-import {parseActorPage} from '../info';
+
+import {getActorInfo} from '../request/soap';
 
 import Tile from '../components/tile';
 import Loader from '../components/loader';
@@ -10,27 +11,47 @@ import Loader from '../components/loader';
 export default function(title) {
 	return TVDML
 		.createPipeline()
-		.pipe(TVDML.passthrough(({navigation: {actor}}) => ({actor})))
+		.pipe(TVDML.passthrough(({navigation: {id, actor}}) => ({id, actor})))
 		.pipe(TVDML.render(({actor}) => {
 			return <Loader title={actor} />;
 		}))
-		.pipe(TVDML.passthrough(({actor}) => {
-			return parseActorPage(actor);
+		.pipe(TVDML.passthrough(({id}) => {
+			return getActorInfo(id).then(({bio, soap: tvshows}) => ({bio, tvshows}));
 		}))
-		.pipe(TVDML.render(({actor, tvshows}) => {
+		.pipe(TVDML.render(({bio, tvshows}) => {
+			let {
+				name_en,
+				image_original,
+			} = bio;
+
+			let [firstName, lastName] = name_en.split(' ');
+
 			return (
 				<document>
 					<stackTemplate>
 						<banner>
-							<title>{actor}</title>
+							<heroImg src={image_original} />
 						</banner>
 						<collectionList>
-							<grid>
+							<shelf centered="true">
 								<section>
-									{tvshows.map(tvshow => {
-										let {title, sid} = tvshow;
-										let poster = `http://covers.soap4.me/soap/big/${sid}.jpg`;
-
+									<monogramLockup disabled="true">
+										<monogram
+											src={image_original}
+											firstName={firstName}
+											lastName={lastName}
+										/>
+										<title>{name_en}</title>
+										<subtitle>Actor</subtitle>
+									</monogramLockup>
+								</section>
+							</shelf>
+							<grid>
+								<header>
+									<title>TV Shows</title>
+								</header>
+								<section>
+									{tvshows.map(({title, sid, covers: {big: poster}}) => {
 										return (
 											<Tile
 												title={title}

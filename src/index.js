@@ -24,6 +24,10 @@ TVDML
 	.pipe(TVDML.render(<Loader title="Checking authorization..." />))
 	.pipe(() => checkSession().then(({logged, token, till}) => user.set({logged, token, till})))
 	.pipe(() => TVDML.redirect('main'));
+	// 
+	// Testing routes
+	// .pipe(() => TVDML.redirect('tvshow', {sid: '296', title: 'Arrow'}));
+	// .pipe(() => TVDML.redirect('season', {sid: '296', id: '4', title: 'Arrow — Season 4'}));
 
 TVDML
 	.handleRoute('main')

@@ -55,9 +55,12 @@ export default function() {
 					.pipe(isMenuButtonPressNavigatedTo(currentDocument))
 					.pipe(isNavigated => isNavigated && this.loadData(sid).then(this.setState.bind(this)));
 
-				this.loadData(sid).then(payload => {
-					this.setState(assign({loading: false}, payload));
-				});
+				// To improuve UX on fast request we are adding rendering timeout.
+				let waitForAnimations = new Promise((resolve) => setTimeout(resolve, 500));
+
+				Promise
+					.all([this.loadData(sid), waitForAnimations])
+					.then(([payload]) => this.setState(assign({loading: false}, payload)));
 			},
 
 			componentWillUnmount() {
@@ -380,7 +383,7 @@ export default function() {
 								<header>
 									<title>Runtime</title>
 								</header>
-								<text>{episode_runtime} min</text>
+								<text>{moment.duration(+episode_runtime, 'minutes').humanize()}</text>
 							</info>
 							<info>
 								<header>

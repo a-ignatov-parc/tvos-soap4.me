@@ -93,6 +93,10 @@ export function getTVShowSeason(sid, id) {
 	return getTVShowSeasons(sid).then(seasons => seasons.filter(season => season.season === id)[0]);
 }
 
+export function getActorInfo(id) {
+	return get(`https://api.soap4.me/v2/soap/person/${id}/`);
+}
+
 /*export function getTVShow(sid) {
 	return getAllTVShows().then(series => {
 		let tvshow = null;

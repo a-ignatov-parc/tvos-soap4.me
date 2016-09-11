@@ -4,9 +4,9 @@ import plur from 'plur';
 import * as TVDML from 'tvdml';
 import assign from 'object-assign';
 
+import {link} from '../utils';
 import * as settings from '../settings';
 import {qualityMapping} from '../quality';
-import {link, fixSpecialSymbols} from '../utils';
 import {processEntitiesInString} from '../utils/parser';
 
 import {
@@ -22,6 +22,7 @@ import {
 import Loader from '../components/loader';
 
 const {Promise} = TVDML;
+
 const {VIDEO_QUALITY} = settings.params;
 const {SD, HD, FULLHD} = settings.values[VIDEO_QUALITY];
 
@@ -45,12 +46,11 @@ export default function() {
 				let {episodes, covers: {big: poster}} = this.props.season;
 
 				return episodes.reduce((result, {episode, watched}) => {
-					result.watched[episode] = !!watched;
+					result[`eid-${episode}`] = !!watched;
 					return result;
 				}, {
 					poster,
 					episodes,
-					watched: {},
 				});
 			},
 
@@ -105,13 +105,13 @@ export default function() {
 												<title style="tv-text-highlight-style: marquee-on-highlight">
 													{title}
 												</title>
-												{!hasSubtitles && (
+												{/*!hasSubtitles && (
 													<subtitle>
 														Translation: {translation}
 													</subtitle>
-												)}
+												)*/}
 												<decorationLabel>
-													{this.state.watched[episodeNumber] && (
+													{this.state[`eid-${episodeNumber}`] && (
 														<badge src="resource://button-checkmark" />
 													)}
 													{'  '}
@@ -135,7 +135,7 @@ export default function() {
 															style="margin: 20 0 0"
 															onSelect={this.onShowDescription.bind(this, {title, description})}
 														>{description}</description>
-														{this.state.watched[episodeNumber] ? (
+														{this.state[`eid-${episodeNumber}`] ? (
 															<row>
 																<buttonLockup onSelect={this.onMarkAsNew.bind(this, episodeNumber)}>
 																	<badge src="resource://button-remove" />
@@ -200,12 +200,12 @@ export default function() {
 			},
 
 			onMarkAsNew(eid) {
-				this.setState({[eid]: false});
+				this.setState({[`eid-${eid}`]: false});
 				return markEpisodeAsUnWatched(eid);
 			},
 
 			onMarkAsWatched(eid) {
-				this.setState({[eid]: true});
+				this.setState({[`eid-${eid}`]: true});
 				return markEpisodeAsWatched(eid);
 			},
 
