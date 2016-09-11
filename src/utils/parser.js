@@ -29,10 +29,12 @@ export function nodesToArray(IKDOMNodeList) {
 }
 
 export function processEntitiesInString(string) {
-	return string.replace(entitiesRegexp, (match, key) => {
-		if (entities[key] != null) {
-			return entities[key];
-		}
-		return match;
-	});
+	return string
+		.replace(/&#039;/g, `'`)
+		.replace(entitiesRegexp, (match, key) => {
+			if (entities[key] != null) {
+				return entities[key];
+			}
+			return match;
+		});
 }

@@ -17,6 +17,8 @@ import {
 
 import {
 	TVShowStatuses,
+	TVShowStatusStrings,
+	getCountriesList,
 	getTVShowSeasons,
 	getTVShowReviews,
 	getTVShowDescription,
@@ -72,12 +74,14 @@ export default function() {
 			loadData(sid) {
 				return Promise
 					.all([
+						getCountriesList(),
 						getTVShowSeasons(sid),
 						getTVShowReviews(sid),
 						getTVShowDescription(sid),
 						getTVShowRecommendations(sid),
 					])
 					.then(([
+						contries,
 						seasons,
 						reviews,
 						tvshow,
@@ -86,6 +90,7 @@ export default function() {
 						tvshow,
 						reviews,
 						seasons,
+						contries,
 						recomendations,
 					}))
 					.then(payload => assign({
@@ -126,7 +131,7 @@ export default function() {
 							<header>
 								<title>Status</title>
 							</header>
-							<text>{TVShowStatuses[status]}</text>
+							<text>{TVShowStatusStrings[TVShowStatuses[status]]}</text>
 						</info>
 						<info>
 							<header>
@@ -324,6 +329,8 @@ export default function() {
 			},
 
 			renderCrew() {
+				if (!this.state.tvshow.actors.length) return null;
+
 				return (
 					<shelf>
 						<header>
@@ -362,10 +369,13 @@ export default function() {
 			renderAdditionalInfo() {
 				let {
 					year,
-					country,
 					network,
 					episode_runtime,
+					country: countryCode,
 				} = this.state.tvshow;
+
+				let {contries} = this.state;
+				let [{full: country}] = contries.filter(({short}) => short === countryCode)
 
 				return (
 					<productInfo>

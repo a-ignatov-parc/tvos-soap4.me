@@ -31,10 +31,6 @@ export function noop() {
 	return () => {};
 }
 
-export function fixSpecialSymbols(text = '') {
-	return text.replace(/&#039;/g, `'`);
-}
-
 export function capitalize(word) {
 	word = `${word}`;
 	return word.charAt(0).toUpperCase() + word.slice(1);

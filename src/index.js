@@ -28,6 +28,8 @@ TVDML
 	// Testing routes
 	// .pipe(() => TVDML.redirect('tvshow', {sid: '296', title: 'Arrow'}));
 	// .pipe(() => TVDML.redirect('season', {sid: '296', id: '4', title: 'Arrow — Season 4'}));
+	// .pipe(() => TVDML.redirect('tvshow', {sid: '692', title: 'Bref'}));
+	// .pipe(() => TVDML.redirect('season', {sid: '692', id: '1', title: 'Bref — Season 1'}));
 
 TVDML
 	.handleRoute('main')

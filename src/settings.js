@@ -9,8 +9,7 @@ const quality = {
 };
 
 const translation = {
-	ANY: 'any',
-	RUSSIAN: 'russian',
+	LOCALIZATION: 'localization',
 	SUBTITLES: 'subtitles',
 };
 
@@ -26,22 +25,16 @@ export const values = {
 
 const defaults = {
 	[params.VIDEO_QUALITY]: quality.FULLHD,
-	[params.TRANSLATION]: translation.ANY,
+	[params.TRANSLATION]: translation.LOCALIZATION,
 };
 
 const settings = getSettingsFromStorage(defaults);
 
 export function set(key, value) {
-	let hasParam = Object
-		.keys(params)
-		.some(param => params[param] === key);
+	let hasParam = checkKeyValidity(key);
+	let hasValue = checkKeyValueValidity(key, value);
 
 	if (!hasParam) throw new Error(`Unsupported settings param "${key}"`);
-
-	let hasValue = Object
-		.keys(values[key])
-		.some(param => values[key][param] === value);
-
 	if (!hasValue) throw new Error(`Unsupported value "${value}" for settings param "${key}"`);
 
 	settings[key] = value;
@@ -58,5 +51,29 @@ export function getAll() {
 
 function getSettingsFromStorage(defaults = {}) {
 	let settings = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-	return assign({}, defaults, settings);
+	let validatedSettings = Object
+		.keys(settings)
+		.filter(checkKeyValidity)
+		.map(key => ({key, value: settings[key]}))
+		.filter(({key, value}) => checkKeyValueValidity(key, value))
+		.reduce((result, {key, value}) => {
+			result[key] = value;
+			return result;
+		}, {});
+
+	return assign({}, defaults, validatedSettings);
+}
+
+function checkKeyValidity(key) {
+	return Object
+		.keys(params)
+		.some(param => params[param] === key);
+}
+
+function checkKeyValueValidity(key, value) {
+	if (!checkKeyValidity(key)) return false;
+
+	return Object
+		.keys(values[key])
+		.some(param => values[key][param] === value);
 }

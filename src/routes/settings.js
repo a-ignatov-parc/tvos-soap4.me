@@ -13,7 +13,7 @@ import {getStartParams} from '../utils';
 
 const {VIDEO_QUALITY, TRANSLATION} = settings.params;
 const {SD, HD, FULLHD} = settings.values[VIDEO_QUALITY];
-const {ANY, RUSSIAN, SUBTITLES} = settings.values[TRANSLATION];
+const {LOCALIZATION, SUBTITLES} = settings.values[TRANSLATION];
 
 const titleMapping = {
 	[VIDEO_QUALITY]: 'Video quality',
@@ -29,9 +29,8 @@ const valueMapping = {
 	[SD]: 'SD',
 	[HD]: 'HD',
 	[FULLHD]: 'Full HD',
-	[ANY]: 'Localization + Subtitles',
-	[RUSSIAN]: 'Only Localization',
-	[SUBTITLES]: 'Only Subtitles',
+	[SUBTITLES]: 'Subtitles priority',
+	[LOCALIZATION]: 'Localization priority',
 };
 
 export default function() {

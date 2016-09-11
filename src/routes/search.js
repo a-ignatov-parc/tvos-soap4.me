@@ -6,7 +6,6 @@ import * as TVDML from 'tvdml';
 import {getSearchResults} from '../request/soap';
 
 import {
-	fixSpecialSymbols,
 	prettifyEpisodeNum,
 } from '../utils';
 
@@ -94,7 +93,7 @@ export default function() {
 
 								return (
 									<Tile
-										title={fixSpecialSymbols(title)}
+										title={title}
 										route="season"
 										poster={poster}
 										payload={{sid, id, episode, title: `${soap_en} — ${seasonTitle}`}}

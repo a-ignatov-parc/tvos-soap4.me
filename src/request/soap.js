@@ -2,29 +2,92 @@ import md5 from 'blueimp-md5';
 import assign from 'object-assign';
 
 import {getToken} from '../user';
+import * as settings from '../settings';
 import * as request from '../request/native';
 
-import * as settings from '../settings';
-import {getDefault} from '../quality';
+const {VIDEO_QUALITY, TRANSLATION} = settings.params;
+const {SD, HD, FULLHD} = settings.values[VIDEO_QUALITY];
+const {LOCALIZATION, SUBTITLES} = settings.values[TRANSLATION];
 
-const {TRANSLATION} = settings.params;
-const {ANY, RUSSIAN, SUBTITLES} = settings.values[TRANSLATION];
+export const tvshow = {
+	ENDED: 'ended',
+	CLOSED: 'closed',
+	RUNNING: 'running',
+};
+
+export const localization = {
+	ORIGINAL: 'original',
+	ORIGINAL_SUBTITLES: 'original_subtitles',
+	LOCALIZATION: 'localization',
+	LOCALIZATION_SUBTITLES: 'localization_subtitles',
+};
+
+export const mediaQualities = {
+	1: SD,
+	2: HD,
+	3: FULLHD,
+};
+
+export const mediaQualityRanking = [
+	FULLHD,
+	HD,
+	SD,
+];
+
+export const mediaLocalizationRanking = {
+	[LOCALIZATION]: [
+		localization.LOCALIZATION,
+		localization.LOCALIZATION_SUBTITLES,
+		localization.ORIGINAL_SUBTITLES,
+		localization.ORIGINAL,
+	],
+
+	[SUBTITLES]: [
+		localization.ORIGINAL_SUBTITLES,
+		localization.LOCALIZATION_SUBTITLES,
+		localization.LOCALIZATION,
+		localization.ORIGINAL,
+	],
+};
+
+export const mediaLocalizations = {
+	1: localization.ORIGINAL,
+	2: localization.ORIGINAL_SUBTITLES,
+	3: localization.LOCALIZATION_SUBTITLES,
+	4: localization.LOCALIZATION,
+};
+
+export const mediaLocalizationStrings = {
+	[localization.ORIGINAL]: 'Original',
+	[localization.ORIGINAL_SUBTITLES]: 'Original with subtitles',
+	[localization.LOCALIZATION]: 'Localization',
+	[localization.LOCALIZATION_SUBTITLES]: 'Localization with subtitles',
+};
 
 export const TVShowStatuses = {
-	0: 'Running',
-	1: 'Ended',
-	2: 'Closed',
+	0: tvshow.RUNNING,
+	1: tvshow.ENDED,
+	2: tvshow.CLOSED,
+};
+
+export const TVShowStatusStrings = {
+	[tvshow.ENDED]: 'Ended',
+	[tvshow.CLOSED]: 'Closed',
+	[tvshow.RUNNING]: 'Running',
 };
 
 export function get(url) {
 	return request.get(url, headers()).then(response => {
-		console.log(url, response);
+		console.log('GET', url, response);
 		return response;
 	});
 }
 
 export function post(url, parameters) {
-	return request.post(url, parameters, headers());
+	return request.post(url, parameters, headers()).then(response => {
+		console.log('POST', url, parameters, response);
+		return response;
+	});
 }
 
 export function checkSession() {
@@ -51,6 +114,10 @@ export function getTVShowDescription(sid) {
 	return get(`https://api.soap4.me/v2/soap/description/${sid}/`);
 }
 
+export function getCountriesList() {
+	return get(`https://api.soap4.me/v2/soap/countrys/`);
+}
+
 export function getTVShowEpisodes(sid) {
 	return get(`https://api.soap4.me/v2/episodes/${sid}/`);
 }
@@ -60,7 +127,10 @@ export function getTVShowRecommendations(sid) {
 }
 
 export function getTVShowReviews(sid) {
-	return get(`https://api.soap4.me/v2/reviews/${sid}/`);
+	return get(`https://api.soap4.me/v2/reviews/${sid}/`).then(response => {
+		if ('ok' in response && !response.ok) return [];
+		return response;
+	});
 }
 
 export function getTVShowSeasons(sid) {
@@ -97,127 +167,60 @@ export function getActorInfo(id) {
 	return get(`https://api.soap4.me/v2/soap/person/${id}/`);
 }
 
-/*export function getTVShow(sid) {
-	return getAllTVShows().then(series => {
-		let tvshow = null;
-
-		series.some(item => {
-			if (item.sid === sid) {
-				tvshow = item;
-				return true;
-			}
-		});
-
-		return tvshow;
-	});
-}
-
-export function getTVShowEpisodes(sid) {
-	return get(`https://soap4.me/api/episodes/${sid}/`);
-}
-
-export function getTVShowSeasons(sid) {
-	return getTVShowEpisodes(sid).then(episodes => episodes.reduce((result, item) => {
-		let seasonIndex = item.season - 1;
-		let episodeIndex = item.episode;
-
-		if (!result[seasonIndex]) {
-			result[seasonIndex] = {
-				id: item.season_id,
-				season: item.season,
-				episodes: [],
-				subtitles: [],
-			};
-		}
-
-		let episodeCollection = result[seasonIndex].episodes;
-
-		if (~item.translate.toLowerCase().indexOf('субтитры')) {
-			episodeCollection = result[seasonIndex].subtitles;
-		}
-
-		if (!episodeCollection[episodeIndex]) {
-			episodeCollection[episodeIndex] = {};
-		}
-		episodeCollection[episodeIndex][item.quality] = item;
-		return result;
-	}, []));
-}
-
-export function getTVShowSeason(sid, id) {
-	return getTVShowSeasons(sid).then(seasons => seasons.filter(season => season.id === id)[0]);
-}
-
-export function getResolvedSeasonEpisodes(season) {
+export function getEpisodeMedia({files}) {
+	let qualitySettings = settings.get(VIDEO_QUALITY);
 	let translationSettings = settings.get(TRANSLATION);
-	let {
-		episodes: episodesList = [],
-		subtitles: subtitlesList = [],
-	} = season;
 
-	let episodes = episodesList
-		.filter(Boolean)
-		.map(getDefault);
+	let qualityRanking = mediaQualityRanking.slice(mediaQualityRanking.indexOf(qualitySettings));
+	let localizationRanking = mediaLocalizationRanking[translationSettings];
 
-	let subtitles = subtitlesList
-		.filter(Boolean)
-		.map(getDefault)
-		.map((episode, i) => assign({}, episode, {
-			hasSubtitles: true,
-		}));
+	let [rankedFile] = files
+		.slice(0)
+		.sort(({
+			quality: qualityA,
+			translate: translateA,
+		}, {
+			quality: qualityB,
+			translate: translateB,
+		}) => {
+			let qualityCodeA = mediaQualities[qualityA];
+			let qualityCodeB = mediaQualities[qualityB];
+			let qualityIndexA = qualityRanking.indexOf(qualityCodeA);
+			let qualityIndexB = qualityRanking.indexOf(qualityCodeB);
 
-	let episodesIds = episodes.map(({episode}) => episode);
+			qualityIndexA < 0 && (qualityIndexA = qualityRanking.length);
+			qualityIndexB < 0 && (qualityIndexB = qualityRanking.length);
 
-	if (translationSettings === RUSSIAN || !subtitles.length) {
-		return episodes;
-	} else if (translationSettings === SUBTITLES) {
-		return subtitles;
-	} else if (translationSettings === ANY) {
-		return subtitles.map(episode => {
-			let {episode: id} = episode;
-			let episodesIndex = episodesIds.indexOf(id);
-			return ~episodesIndex ? episodes[episodesIndex] : episode;
+			let localizationCodeA = mediaLocalizations[translateA];
+			let localizationCodeB = mediaLocalizations[translateB];
+			let localizationIndexA = localizationRanking.indexOf(localizationCodeA);
+			let localizationIndexB = localizationRanking.indexOf(localizationCodeB);
+
+			localizationIndexA < 0 && (localizationIndexA = localizationRanking.length);
+			localizationIndexB < 0 && (localizationIndexB = localizationRanking.length);
+
+			return (qualityIndexA - qualityIndexB) + (localizationIndexA - localizationIndexB);
 		});
-	}
-	return [];
-}*/
 
-export function markEpisodeAsWatched(eid) {
-	let token = getToken();
-	let payload = {
-		eid,
-		token,
-		what: 'mark_watched',
-	};
-
-	return post('https://soap4.me/callback/', payload);
+	return rankedFile;
 }
 
-export function markEpisodeAsUnWatched(eid) {
-	let token = getToken();
-	let payload = {
-		eid,
-		token,
-		what: 'mark_unwatched',
-	};
-
-	return post('https://soap4.me/callback/', payload);
+export function markEpisodeAsWatched(sid, season, episodeNumber) {
+	return post(`https://api.soap4.me/v2/episodes/watch/${sid}/${season}/${episodeNumber}/`);
 }
 
-export function getEpisodeMediaURL(eid, sid, episodeHash) {
+export function markEpisodeAsUnWatched(sid, season, episodeNumber) {
+	return post(`https://api.soap4.me/v2/episodes/unwatch/${sid}/${season}/${episodeNumber}/`);
+}
+
+export function getMediaStream(media) {
+	let {sid, file} = media;
+	let {eid, hash: episodeHash} = file;
+
 	let token = getToken();
 	let hash = md5(token + eid + sid + episodeHash);
-	let payload = {
-		eid,
-		hash,
-		token,
-		do: 'load',
-		what: 'player',
-	};
 
-	return post('https://soap4.me/callback/', payload).then(({server}) => {
-		return `https://${server}.soap4.me/${token}/${eid}/${hash}/`;
-	});
+	return post(`https://api.soap4.me/v2/play/episode/${eid}/`, {eid, hash});
 }
 
 export function addToMyTVShows(sid) {

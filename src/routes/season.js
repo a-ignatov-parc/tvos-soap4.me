@@ -6,15 +6,16 @@ import assign from 'object-assign';
 
 import {link} from '../utils';
 import * as settings from '../settings';
-import {qualityMapping} from '../quality';
 import {processEntitiesInString} from '../utils/parser';
 
 import {
+	localization,
+	mediaQualities,
+	mediaLocalizations,
+	getMediaStream,
 	getTVShowSeason,
+	getEpisodeMedia,
 	getTVShowDescription,
-} from '../request/soap';
-
-import {
 	markEpisodeAsWatched,
 	markEpisodeAsUnWatched,
 } from '../request/soap';
@@ -25,6 +26,16 @@ const {Promise} = TVDML;
 
 const {VIDEO_QUALITY} = settings.params;
 const {SD, HD, FULLHD} = settings.values[VIDEO_QUALITY];
+
+const translationList = [
+	localization.LOCALIZATION,
+	localization.LOCALIZATION_SUBTITLES,
+];
+
+const subtitlesList = [
+	localization.ORIGINAL_SUBTITLES,
+	localization.LOCALIZATION_SUBTITLES,
+];
 
 export default function() {
 	return TVDML
@@ -59,8 +70,6 @@ export default function() {
 				let {title} = this.props.tvshow;
 				let {episodes} = this.state;
 
-				console.log(1111, this.state);
-
 				return (
 					<document>
 						<compilationTemplate theme="light">
@@ -78,16 +87,20 @@ export default function() {
 											title_en,
 											spoiler,
 											watched,
-											quality,
-											translate,
-											hasSubtitles,
 											episode: episodeNumber,
 										} = episode;
 
+										let file = getEpisodeMedia(episode);
+										let mediaQualityCode = mediaQualities[file.quality];
+										let mediaTranslationCode = mediaLocalizations[file.translate];
+
+										let hasHD = mediaQualityCode !== SD;
+										let hasSubtitles = !!~subtitlesList.indexOf(mediaTranslationCode);
+										let hasTranslation = !!~translationList.indexOf(mediaTranslationCode);
+
 										let highlight = false;
-										let title = title_en;
+										let title = processEntitiesInString(title_en);
 										let description = processEntitiesInString(spoiler);
-										let translation = (translate || '').trim();
 
 										if (this.props.episode) {
 											highlight = episodeNumber === this.props.episode;
@@ -105,11 +118,9 @@ export default function() {
 												<title style="tv-text-highlight-style: marquee-on-highlight">
 													{title}
 												</title>
-												{/*!hasSubtitles && (
-													<subtitle>
-														Translation: {translation}
-													</subtitle>
-												)*/}
+												<subtitle>
+													Translation: {hasTranslation ? 'Russian' : 'Original'}
+												</subtitle>
 												<decorationLabel>
 													{this.state[`eid-${episodeNumber}`] && (
 														<badge src="resource://button-checkmark" />
@@ -119,10 +130,7 @@ export default function() {
 														<badge src="resource://cc" />
 													)}
 													{hasSubtitles && '  '}
-													{!!~[
-														qualityMapping[HD],
-														qualityMapping[FULLHD],
-													].indexOf(quality) && (
+													{hasHD && (
 														<badge src="resource://hd" />
 													)}
 												</decorationLabel>
@@ -162,51 +170,59 @@ export default function() {
 				);
 			},
 
-			onPlayEpisode(eid) {
-				let {episodes} = this.state;
+			onPlayEpisode(episodeNumber) {
+				let {sid} = this.props;
+				let {episodes, poster} = this.state;
 				let markAsWatched = this.onMarkAsWatched.bind(this);
 
 				let resolvers = {
 					initial() {
-						return eid;
+						return episodeNumber;
 					},
 
-					next({eid}) {
-						let episode = getEpisode(eid, episodes);
+					next({id}) {
+						let [sid, season, episodeNumber] = id.split('-');
+						let episode = getEpisode(episodeNumber, episodes);
 						let index = episodes.indexOf(episode);
 						let nextEpisode = ~index ? episodes[index + 1] : {};
-						return nextEpisode.eid || null;
+						return nextEpisode.episode || null;
 					},
 				};
 
 				TVDML
 					.createPlayer({
 						items(item, request) {
-							let id = resolvers[request] && resolvers[request](item);
-							return getEpisodeItem(id, episodes);
+							let episodeNumber = resolvers[request] && resolvers[request](item);
+							let episode = getEpisode(episodeNumber, episodes);
+							return getEpisodeItem(sid, episode, poster);
 						},
 
-						markAsWatched({eid}) {
+						markAsWatched(item) {
+							let {id} = item;
+
 							if (!getActiveDocument()) {
-								return markAsWatched(eid);
+								let [sid, season, episodeNumber] = id.split('-');
+								return markAsWatched(episodeNumber);
 							}
 						},
 
-						uidResolver({eid}) {
-							return eid;
+						uidResolver(item) {
+							return item.id;
 						},
 					})
 					.then(player => player.play());
 			},
 
-			onMarkAsNew(eid) {
-				this.setState({[`eid-${eid}`]: false});
-				return markEpisodeAsUnWatched(eid);
+			onMarkAsNew(episodeNumber) {
+				let {id, sid} = this.props;
+				this.setState({[`eid-${episodeNumber}`]: false});
+				return markEpisodeAsUnWatched(sid, id, episodeNumber);
 			},
 
-			onMarkAsWatched(eid) {
-				this.setState({[`eid-${eid}`]: true});
-				return markEpisodeAsWatched(eid);
+			onMarkAsWatched(episodeNumber) {
+				let {id, sid} = this.props;
+				this.setState({[`eid-${episodeNumber}`]: true});
+				return markEpisodeAsWatched(sid, id, episodeNumber);
 			},
 
 			onShowDescription({title, description}) {
@@ -228,32 +244,35 @@ export default function() {
 		})));
 }
 
-function getEpisode(eid, episodes) {
-	let [episode] = episodes.filter(({eid: id}) => eid === id);
+function getEpisode(episodeNumber, episodes) {
+	let [episode] = episodes.filter(({episode}) => episode === episodeNumber);
 	return episode;
 }
 
-function getEpisodeItem(id, episodes) {
-	let episode = getEpisode(id, episodes);
-
+function getEpisodeItem(sid, episode, poster) {
 	if (!episode) return null;
 
 	let {
-		eid,
-		sid,
-		hash,
+		season,
 		spoiler,
 		title_en,
-		season_id,
+		episode: episodeNumber,
+		screenshots: {big: episodePoster},
 	} = episode;
 
-	let poster = `http://covers.soap4.me/season/big/${season_id}.jpg`;
+	let title = processEntitiesInString(title_en);
+	let description = processEntitiesInString(spoiler);
 
-	return getEpisodeMediaURL(eid, sid, hash).then(url => ({
-		eid,
-		url,
-		title: title_en,
-		description: spoiler,
-		artworkImageURL: poster,
+	let id = [sid, season, episodeNumber].join('-');
+	let file = getEpisodeMedia(episode);
+	let media = {sid, file};
+
+	return getMediaStream(media).then(({stream, start_from}) => ({
+		id,
+		title,
+		description,
+		url: stream,
+		artworkImageURL: poster || episodePoster,
+		resumeTime: start_from && parseFloat(start_from),
 	}));
 }
