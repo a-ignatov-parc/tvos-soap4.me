@@ -141,14 +141,16 @@ export default function() {
 								return <text key={genre}>{genre}</text>;
 							})}
 						</info>
-						<info>
-							<header>
-								<title>Actors</title>
-							</header>
-							{actors.map(({person_en}) => {
-								return <text key={person_en}>{person_en}</text>;
-							})}
-						</info>
+						{actors.length && (
+							<info>
+								<header>
+									<title>Actors</title>
+								</header>
+								{actors.map(({person_en}) => {
+									return <text key={person_en}>{person_en}</text>;
+								})}
+							</info>
+						)}
 					</infoList>
 				);
 			},
