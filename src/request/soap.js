@@ -234,7 +234,7 @@ export function removeFromMyTVShows(sid) {
 }
 
 export function getSearchResults(query) {
-	return get(`https://soap4.me/api/search/?q=${encodeURIComponent(query)}`);
+	return get(`https://api.soap4.me/v2/search/?q=${encodeURIComponent(query)}`);
 }
 
 function headers() {

@@ -4,10 +4,8 @@ import plur from 'plur';
 import * as TVDML from 'tvdml';
 
 import {getSearchResults} from '../request/soap';
-
-import {
-	prettifyEpisodeNum,
-} from '../utils';
+import {link, prettifyEpisodeNum} from '../utils';
+import {processEntitiesInString} from '../utils/parser';
 
 import Tile from '../components/tile';
 
@@ -22,6 +20,7 @@ export default function() {
 			getInitialState() {
 				return {
 					series: [],
+					persons: [],
 					episodes: [],
 				};
 			},
@@ -38,10 +37,18 @@ export default function() {
 
 				return (
 					<document>
+						<head>
+							<style content={`
+								.shelf_indent {
+									margin: 0 0 100;
+								}
+							`} />
+						</head>
 						<searchTemplate>
 							<searchField ref={node => this.searchField = node} />
 							<collectionList>
-								{this.state.series.length && this.renderShows()}
+								{this.renderPersons()}
+								{this.renderShows()}
 								{episodes.map(name => this.renderEpisodes(name, tvshows[name]))}
 							</collectionList>
 						</searchTemplate>
@@ -49,23 +56,37 @@ export default function() {
 				);
 			},
 
-			renderShows() {
+			renderPersons() {
+				if (!this.state.persons.length) return null;
+
 				return (
-					<shelf>
+					<shelf class="shelf_indent">
 						<header>
-							<title>TV Shows</title>
+							<title>Persons</title>
 						</header>
 						<section>
-							{this.state.series.map(({title, sid}) => {
-								let poster = `http://covers.soap4.me/soap/big/${sid}.jpg`;
+							{this.state.persons.map(actor => {
+								let {
+									id,
+									name_en,
+									image_original,
+								} = actor;
+
+								let [firstName, lastName] = name_en.split(' ');
 
 								return (
-									<Tile
-										title={title}
-										route="tvshow"
-										poster={poster}
-										payload={{title, sid}}
-									/>
+									<monogramLockup
+										key={id}
+										onSelect={link('actor', {id, actor: name_en})}
+									>
+										<monogram 
+											src={image_original}
+											firstName={firstName}
+											lastName={lastName}
+										/>
+										<title>{name_en}</title>
+										<subtitle>Actor</subtitle>
+									</monogramLockup>
 								);
 							})}
 						</section>
@@ -73,31 +94,57 @@ export default function() {
 				);
 			},
 
+			renderShows() {
+				if (!this.state.series.length) return null;
+
+				return (
+					<shelf class="shelf_indent">
+						<header>
+							<title>TV Shows</title>
+						</header>
+						<section>
+							{this.state.series.map(({
+								sid,
+								title,
+								covers: {big: poster},
+							}) => (
+								<Tile
+									title={title}
+									route="tvshow"
+									poster={poster}
+									payload={{title, sid}}
+								/>
+							))}
+						</section>
+					</shelf>
+				);
+			},
+
 			renderEpisodes(title, list) {
 				return (
-					<shelf>
+					<shelf class="shelf_indent">
 						<header>
 							<title>{title}</title>
 						</header>
 						<section>
 							{list.map(({
 								sid,
-								season,
 								episode,
 								soap_en,
-								season_id: id,
-								title_en: title,
+								title_en,
+								season: seasonNumber,
+								covers: {big: poster},
 							}) => {
-								let seasonTitle = `Season ${season}`;
-								let poster = `http://covers.soap4.me/season/big/${id}.jpg`;
+								let seasonTitle = `Season ${seasonNumber}`;
+								let title = processEntitiesInString(title_en);
 
 								return (
 									<Tile
 										title={title}
 										route="season"
 										poster={poster}
-										payload={{sid, id, episode, title: `${soap_en} — ${seasonTitle}`}}
-										subtitle={prettifyEpisodeNum(season, episode)}
+										payload={{sid, id: seasonNumber, episode, title: `${soap_en} — ${seasonTitle}`}}
+										subtitle={prettifyEpisodeNum(seasonNumber, episode)}
 									/>
 								);
 							})}
