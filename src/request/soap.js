@@ -224,13 +224,11 @@ export function getMediaStream(media) {
 }
 
 export function addToMyTVShows(sid) {
-	let token = getToken();
-	return post(`https://soap4.me/api/soap/watch/${sid}/`, {token});
+	return post(`https://api.soap4.me/v2/soap/watch/${sid}/`);
 }
 
 export function removeFromMyTVShows(sid) {
-	let token = getToken();
-	return post(`https://soap4.me/api/soap/unwatch/${sid}/`, {token});
+	return post(`https://api.soap4.me/v2/soap/unwatch/${sid}/`);
 }
 
 export function getSearchResults(query) {
