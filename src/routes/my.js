@@ -128,6 +128,13 @@ export default function(title) {
 
 				return (
 					<document>
+						<head>
+							<style content={`
+								.grid_indent {
+									margin: 0 0 100;
+								}
+							`} />
+						</head>
 						<stackTemplate>
 							<banner>
 								<title>{this.state.title}</title>
@@ -135,14 +142,14 @@ export default function(title) {
 							<collectionList>
 								{this.renderSectionGrid(unwatched, 'New episodes')}
 								{this.renderSectionGrid(watched, 'Watched')}
-								{this.renderSectionGrid(closed, 'Closed')}
+								{this.renderSectionGrid(closed, 'Closed', true)}
 							</collectionList>
 						</stackTemplate>
 					</document>
 				);
 			},
 
-			renderSectionGrid(collection, title) {
+			renderSectionGrid(collection, title, isLast) {
 				let header;
 
 				if (title) {
@@ -154,7 +161,7 @@ export default function(title) {
 				}
 
 				return (
-					<grid>
+					<grid class={isLast ? undefined : 'grid_indent'}>
 						{header}
 						<section>
 							{collection.map(({title, sid, unwatched}) => {

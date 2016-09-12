@@ -49,7 +49,7 @@ export default function() {
 							<collectionList>
 								{this.renderPersons()}
 								{this.renderShows()}
-								{episodes.map(name => this.renderEpisodes(name, tvshows[name]))}
+								{episodes.map((name, i) => this.renderEpisodes(name, tvshows[name], (i + 1) === episodes.length))}
 							</collectionList>
 						</searchTemplate>
 					</document>
@@ -120,9 +120,9 @@ export default function() {
 				);
 			},
 
-			renderEpisodes(title, list) {
+			renderEpisodes(title, list, isLast) {
 				return (
-					<shelf class="shelf_indent">
+					<shelf class={isLast ? undefined : 'shelf_indent'}>
 						<header>
 							<title>{title}</title>
 						</header>
