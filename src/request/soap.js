@@ -110,6 +110,14 @@ export function getAllTVShows() {
 	return get('https://api.soap4.me/v2/soap/');
 }
 
+export function getLatestTVShows(count = 10) {
+	return getAllTVShows().then(tvshows => {
+		return tvshows
+			.sort(({sid: a}, {sid: b}) => b - a)
+			.slice(0, count);
+	});
+}
+
 export function getTVShowDescription(sid) {
 	return get(`https://api.soap4.me/v2/soap/description/${sid}/`);
 }
@@ -127,10 +135,11 @@ export function getTVShowRecommendations(sid) {
 }
 
 export function getTVShowReviews(sid) {
-	return get(`https://api.soap4.me/v2/reviews/${sid}/`).then(response => {
-		if ('ok' in response && !response.ok) return [];
-		return response;
-	});
+	return get(`https://api.soap4.me/v2/reviews/${sid}/`).then(handleEmptyResponse);
+}
+
+export function getTVShowTrailers(sid) {
+	return get(`https://api.soap4.me/v2/trailers/${sid}/`).then(handleEmptyResponse);
 }
 
 export function getTVShowSeasons(sid) {
@@ -223,6 +232,10 @@ export function getMediaStream(media) {
 	return post(`https://api.soap4.me/v2/play/episode/${eid}/`, {eid, hash});
 }
 
+export function getTrailerStream(tid) {
+	return post(`https://api.soap4.me/v2/play/trailer/${tid}/`);
+}
+
 export function addToMyTVShows(sid) {
 	return post(`https://api.soap4.me/v2/soap/watch/${sid}/`);
 }
@@ -243,4 +256,9 @@ function headers() {
 	};
 
 	return headers;
+}
+
+function handleEmptyResponse(response) {
+	if ('ok' in response && !response.ok) return [];
+	return response;
 }

@@ -3,9 +3,9 @@
 import plur from 'plur';
 import * as TVDML from 'tvdml';
 
-import {getSearchResults} from '../request/soap';
 import {link, prettifyEpisodeNum} from '../utils';
 import {processEntitiesInString} from '../utils/parser';
+import {getSearchResults, getLatestTVShows} from '../request/soap';
 
 import Tile from '../components/tile';
 
@@ -19,6 +19,8 @@ export default function() {
 		.pipe(TVDML.render(TVDML.createComponent({
 			getInitialState() {
 				return {
+					value: '',
+					latest: [],
 					series: [],
 					persons: [],
 					episodes: [],
@@ -33,6 +35,7 @@ export default function() {
 					result[item.soap_en].push(item);
 					return result;
 				}, {});
+
 				let episodes = Object.keys(tvshows);
 
 				return (
@@ -47,12 +50,39 @@ export default function() {
 						<searchTemplate>
 							<searchField ref={node => this.searchField = node} />
 							<collectionList>
+								{this.renderLatest()}
 								{this.renderPersons()}
 								{this.renderShows()}
 								{episodes.map((name, i) => this.renderEpisodes(name, tvshows[name], (i + 1) === episodes.length))}
 							</collectionList>
 						</searchTemplate>
 					</document>
+				);
+			},
+
+			renderLatest() {
+				if (!this.state.latest.length || this.state.value) return null;
+
+				return (
+					<shelf class="shelf_indent">
+						<header>
+							<title>Latest TV Shows</title>
+						</header>
+						<section>
+							{this.state.latest.map(({
+								sid,
+								title,
+								covers: {big: poster},
+							}) => (
+								<Tile
+									title={title}
+									route="tvshow"
+									poster={poster}
+									payload={{title, sid}}
+								/>
+							))}
+						</section>
+					</shelf>
 				);
 			},
 
@@ -156,9 +186,11 @@ export default function() {
 			componentDidMount() {
 				let keyboard = this.searchField.getFeature('Keyboard');
 				keyboard.onTextChange = () => this.search(keyboard.text);
+				getLatestTVShows().then(latest => this.setState({latest}));
 			},
 
 			search(query) {
+				this.setState({value: query});
 				this.throttle && clearTimeout(this.throttle);
 				this.throttle = setTimeout(this.loadResults.bind(this, query), THROTTLE_TIMEOUT);
 			},

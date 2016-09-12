@@ -18,9 +18,12 @@ import {
 import {
 	TVShowStatuses,
 	TVShowStatusStrings,
+	getEpisodeMedia,
+	getTrailerStream,
 	getCountriesList,
 	getTVShowSeasons,
 	getTVShowReviews,
+	getTVShowTrailers,
 	getTVShowDescription,
 	getTVShowRecommendations,
 } from '../request/soap';
@@ -76,23 +79,28 @@ export default function() {
 					.all([
 						getCountriesList(),
 						getTVShowSeasons(sid),
-						getTVShowReviews(sid),
 						getTVShowDescription(sid),
 						getTVShowRecommendations(sid),
 					])
 					.then(([
 						contries,
 						seasons,
-						reviews,
 						tvshow,
 						recomendations,
-					]) => ({
-						tvshow,
-						reviews,
-						seasons,
-						contries,
-						recomendations,
-					}))
+					]) => Promise
+						.all([
+							tvshow.reviews > 0 ? getTVShowReviews(sid) : Promise.resolve([]),
+							tvshow.trailers > 0 ? getTVShowTrailers(sid) : Promise.resolve([]),
+						])
+						.then(([reviews, trailers]) => ({
+							tvshow,
+							reviews,
+							seasons,
+							trailers,
+							contries,
+							recomendations,
+						}))
+					)
 					.then(payload => assign({
 						watching: payload.tvshow.watching > 0,
 						continueWatching: !!this.getSeasonToWatch(payload.seasons),
@@ -157,12 +165,20 @@ export default function() {
 
 			renderInfo() {
 				let {title, description, likes} = this.state.tvshow;
+				let hasTrailers = !!this.state.trailers.length;
 				let buttons = <row />;
 
 				let continueWatchingBtn = (
 					<buttonLockup onSelect={this.onContinueWatching}>
 						<badge src="resource://button-play" />
 						<title>Continue Watching</title>
+					</buttonLockup>
+				);
+
+				let showTrailerBtn = (
+					<buttonLockup onSelect={this.onShowTrailer}>
+						<badge src="resource://button-preview" />
+						<title>Show{'\n'}Trailer</title>
 					</buttonLockup>
 				);
 
@@ -184,12 +200,14 @@ export default function() {
 					buttons = (
 						<row>
 							{this.state.continueWatching && continueWatchingBtn}
+							{hasTrailers && showTrailerBtn}
 							{stopWatchingBtn}
 						</row>
 					);
 				} else {
 					buttons = (
 						<row>
+							{hasTrailers && showTrailerBtn}
 							{startWatchingBtn}
 						</row>
 					);
@@ -441,6 +459,23 @@ export default function() {
 				TVDML.navigate('season', {sid, id: seasonNumber, title: `${title} — ${seasonTitle}`});
 			},
 
+			onShowTrailer() {
+				let [trailer] = this.state.trailers;
+
+				TVDML
+					.createPlayer({
+						items(item, request) {
+							if (!item) return getTrailerItem(trailer);
+							return null;
+						},
+
+						uidResolver(item) {
+							return item.id;
+						},
+					})
+					.then(player => player.play());
+			},
+
 			onAddToSubscription() {
 				let {sid} = this.state.tvshow;
 				this.setState({watching: true});
@@ -485,4 +520,13 @@ export default function() {
 
 function calculateUnwatchedCount(season) {
 	return season.unwatched || 0;
+}
+
+function getTrailerItem(trailer) {
+	let {tid} = getEpisodeMedia(trailer);
+
+	return getTrailerStream(tid).then(({stream}) => ({
+		id: tid,
+		url: stream,
+	}));
 }
