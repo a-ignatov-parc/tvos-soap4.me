@@ -178,7 +178,7 @@ export default function() {
 				let showTrailerBtn = (
 					<buttonLockup onSelect={this.onShowTrailer}>
 						<badge src="resource://button-preview" />
-						<title>Show{'\n'}Trailer</title>
+						<title>Show Trailer</title>
 					</buttonLockup>
 				);
 
