@@ -90,10 +90,10 @@ export default function() {
 										} = episode;
 
 										let file = getEpisodeMedia(episode);
-										let mediaQualityCode = mediaQualities[file.quality];
-										let mediaTranslationCode = mediaLocalizations[file.translate];
+										let mediaQualityCode = file && mediaQualities[file.quality];
+										let mediaTranslationCode = file && mediaLocalizations[file.translate];
 
-										let hasHD = mediaQualityCode !== SD;
+										let hasHD = file && mediaQualityCode !== SD;
 										let hasSubtitles = !!~subtitlesList.indexOf(mediaTranslationCode);
 										let hasTranslation = !!~translationList.indexOf(mediaTranslationCode);
 
@@ -117,9 +117,11 @@ export default function() {
 												<title style="tv-text-highlight-style: marquee-on-highlight">
 													{title}
 												</title>
-												<subtitle>
-													Translation: {hasTranslation ? 'Russian' : 'Original'}
-												</subtitle>
+												{file && (
+													<subtitle>
+														Translation: {hasTranslation ? 'Russian' : 'Original'}
+													</subtitle>
+												)}
 												<decorationLabel>
 													{this.state[`eid-${episodeNumber}`] && (
 														<badge src="resource://button-checkmark" />
