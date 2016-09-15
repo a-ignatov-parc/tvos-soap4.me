@@ -97,10 +97,6 @@ export default function(title) {
 									.grey_description {
 										color: rgb(132, 133, 135);
 									}
-
-									.black_text {
-										color: rgb(0, 0, 0);
-									}
 								`} />
 							</head>
 							<alertTemplate>
@@ -111,7 +107,7 @@ export default function(title) {
 									You need to be authorized in order to see your subscriptions
 								</description>
 								<button onSelect={this.onLogin}>
-									<text class="black_text">Authorize</text>
+									<text>Authorize</text>
 								</button>
 							</alertTemplate>
 						</document>

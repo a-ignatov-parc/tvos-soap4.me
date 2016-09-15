@@ -220,8 +220,7 @@ export default function() {
 							<text>Liked by {likes > 0 ? `${likes} people` : `no one`}</text>
 						</row>
 						<description
-							allowsZooming="true"
-							moreLabel="more"
+							handlesOverflow="true"
 							onSelect={this.onShowFullDescription}
 						>{description}</description>
 						{buttons}
@@ -372,6 +371,7 @@ export default function() {
 										onSelect={link('actor', {id: person_id, actor: person_en})}
 									>
 										<monogram 
+											style="tv-placeholder: monogram"
 											src={person_image_original}
 											firstName={firstName}
 											lastName={lastName}

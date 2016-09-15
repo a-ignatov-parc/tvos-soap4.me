@@ -110,6 +110,7 @@ export default function() {
 										onSelect={link('actor', {id, actor: name_en})}
 									>
 										<monogram 
+											style="tv-placeholder: monogram"
 											src={image_original}
 											firstName={firstName}
 											lastName={lastName}

@@ -37,6 +37,7 @@ export default function(title) {
 								<section>
 									<monogramLockup disabled="true">
 										<monogram
+											style="tv-placeholder: monogram"
 											src={image_original}
 											firstName={firstName}
 											lastName={lastName}

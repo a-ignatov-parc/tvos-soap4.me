@@ -29,7 +29,7 @@ export default function Tile({key, attrs = {}, events = {}}) {
 			onHoldselect={onHoldselect}
 			autoHighlight={autoHighlight ? 'true' : undefined}
 		>
-			<img src={poster} width="250" height="250" />
+			<img src={poster} style="tv-placeholder: tv" width="250" height="250" />
 			<title style="tv-text-highlight-style: marquee-on-highlight">{title}</title>
 			<subtitle>{subtitle}</subtitle>
 		</lockup>

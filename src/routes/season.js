@@ -135,30 +135,27 @@ export default function() {
 													)}
 												</decorationLabel>
 												<relatedContent>
-													<itemBanner>
-														<heroImg src={this.state.poster} />
+													<lockup>
+														<img src={this.state.poster} style="tv-placeholder: tv" width="400" height="400" />
 														<description
-															moreLabel="more"
-															allowsZooming="true"
-															style="margin: 20 0 0"
+															handlesOverflow="true"
+															style="margin: 40 0; tv-text-max-lines: 2"
 															onSelect={this.onShowDescription.bind(this, {title, description})}
 														>{description}</description>
-														{this.state[`eid-${episodeNumber}`] ? (
-															<row>
+														<row style="tv-align: center">
+															{this.state[`eid-${episodeNumber}`] ? (
 																<buttonLockup onSelect={this.onMarkAsNew.bind(this, episodeNumber)}>
 																	<badge src="resource://button-remove" />
 																	<title>Mark as New</title>
 																</buttonLockup>
-															</row>
-														) : (
-															<row>
+															) : (
 																<buttonLockup onSelect={this.onMarkAsWatched.bind(this, episodeNumber)}>
 																	<badge src="resource://button-add" />
 																	<title>Mark as Seen</title>
 																</buttonLockup>
-															</row>
-														)}
-													</itemBanner>
+															)}
+														</row>
+													</lockup>
 												</relatedContent>
 											</listItemLockup>
 										);
