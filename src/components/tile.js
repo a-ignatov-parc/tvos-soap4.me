@@ -49,7 +49,7 @@ export default function Tile({key, attrs = {}, events = {}}) {
 						style={`
 							font-size: 20;
 							border-radius: 30;
-							margin: 10;
+							margin: 0 10 12 0;
 							padding: 1 8;
 							tv-align: right;
 							tv-position: bottom;
