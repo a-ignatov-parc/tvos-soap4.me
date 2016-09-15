@@ -361,6 +361,7 @@ export default function() {
 									person_id,
 									person_en,
 									person_image_original,
+									character_en,
 								} = actor;
 
 								let [firstName, lastName] = person_en.split(' ');
@@ -377,7 +378,9 @@ export default function() {
 											lastName={lastName}
 										/>
 										<title>{person_en}</title>
-										<subtitle>Actor</subtitle>
+										<subtitle style="tv-text-highlight-style: marquee-on-highlight">
+											{character_en}
+										</subtitle>
 									</monogramLockup>
 								);
 							})}
