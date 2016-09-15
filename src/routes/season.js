@@ -136,12 +136,14 @@ export default function() {
 												<relatedContent>
 													<lockup>
 														<img src={this.state.poster} style="tv-placeholder: tv" width="400" height="400" />
-														<description
-															handlesOverflow="true"
-															style="margin: 40 0; tv-text-max-lines: 2"
-															onSelect={this.onShowDescription.bind(this, {title, description})}
-														>{description}</description>
-														<row style="tv-align: center">
+														{description && (
+															<description
+																handlesOverflow="true"
+																style="margin: 40 0 0; tv-text-max-lines: 2"
+																onSelect={this.onShowDescription.bind(this, {title, description})}
+															>{description}</description>
+														)}
+														<row style="margin: 40 0 0; tv-align: center">
 															{this.state[`eid-${episodeNumber}`] ? (
 																<buttonLockup onSelect={this.onMarkAsNew.bind(this, episodeNumber)}>
 																	<badge src="resource://button-remove" />
