@@ -250,12 +250,13 @@ export function getSearchResults(query) {
 
 function headers() {
 	let token = getToken();
-	let headers = {
-		'X-Api-Token': token,
-		'User-Agent': 'ATV: soap4.me v1.0.0',
-	};
+	let userAgent = 'ATV: soap4.me v1.0.0';
 
-	return headers;
+	return {
+		'X-Api-Token': token,
+		'X-User-Agent': userAgent,
+		'User-Agent': userAgent,
+	};
 }
 
 function handleEmptyResponse(response) {
