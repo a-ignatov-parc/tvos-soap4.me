@@ -97,6 +97,11 @@ export default function() {
 									color: rgb(84, 82, 80);
 								}
 
+								.item {
+									background-color: rgba(255, 255, 255, 0.3);
+									tv-highlight-color: rgba(255, 255, 255, 0.9);
+								}
+
 								.item_description {
 									margin: 80 0 0; 
 									text-align: center;
@@ -117,6 +122,7 @@ export default function() {
 									{items.map(({key, value, title, description, result}) => (
 										<listItemLockup
 											key={key}
+											class="item"
 											onSelect={this.onChangeOption.bind(this, key, value)}
 										>
 											<title>
@@ -143,14 +149,20 @@ export default function() {
 										<title>Account</title>
 									</header>
 									{this.state.authorized ? (
-										<listItemLockup onSelect={this.onLogoutAttempt}>
+										<listItemLockup
+											class="item"
+											onSelect={this.onLogoutAttempt}
+										>
 											<title>Logout</title>
 											<decorationLabel>
 												{user.getLogin()}
 											</decorationLabel>
 										</listItemLockup>
 									) : (
-										<listItemLockup onSelect={this.onLogin}>
+										<listItemLockup
+											class="item"
+											onSelect={this.onLogin}
+										>
 											<title>Login</title>
 										</listItemLockup>
 									)}
@@ -218,11 +230,8 @@ export default function() {
 								<title>
 									Are you sure you want to log out?
 								</title>
-								<button
-									onSelect={this.onLogout}
-									style="tv-highlight-color: rgb(218, 61, 50)"
-								>
-									<text style="tv-highlight-color: rgb(255, 255, 255)">
+								<button onSelect={this.onLogout}>
+									<text>
 										Logout
 									</text>
 								</button>
