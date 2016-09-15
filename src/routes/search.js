@@ -1,6 +1,7 @@
 /** @jsx TVDML.jsx */
 
 import * as TVDML from 'tvdml';
+import assign from 'object-assign';
 
 import {link, prettifyEpisodeNum} from '../utils';
 import {processEntitiesInString} from '../utils/parser';
@@ -19,6 +20,7 @@ export default function() {
 			getInitialState() {
 				return {
 					value: '',
+					loading: false,
 					latest: [],
 					series: [],
 					persons: [],
@@ -47,7 +49,10 @@ export default function() {
 							`} />
 						</head>
 						<searchTemplate>
-							<searchField ref={node => this.searchField = node} />
+							<searchField
+								ref={node => this.searchField = node}
+								showSpinner={this.state.loading ? 'true' : undefined}
+							/>
 							<collectionList>
 								{this.renderLatest()}
 								{this.renderPersons()}
@@ -196,7 +201,10 @@ export default function() {
 			},
 
 			loadResults(query) {
-				return getSearchResults(query).then(this.setState.bind(this));
+				this.setState({loading: true});
+				return getSearchResults(query)
+					.catch(() => ({}))
+					.then(result => this.setState(assign({loading: false}, result)));
 			},
 		})));
 }
