@@ -1,6 +1,5 @@
 /** @jsx TVDML.jsx */
 
-import plur from 'plur';
 import moment from 'moment';
 import * as TVDML from 'tvdml';
 import assign from 'object-assign';
@@ -252,8 +251,9 @@ export default function() {
 										title={seasonTitle}
 										route="season"
 										poster={poster}
+										counter={unwatched}
+										isWatched={!unwatched}
 										payload={{sid, id: seasonNumber, title: `${title} — ${seasonTitle}`}}
-										subtitle={!!unwatched && `${unwatched} ${plur('episode', unwatched)}`}
 									/>
 								);
 							})}

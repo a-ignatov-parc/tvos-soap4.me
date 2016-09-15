@@ -1,6 +1,5 @@
 /** @jsx TVDML.jsx */
 
-import plur from 'plur';
 import * as TVDML from 'tvdml';
 
 import {getActorInfo} from '../request/soap';
