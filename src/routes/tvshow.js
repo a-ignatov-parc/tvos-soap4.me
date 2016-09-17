@@ -28,6 +28,8 @@ import {
 	getTVShowRecommendations,
 	markTVShowAsWatched,
 	markTVShowAsUnwatched,
+	markReviewAsLiked,
+	markReviewAsDisliked,
 	addToMyTVShows,
 	removeFromMyTVShows,
 } from '../request/soap';
@@ -527,17 +529,41 @@ export default function() {
 					.sink();
 			},
 
-			onShowFullReview({user, text}) {
+			onShowFullReview({id, user, text, you_liked, you_disliked}) {
 				TVDML
 					.renderModal(
 						<document>
 							<descriptiveAlertTemplate>
 								<title>{user}</title>
 								<description>{processEntitiesInString(text)}</description>
+								{!you_liked && !you_disliked && (
+									<row>
+										<button onSelect={this.onReviewLiked.bind(this, id)}>
+											<text>👍</text>
+										</button>
+										<button onSelect={this.onReviewDisliked.bind(this, id)}>
+											<text>👎</text>
+										</button>
+									</row>
+								)}
 							</descriptiveAlertTemplate>
 						</document>
 					)
 					.sink();
+			},
+
+			onReviewLiked(id) {
+				return markReviewAsLiked(id)
+					.then(this.loadData.bind(this))
+					.then(this.setState.bind(this))
+					.then(TVDML.removeModal);
+			},
+
+			onReviewDisliked(id) {
+				return markReviewAsDisliked(id)
+					.then(this.loadData.bind(this))
+					.then(this.setState.bind(this))
+					.then(TVDML.removeModal);
 			},
 
 			onMore() {

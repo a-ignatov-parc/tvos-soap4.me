@@ -146,6 +146,14 @@ export function getTVShowReviews(sid) {
 	return get(`https://api.soap4.me/v2/reviews/${sid}/`).then(handleEmptyResponse);
 }
 
+export function markReviewAsLiked(rid) {
+	return post(`https://api.soap4.me/v2/rate/review/${rid}/like/`);
+}
+
+export function markReviewAsDisliked(rid) {
+	return post(`https://api.soap4.me/v2/rate/review/${rid}/dislike/`);
+}
+
 export function getTVShowTrailers(sid) {
 	return get(`https://api.soap4.me/v2/trailers/${sid}/`).then(handleEmptyResponse);
 }
