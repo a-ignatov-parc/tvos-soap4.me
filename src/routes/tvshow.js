@@ -253,6 +253,8 @@ export default function() {
 			renderSeasons() {
 				let {sid, title} = this.state.tvshow;
 
+				if (!this.state.seasons.length) return null;
+
 				return (
 					<shelf>
 						<header>

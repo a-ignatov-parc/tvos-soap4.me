@@ -161,7 +161,7 @@ export function getTVShowTrailers(sid) {
 export function getTVShowSeasons(sid) {
 	return getTVShowEpisodes(sid)
 		.then(({covers, episodes}) => {
-			return episodes.reduce((result, episode) => {
+			return (episodes || []).reduce((result, episode) => {
 				if (!result[episode.season]) {
 					result[episode.season] = {
 						episodes: [],
