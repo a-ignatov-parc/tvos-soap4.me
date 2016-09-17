@@ -5,6 +5,7 @@ import * as TVDML from 'tvdml';
 import assign from 'object-assign';
 import formatNumber from 'simple-format-number';
 
+import * as user from '../user';
 import {processEntitiesInString} from '../utils/parser';
 import {deepEqualShouldUpdate} from '../utils/components';
 
@@ -43,7 +44,10 @@ export default function() {
 		.pipe(TVDML.passthrough(({navigation: {sid, title}}) => ({sid, title})))
 		.pipe(TVDML.render(TVDML.createComponent({
 			getInitialState() {
+				let authorized = user.isAuthorized();
+
 				return {
+					authorized,
 					loading: true,
 					watching: false,
 					continueWatching: false,
@@ -59,6 +63,12 @@ export default function() {
 					.pipe(isMenuButtonPressNavigatedTo(currentDocument))
 					.pipe(isNavigated => isNavigated && this.loadData(sid).then(this.setState.bind(this)));
 
+				this.userStateChangePipeline = user
+					.subscription()
+					.pipe(() => this.setState({
+						authorized: user.isAuthorized(),
+					}));
+
 				// To improuve UX on fast request we are adding rendering timeout.
 				let waitForAnimations = new Promise((resolve) => setTimeout(resolve, 500));
 
@@ -69,6 +79,7 @@ export default function() {
 
 			componentWillUnmount() {
 				this.menuButtonPressPipeline.unsubscribe();
+				this.userStateChangePipeline.unsubscribe();
 			},
 
 			shouldComponentUpdate: deepEqualShouldUpdate,
@@ -182,7 +193,7 @@ export default function() {
 				);
 
 				let startWatchingBtn = (
-					<buttonLockup onSelect={this.onAddToSubscription}>
+					<buttonLockup onSelect={this.onAddToSubscriptions}>
 						<badge src="resource://button-add" />
 						<title>Start Watching</title>
 					</buttonLockup>
@@ -200,14 +211,14 @@ export default function() {
 						<row>
 							{this.state.continueWatching && continueWatchingBtn}
 							{hasTrailers && showTrailerBtn}
-							{stopWatchingBtn}
+							{this.state.authorized && stopWatchingBtn}
 						</row>
 					);
 				} else {
 					buttons = (
 						<row>
 							{hasTrailers && showTrailerBtn}
-							{startWatchingBtn}
+							{this.state.authorized && startWatchingBtn}
 						</row>
 					);
 				}
@@ -479,7 +490,7 @@ export default function() {
 					.then(player => player.play());
 			},
 
-			onAddToSubscription() {
+			onAddToSubscriptions() {
 				let {sid} = this.state.tvshow;
 				this.setState({watching: true});
 				return addToMyTVShows(sid);

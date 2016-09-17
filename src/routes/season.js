@@ -7,10 +7,15 @@ import {link} from '../utils';
 import * as settings from '../settings';
 import {processEntitiesInString} from '../utils/parser';
 
+import * as user from '../user';
+import authFactory from '../helpers/auth';
+import {defaultErrorHandlers} from '../helpers/auth/handlers';
+
 import {
 	localization,
 	mediaQualities,
 	mediaLocalizations,
+	addToMyTVShows,
 	getMediaStream,
 	getTVShowSeason,
 	getEpisodeMedia,
@@ -20,16 +25,12 @@ import {
 } from '../request/soap';
 
 import Loader from '../components/loader';
+import Authorize from '../components/authorize';
 
 const {Promise} = TVDML;
 
 const {VIDEO_QUALITY} = settings.params;
 const {SD, HD, FULLHD} = settings.values[VIDEO_QUALITY];
-
-const translationList = [
-	localization.LOCALIZATION,
-	localization.LOCALIZATION_SUBTITLES,
-];
 
 const subtitlesList = [
 	localization.ORIGINAL_SUBTITLES,
@@ -53,15 +54,8 @@ export default function() {
 		}))
 		.pipe(TVDML.render(TVDML.createComponent({
 			getInitialState() {
-				let {episodes, covers: {big: poster}} = this.props.season;
-
-				return episodes.reduce((result, {episode, watched}) => {
-					result[`eid-${episode}`] = !!watched;
-					return result;
-				}, {
-					poster,
-					episodes,
-				});
+				let authorized = user.isAuthorized();
+				return assign({authorized}, getSeasonExtendedData(this.props.season));
 			},
 
 			render() {
@@ -95,7 +89,6 @@ export default function() {
 
 										let hasHD = file && mediaQualityCode !== SD;
 										let hasSubtitles = !!~subtitlesList.indexOf(mediaTranslationCode);
-										let hasTranslation = !!~translationList.indexOf(mediaTranslationCode);
 
 										let highlight = false;
 										let title = processEntitiesInString(title_en);
@@ -117,11 +110,6 @@ export default function() {
 												<title style="tv-text-highlight-style: marquee-on-highlight">
 													{title}
 												</title>
-												{file && (
-													<subtitle>
-														Translation: {hasTranslation ? 'Russian' : 'Original'}
-													</subtitle>
-												)}
 												<decorationLabel>
 													{this.state[`eid-${episodeNumber}`] && (
 														<badge src="resource://button-checkmark" />
@@ -139,17 +127,17 @@ export default function() {
 													<lockup>
 														<img src={this.state.poster} style="tv-placeholder: tv" width="400" height="400" />
 														<row style="margin: 40 0 0; tv-align: center">
-															{this.state[`eid-${episodeNumber}`] ? (
+															{this.state.authorized && (this.state[`eid-${episodeNumber}`] ? (
 																<buttonLockup onSelect={this.onMarkAsNew.bind(this, episodeNumber)}>
 																	<badge src="resource://button-remove" />
 																	<title>Mark as New</title>
 																</buttonLockup>
 															) : (
-																<buttonLockup onSelect={this.onMarkAsWatched.bind(this, episodeNumber)}>
+																<buttonLockup onSelect={this.onMarkAsWatched.bind(this, episodeNumber, true)}>
 																	<badge src="resource://button-add" />
 																	<title>Mark as Seen</title>
 																</buttonLockup>
-															)}
+															))}
 														</row>
 														<description
 															handlesOverflow="true"
@@ -169,9 +157,28 @@ export default function() {
 			},
 
 			onPlayEpisode(episodeNumber) {
-				let {sid} = this.props;
-				let {episodes, poster} = this.state;
+				let {sid, id} = this.props;
+				let {episodes, poster, authorized} = this.state;
 				let markAsWatched = this.onMarkAsWatched.bind(this);
+
+				if (!authorized) {
+					let authHelper = authFactory({
+						onError: defaultErrorHandlers,
+						onSuccess: ({token, till}, login) => {
+							user.set({token, till, login, logged: 1});
+							getTVShowSeason(sid, id).then(season => {
+								let authorized = user.isAuthorized();
+								this.setState(assign({authorized}, getSeasonExtendedData(season)));
+								authHelper.dismiss();
+								this.onPlayEpisode(episodeNumber);
+							});
+						},
+					});
+
+					return TVDML
+						.renderModal(<Authorize onAuthorize={() => authHelper.present()} />)
+						.sink();
+				}
 
 				let resolvers = {
 					initial() {
@@ -217,10 +224,13 @@ export default function() {
 				return markEpisodeAsUnWatched(sid, id, episodeNumber);
 			},
 
-			onMarkAsWatched(episodeNumber) {
+			onMarkAsWatched(episodeNumber, addTVShowToSubscriptions) {
 				let {id, sid} = this.props;
 				this.setState({[`eid-${episodeNumber}`]: true});
-				return markEpisodeAsWatched(sid, id, episodeNumber);
+				return Promise.all([
+					markEpisodeAsWatched(sid, id, episodeNumber),
+					addTVShowToSubscriptions ? addToMyTVShows(sid) : Promise.resolve(),
+				]);
 			},
 
 			onShowDescription({title, description}) {
@@ -273,4 +283,16 @@ function getEpisodeItem(sid, episode, poster) {
 		artworkImageURL: poster || episodePoster,
 		resumeTime: start_from && parseFloat(start_from),
 	}));
+}
+
+function getSeasonExtendedData(season) {
+	let {episodes, covers: {big: poster}} = season;
+
+	return episodes.reduce((result, {episode, watched}) => {
+		result[`eid-${episode}`] = !!watched;
+		return result;
+	}, {
+		poster,
+		episodes,
+	});
 }

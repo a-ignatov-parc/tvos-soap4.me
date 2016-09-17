@@ -13,6 +13,7 @@ import {deepEqualShouldUpdate} from '../utils/components';
 
 import Tile from '../components/tile';
 import Loader from '../components/loader';
+import Authorize from '../components/authorize';
 
 const {Promise} = TVDML;
 
@@ -85,32 +86,7 @@ export default function(title) {
 				}
 
 				if (!this.state.authorized) {
-					return (
-						<document>
-							<head>
-								<style content={`
-									.grey_text {
-										color: rgb(84, 82, 80);
-									}
-
-									.grey_description {
-										color: rgb(132, 133, 135);
-									}
-								`} />
-							</head>
-							<alertTemplate>
-								<title class="grey_text">
-									Authorization
-								</title>
-								<description class="grey_description">
-									You need to be authorized in order to see your subscriptions
-								</description>
-								<button onSelect={this.onLogin}>
-									<text>Authorize</text>
-								</button>
-							</alertTemplate>
-						</document>
-					);
+					return <Authorize theme="dark" onAuthorize={this.onLogin} />;
 				}
 
 				let watching = this.state.series.filter(({watching}) => watching > 0);

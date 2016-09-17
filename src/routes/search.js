@@ -5,7 +5,11 @@ import assign from 'object-assign';
 
 import {link, prettifyEpisodeNum} from '../utils';
 import {processEntitiesInString} from '../utils/parser';
-import {getSearchResults, getLatestTVShows} from '../request/soap';
+import {
+	getSearchResults,
+	getLatestTVShows,
+	getPopularTVShows,
+} from '../request/soap';
 
 import Tile from '../components/tile';
 
@@ -23,6 +27,7 @@ export default function() {
 					loading: false,
 					latest: [],
 					series: [],
+					popular: [],
 					persons: [],
 					episodes: [],
 				};
@@ -55,6 +60,7 @@ export default function() {
 							/>
 							<collectionList>
 								{this.renderLatest()}
+								{this.renderPopular()}
 								{this.renderPersons()}
 								{this.renderShows()}
 								{episodes.map((name, i) => this.renderEpisodes(name, tvshows[name], (i + 1) === episodes.length))}
@@ -74,6 +80,32 @@ export default function() {
 						</header>
 						<section>
 							{this.state.latest.map(({
+								sid,
+								title,
+								covers: {big: poster},
+							}) => (
+								<Tile
+									title={title}
+									route="tvshow"
+									poster={poster}
+									payload={{title, sid}}
+								/>
+							))}
+						</section>
+					</shelf>
+				);
+			},
+
+			renderPopular() {
+				if (!this.state.popular.length || this.state.value) return null;
+
+				return (
+					<shelf>
+						<header>
+							<title>Popular TV Shows</title>
+						</header>
+						<section>
+							{this.state.popular.map(({
 								sid,
 								title,
 								covers: {big: poster},
@@ -191,7 +223,14 @@ export default function() {
 			componentDidMount() {
 				let keyboard = this.searchField.getFeature('Keyboard');
 				keyboard.onTextChange = () => this.search(keyboard.text);
-				getLatestTVShows().then(latest => this.setState({latest}));
+				Promise
+					.all([
+						getLatestTVShows(),
+						getPopularTVShows(),
+					])
+					.then(([latest, popular]) => {
+						this.setState({latest, popular})
+					});
 			},
 
 			search(query) {

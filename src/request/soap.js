@@ -118,6 +118,14 @@ export function getLatestTVShows(count = 10) {
 	});
 }
 
+export function getPopularTVShows(count = 10) {
+	return getAllTVShows().then(tvshows => {
+		return tvshows
+			.sort(({likes: a}, {likes: b}) => b - a)
+			.slice(0, count);
+	});
+}
+
 export function getTVShowDescription(sid) {
 	return get(`https://api.soap4.me/v2/soap/description/${sid}/`);
 }
