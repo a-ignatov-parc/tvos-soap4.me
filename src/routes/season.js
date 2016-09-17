@@ -16,6 +16,7 @@ import {
 	mediaQualities,
 	mediaLocalizations,
 	addToMyTVShows,
+	saveElapsedTime,
 	getMediaStream,
 	getTVShowSeason,
 	getEpisodeMedia,
@@ -200,6 +201,14 @@ export default function() {
 							let episodeNumber = resolvers[request] && resolvers[request](item);
 							let episode = getEpisode(episodeNumber, episodes);
 							return getEpisodeItem(sid, episode, poster);
+						},
+
+						markAsStopped(item, elapsedTime) {
+							let {id} = item;
+							let [sid, season, episodeNumber] = id.split('-');
+							let episode = getEpisode(episodeNumber, episodes);
+							let {eid} = getEpisodeMedia(episode);
+							return saveElapsedTime(eid, elapsedTime);
 						},
 
 						markAsWatched(item) {

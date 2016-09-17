@@ -256,6 +256,10 @@ export function getSearchResults(query) {
 	return get(`https://api.soap4.me/v2/search/?q=${encodeURIComponent(query)}`);
 }
 
+export function saveElapsedTime(eid, time) {
+	return post(`https://api.soap4.me/v2/play/episode/${eid}/savets/`, {eid, time});
+}
+
 function headers() {
 	let token = getToken();
 	let userAgent = 'ATV: soap4.me v1.0.0';
