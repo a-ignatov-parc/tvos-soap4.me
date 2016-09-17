@@ -102,6 +102,12 @@ export default function() {
 									tv-highlight-color: rgba(255, 255, 255, 0.9);
 								}
 
+								@media tv-template and (tv-theme:dark) {
+									.item {
+										background-color: rgba(255, 255, 255, 0.05);
+									}
+								}
+
 								.item_description {
 									margin: 80 0 0; 
 									text-align: center;
