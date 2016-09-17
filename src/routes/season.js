@@ -102,6 +102,18 @@ export default function() {
 											highlighted = true;
 										}
 
+										let badges = [
+											this.state[`eid-${episodeNumber}`] && (
+												<badge src="resource://button-checkmark" />
+											),
+											hasSubtitles && (
+												<badge src="resource://cc" />
+											),
+											hasHD && (
+												<badge src="resource://hd" />
+											),
+										];
+
 										return (
 											<listItemLockup
 												autoHighlight={highlight ? 'true' : undefined}
@@ -112,17 +124,11 @@ export default function() {
 													{title}
 												</title>
 												<decorationLabel>
-													{this.state[`eid-${episodeNumber}`] && (
-														<badge src="resource://button-checkmark" />
-													)}
-													{'  '}
-													{hasSubtitles && (
-														<badge src="resource://cc" />
-													)}
-													{hasSubtitles && '  '}
-													{hasHD && (
-														<badge src="resource://hd" />
-													)}
+													{badges.filter(Boolean).reduce((result, item, i) => {
+														i && result.push('  ');
+														result.push(item);
+														return result;
+													}, [])}
 												</decorationLabel>
 												<relatedContent>
 													<lockup>

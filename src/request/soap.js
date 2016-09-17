@@ -200,22 +200,10 @@ export function getEpisodeMedia({files = []}) {
 			quality: qualityB,
 			translate: translateB,
 		}) => {
-			let qualityCodeA = mediaQualities[qualityA];
-			let qualityCodeB = mediaQualities[qualityB];
-			let qualityIndexA = qualityRanking.indexOf(qualityCodeA);
-			let qualityIndexB = qualityRanking.indexOf(qualityCodeB);
-
-			qualityIndexA < 0 && (qualityIndexA = qualityRanking.length);
-			qualityIndexB < 0 && (qualityIndexB = qualityRanking.length);
-
-			let localizationCodeA = mediaLocalizations[translateA];
-			let localizationCodeB = mediaLocalizations[translateB];
-			let localizationIndexA = localizationRanking.indexOf(localizationCodeA);
-			let localizationIndexB = localizationRanking.indexOf(localizationCodeB);
-
-			localizationIndexA < 0 && (localizationIndexA = localizationRanking.length);
-			localizationIndexB < 0 && (localizationIndexB = localizationRanking.length);
-
+			let qualityIndexA = resolveCodeToIndex(mediaQualities[qualityA], qualityRanking);
+			let qualityIndexB = resolveCodeToIndex(mediaQualities[qualityB], qualityRanking);
+			let localizationIndexA = resolveCodeToIndex(mediaLocalizations[translateA], localizationRanking);
+			let localizationIndexB = resolveCodeToIndex(mediaLocalizations[translateB], localizationRanking);
 			return (qualityIndexA - qualityIndexB) + (localizationIndexA - localizationIndexB);
 		});
 
@@ -274,4 +262,9 @@ function headers() {
 function handleEmptyResponse(response) {
 	if ('ok' in response && !response.ok) return [];
 	return response;
+}
+
+function resolveCodeToIndex(code, collection = []) {
+	let index = collection.indexOf(code);
+	return index < 0 ? collection.length : index;
 }
