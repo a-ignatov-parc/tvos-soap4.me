@@ -248,6 +248,14 @@ export function saveElapsedTime(eid, time) {
 	return post(`https://api.soap4.me/v2/play/episode/${eid}/savets/`, {eid, time});
 }
 
+export function getSpeedTestServers() {
+	return get('https://api.soap4.me/v2/speedtest/servers/');
+}
+
+export function saveSpeedTestResults(results) {
+	return post('https://api.soap4.me/v2/speedtest/save/', results);
+}
+
 function headers() {
 	let token = getToken();
 	let userAgent = 'ATV: soap4.me v1.0.0';

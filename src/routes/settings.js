@@ -4,6 +4,7 @@ import * as TVDML from 'tvdml';
 
 import * as settings from '../settings';
 
+import {link} from '../utils';
 import * as user from '../user';
 import authFactory from '../helpers/auth';
 import {defaultErrorHandlers} from '../helpers/auth/handlers';
@@ -172,6 +173,17 @@ export default function() {
 											<title>Login</title>
 										</listItemLockup>
 									)}
+								</section>
+								<section>
+									<header>
+										<title>Network</title>
+									</header>
+									<listItemLockup
+										class="item"
+										onSelect={link('speedtest')}
+									>
+										<title>Speed test</title>
+									</listItemLockup>
 								</section>
 							</list>
 						</listTemplate>

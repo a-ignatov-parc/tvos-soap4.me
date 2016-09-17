@@ -12,6 +12,7 @@ import SeasonRoute from './routes/season';
 import TVShowRoute from './routes/tvshow';
 import SearchRoute from './routes/search';
 import SettingsRoute from './routes/settings';
+import SpeedTestRoute from './routes/speedtest';
 
 import Loader from './components/loader';
 
@@ -81,3 +82,7 @@ TVDML
 TVDML
 	.handleRoute('actor')
 	.pipe(ActorRoute());
+
+TVDML
+	.handleRoute('speedtest')
+	.pipe(SpeedTestRoute());

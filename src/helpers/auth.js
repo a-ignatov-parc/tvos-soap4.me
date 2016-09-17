@@ -217,8 +217,8 @@ function createForm(params = {}) {
 						</textField>
 						<footer>
 							<button
-								disabled={!this.state.valid}
 								onSelect={this.onSubmit}
+								disabled={!this.state.valid}
 							>
 								<text>
 									{this.state.button}
