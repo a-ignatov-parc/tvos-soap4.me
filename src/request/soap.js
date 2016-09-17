@@ -210,11 +210,27 @@ export function getEpisodeMedia({files = []}) {
 	return rankedFile;
 }
 
+export function markTVShowAsWatched(sid) {
+	return post(`https://api.soap4.me/v2/episodes/watch/full/${sid}/`);
+}
+
+export function markTVShowAsUnwatched(sid) {
+	return post(`https://api.soap4.me/v2/episodes/unwatch/full/${sid}/`);
+}
+
+export function markSeasonAsWatched(sid, season) {
+	return post(`https://api.soap4.me/v2/episodes/watch/full/${sid}/${season}/`);
+}
+
+export function markSeasonAsUnwatched(sid, season) {
+	return post(`https://api.soap4.me/v2/episodes/unwatch/full/${sid}/${season}/`);
+}
+
 export function markEpisodeAsWatched(sid, season, episodeNumber) {
 	return post(`https://api.soap4.me/v2/episodes/watch/${sid}/${season}/${episodeNumber}/`);
 }
 
-export function markEpisodeAsUnWatched(sid, season, episodeNumber) {
+export function markEpisodeAsUnwatched(sid, season, episodeNumber) {
 	return post(`https://api.soap4.me/v2/episodes/unwatch/${sid}/${season}/${episodeNumber}/`);
 }
 

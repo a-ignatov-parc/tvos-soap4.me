@@ -26,9 +26,8 @@ import {
 	getTVShowTrailers,
 	getTVShowDescription,
 	getTVShowRecommendations,
-} from '../request/soap';
-
-import {
+	markTVShowAsWatched,
+	markTVShowAsUnwatched,
 	addToMyTVShows,
 	removeFromMyTVShows,
 } from '../request/soap';
@@ -61,7 +60,7 @@ export default function() {
 				this.menuButtonPressPipeline = TVDML
 					.subscribe('menu-button-press')
 					.pipe(isMenuButtonPressNavigatedTo(currentDocument))
-					.pipe(isNavigated => isNavigated && this.loadData(sid).then(this.setState.bind(this)));
+					.pipe(isNavigated => isNavigated && this.loadData().then(this.setState.bind(this)));
 
 				this.userStateChangePipeline = user
 					.subscription()
@@ -73,7 +72,7 @@ export default function() {
 				let waitForAnimations = new Promise((resolve) => setTimeout(resolve, 500));
 
 				Promise
-					.all([this.loadData(sid), waitForAnimations])
+					.all([this.loadData(), waitForAnimations])
 					.then(([payload]) => this.setState(assign({loading: false}, payload)));
 			},
 
@@ -84,7 +83,9 @@ export default function() {
 
 			shouldComponentUpdate: deepEqualShouldUpdate,
 
-			loadData(sid) {
+			loadData() {
+				let {sid} = this.props;
+
 				return Promise
 					.all([
 						getCountriesList(),
@@ -206,12 +207,20 @@ export default function() {
 					</buttonLockup>
 				);
 
+				let moreBtn = (
+					<buttonLockup onSelect={this.onMore}>
+						<badge src="resource://button-more" />
+						<title>More</title>
+					</buttonLockup>
+				);
+
 				if (this.state.watching) {
 					buttons = (
 						<row>
 							{this.state.continueWatching && continueWatchingBtn}
 							{hasTrailers && showTrailerBtn}
 							{this.state.authorized && stopWatchingBtn}
+							{this.state.authorized && moreBtn}
 						</row>
 					);
 				} else {
@@ -219,6 +228,7 @@ export default function() {
 						<row>
 							{hasTrailers && showTrailerBtn}
 							{this.state.authorized && startWatchingBtn}
+							{this.state.authorized && moreBtn}
 						</row>
 					);
 				}
@@ -528,6 +538,49 @@ export default function() {
 						</document>
 					)
 					.sink();
+			},
+
+			onMore() {
+				let hasWatchedEpisodes = this.state.seasons.some(({unwatched}) => !unwatched);
+				let hasUnwatchedEpisodes = this.state.seasons.some(({unwatched}) => !!unwatched);
+
+				TVDML
+					.renderModal(
+						<document>
+							<alertTemplate>
+								<title>More</title>
+								{hasUnwatchedEpisodes && (
+									<button onSelect={this.onMarkTVShowAsWatched}>
+										<text>Mark TV Show as Watched</text>
+									</button>
+								)}
+								{hasWatchedEpisodes && (
+									<button onSelect={this.onMarkTVShowAsUnwatched}>
+										<text>Mark TV Show as Unwatched</text>
+									</button>
+								)}
+							</alertTemplate>
+						</document>
+					)
+					.sink();
+			},
+
+			onMarkTVShowAsWatched() {
+				let {sid} = this.props;
+
+				return markTVShowAsWatched(sid)
+					.then(this.loadData.bind(this))
+					.then(this.setState.bind(this))
+					.then(TVDML.removeModal);
+			},
+
+			onMarkTVShowAsUnwatched() {
+				let {sid} = this.props;
+
+				return markTVShowAsUnwatched(sid)
+					.then(this.loadData.bind(this))
+					.then(this.setState.bind(this))
+					.then(TVDML.removeModal);
 			},
 		})));
 }

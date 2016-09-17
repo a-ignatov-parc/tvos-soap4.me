@@ -174,17 +174,19 @@ export default function() {
 										</listItemLockup>
 									)}
 								</section>
-								<section>
-									<header>
-										<title>Network</title>
-									</header>
-									<listItemLockup
-										class="item"
-										onSelect={link('speedtest')}
-									>
-										<title>Speed test</title>
-									</listItemLockup>
-								</section>
+								{this.state.authorized && (
+									<section>
+										<header>
+											<title>Network</title>
+										</header>
+										<listItemLockup
+											class="item"
+											onSelect={link('speedtest')}
+										>
+											<title>Speed test</title>
+										</listItemLockup>
+									</section>
+								)}
 							</list>
 						</listTemplate>
 					</document>

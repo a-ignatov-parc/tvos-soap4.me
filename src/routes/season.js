@@ -6,6 +6,7 @@ import assign from 'object-assign';
 import {link} from '../utils';
 import * as settings from '../settings';
 import {processEntitiesInString} from '../utils/parser';
+import {deepEqualShouldUpdate} from '../utils/components';
 
 import * as user from '../user';
 import authFactory from '../helpers/auth';
@@ -21,8 +22,10 @@ import {
 	getTVShowSeason,
 	getEpisodeMedia,
 	getTVShowDescription,
+	markSeasonAsWatched,
+	markSeasonAsUnwatched,
 	markEpisodeAsWatched,
-	markEpisodeAsUnWatched,
+	markEpisodeAsUnwatched,
 } from '../request/soap';
 
 import Loader from '../components/loader';
@@ -42,30 +45,78 @@ export default function() {
 	return TVDML
 		.createPipeline()
 		.pipe(TVDML.passthrough(({navigation: {sid, id, title, episode}}) => ({sid, id, title, episode})))
-		.pipe(TVDML.render(({title}) => {
-			return <Loader title={title} />;
-		}))
-		.pipe(TVDML.passthrough(({sid, id}) => {
-			return Promise
-				.all([
-					getTVShowSeason(sid, id),
-					getTVShowDescription(sid),
-				])
-				.then(([season, tvshow]) => ({tvshow, season}));
-		}))
 		.pipe(TVDML.render(TVDML.createComponent({
 			getInitialState() {
 				let authorized = user.isAuthorized();
-				return assign({authorized}, getSeasonExtendedData(this.props.season));
+
+				return {
+					authorized,
+					loading: true,
+				};
+			},
+
+			componentDidMount() {
+				this.userStateChangePipeline = user
+					.subscription()
+					.pipe(() => this.setState({
+						authorized: user.isAuthorized(),
+					}));
+
+				// To improuve UX on fast request we are adding rendering timeout.
+				let waitForAnimations = new Promise((resolve) => setTimeout(resolve, 500));
+
+				Promise
+					.all([this.loadData(), waitForAnimations])
+					.then(([payload]) => this.setState(assign({loading: false}, payload)));
+			},
+
+			componentWillUnmount() {
+				this.userStateChangePipeline.unsubscribe();
+			},
+
+			shouldComponentUpdate: deepEqualShouldUpdate,
+
+			loadData() {
+				let {sid, id} = this.props;
+
+				return Promise
+					.all([
+						getTVShowSeason(sid, id),
+						getTVShowDescription(sid),
+					])
+					.then(([season, tvshow]) => ({tvshow, season}))
+					.then(payload => assign({}, payload, getSeasonExtendedData(payload.season)));
 			},
 
 			render() {
+				if (this.state.loading) {
+					return <Loader title={this.props.title} />
+				}
+
 				let highlighted = false;
-				let {title} = this.props.tvshow;
+				let {title} = this.state.tvshow;
 				let {episodes} = this.state;
 
 				return (
 					<document>
+						<head>
+							<style content={`
+								.controls_container {
+									margin: 40 0 0;
+									tv-align: center;
+									tv-content-align: top;
+								}
+
+								.control {
+									margin: 0 24;
+								}
+
+								.item {
+									background-color: rgba(255, 255, 255, 0.05);
+									tv-highlight-color: rgba(255, 255, 255, 0.9);
+								}
+							`} />
+						</head>
 						<compilationTemplate theme="light">
 							<background>
 								<heroImg src={this.state.poster} />
@@ -73,7 +124,7 @@ export default function() {
 							<list>
 								<segmentBarHeader>
 									<title>{title}</title>
-									<subtitle>Season {this.props.season.season}</subtitle>
+									<subtitle>Season {this.state.season.season}</subtitle>
 								</segmentBarHeader>
 								<section>
 									{episodes.map((episode, i) => {
@@ -116,6 +167,7 @@ export default function() {
 
 										return (
 											<listItemLockup
+												class="item"
 												autoHighlight={highlight ? 'true' : undefined}
 												onSelect={this.onPlayEpisode.bind(this, episodeNumber)}
 											>
@@ -133,18 +185,33 @@ export default function() {
 												<relatedContent>
 													<lockup>
 														<img src={this.state.poster} style="tv-placeholder: tv" width="400" height="400" />
-														<row style="margin: 40 0 0; tv-align: center">
+														<row class="controls_container">
 															{this.state.authorized && (this.state[`eid-${episodeNumber}`] ? (
-																<buttonLockup onSelect={this.onMarkAsNew.bind(this, episodeNumber)}>
+																<buttonLockup
+																	class="control"
+																	onSelect={this.onMarkAsNew.bind(this, episodeNumber)}
+																>
 																	<badge src="resource://button-remove" />
-																	<title>Mark as New</title>
+																	<title>Mark as Unwatched</title>
 																</buttonLockup>
 															) : (
-																<buttonLockup onSelect={this.onMarkAsWatched.bind(this, episodeNumber, true)}>
+																<buttonLockup
+																	class="control"
+																	onSelect={this.onMarkAsWatched.bind(this, episodeNumber, true)}
+																>
 																	<badge src="resource://button-add" />
-																	<title>Mark as Seen</title>
+																	<title>Mark as Watched</title>
 																</buttonLockup>
 															))}
+															{this.state.authorized && (
+																<buttonLockup 
+																	class="control"
+																	onSelect={this.onMore}
+																>
+																	<badge src="resource://button-more" />
+																	<title>More</title>
+																</buttonLockup>
+															)}
 														</row>
 														<description
 															handlesOverflow="true"
@@ -173,9 +240,8 @@ export default function() {
 						onError: defaultErrorHandlers,
 						onSuccess: ({token, till}, login) => {
 							user.set({token, till, login, logged: 1});
-							getTVShowSeason(sid, id).then(season => {
-								let authorized = user.isAuthorized();
-								this.setState(assign({authorized}, getSeasonExtendedData(season)));
+							this.loadData().then(payload => {
+								this.setState(payload);
 								authHelper.dismiss();
 								this.onPlayEpisode(episodeNumber);
 							});
@@ -236,7 +302,7 @@ export default function() {
 			onMarkAsNew(episodeNumber) {
 				let {id, sid} = this.props;
 				this.setState({[`eid-${episodeNumber}`]: false});
-				return markEpisodeAsUnWatched(sid, id, episodeNumber);
+				return markEpisodeAsUnwatched(sid, id, episodeNumber);
 			},
 
 			onMarkAsWatched(episodeNumber, addTVShowToSubscriptions) {
@@ -263,6 +329,49 @@ export default function() {
 						</document>
 					)
 					.sink();
+			},
+
+			onMore() {
+				let hasWatchedEpisodes = this.state.episodes.some(({watched}) => watched > 0);
+				let hasUnwatchedEpisodes = this.state.episodes.some(({watched}) => watched < 1);
+
+				TVDML
+					.renderModal(
+						<document>
+							<alertTemplate>
+								<title>More</title>
+								{hasUnwatchedEpisodes && (
+									<button onSelect={this.onMarkSeasonAsWatched}>
+										<text>Mark Season as Watched</text>
+									</button>
+								)}
+								{hasWatchedEpisodes && (
+									<button onSelect={this.onMarkSeasonAsUnwatched}>
+										<text>Mark Season as Unwatched</text>
+									</button>
+								)}
+							</alertTemplate>
+						</document>
+					)
+					.sink();
+			},
+
+			onMarkSeasonAsWatched() {
+				let {sid, id} = this.props;
+
+				return markSeasonAsWatched(sid, id)
+					.then(this.loadData.bind(this))
+					.then(this.setState.bind(this))
+					.then(TVDML.removeModal);
+			},
+
+			onMarkSeasonAsUnwatched() {
+				let {sid, id} = this.props;
+
+				return markSeasonAsUnwatched(sid, id)
+					.then(this.loadData.bind(this))
+					.then(this.setState.bind(this))
+					.then(TVDML.removeModal);
 			},
 		})));
 }
