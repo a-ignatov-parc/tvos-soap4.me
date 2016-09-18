@@ -25,7 +25,7 @@ var PORT = 9001;
 var SOURCE = './src';
 var CACHE = './build.json';
 var ASSETS = SOURCE + '/assets';
-var DEST = QUELLO ? './quello' : './out';
+var DEST = QUELLO ? './quello/tvml' : './out';
 
 function pass() {
 	return through.obj();
