@@ -61,7 +61,7 @@ gulp.task('build', function() {
 			gutil.log(gutil.colors.red('Browserify compile error:'), error.message);
 			this.emit('end');
 		})
-		.pipe(source(LIVE ? 'app.js' : 'application.js'))
+		.pipe(source('application.js'))
 		.pipe(buffer())
 		.pipe(sourcemaps.init({loadMaps: true}))
 		.pipe(LIVE ? uglify() : pass())
