@@ -2,14 +2,19 @@
 
 import * as TVDML from 'tvdml';
 
-import * as token from '../token';
 import * as settings from '../settings';
 
+import {link} from '../utils';
+import * as user from '../user';
+import authFactory from '../helpers/auth';
+import {defaultErrorHandlers} from '../helpers/auth/handlers';
+
+import {logout} from '../request/soap';
 import {getStartParams} from '../utils';
 
 const {VIDEO_QUALITY, TRANSLATION} = settings.params;
 const {SD, HD, FULLHD} = settings.values[VIDEO_QUALITY];
-const {ANY, RUSSIAN, SUBTITLES} = settings.values[TRANSLATION];
+const {LOCALIZATION, SUBTITLES} = settings.values[TRANSLATION];
 
 const titleMapping = {
 	[VIDEO_QUALITY]: 'Video quality',
@@ -25,9 +30,8 @@ const valueMapping = {
 	[SD]: 'SD',
 	[HD]: 'HD',
 	[FULLHD]: 'Full HD',
-	[ANY]: 'Localization + Subtitles',
-	[RUSSIAN]: 'Only Localization',
-	[SUBTITLES]: 'Only Subtitles',
+	[SUBTITLES]: 'Subtitles priority',
+	[LOCALIZATION]: 'Localization priority',
 };
 
 export default function() {
@@ -35,20 +39,47 @@ export default function() {
 		.createPipeline()
 		.pipe(TVDML.render(TVDML.createComponent({
 			getInitialState() {
-				return settings.getAll();
+				let authorized = user.isAuthorized();
+
+				return {
+					authorized,
+					settings: settings.getAll(),
+				};
+			},
+
+			componentDidMount() {
+				this.userStateChangePipeline = user
+					.subscription()
+					.pipe(() => {
+						this.setState({authorized: user.isAuthorized()});
+					});
+
+				this.authHelper = authFactory({
+					onError: defaultErrorHandlers,
+					onSuccess({token, till}, login) {
+						user.set({token, till, login, logged: 1});
+						this.dismiss();
+					},
+				});
+			},
+
+			componentWillUnmount() {
+				this.userStateChangePipeline.unsubscribe();
+				this.authHelper.destroy();
+				this.authHelper = null;
 			},
 
 			render() {
 				const {BASEURL} = getStartParams();
 
 				let items = Object
-					.keys(this.state)
+					.keys(this.state.settings)
 					.map(key => ({
 						key,
-						value: this.state[key],
+						value: this.state.settings[key],
 						title: getTitleForKey(key),
 						description: getDescriptionForKey(key),
-						result: getTitleForValue(this.state[key]),
+						result: getTitleForValue(this.state.settings[key]),
 					}));
 
 				let relatedImage = (
@@ -57,9 +88,36 @@ export default function() {
 
 				return (
 					<document>
+						<head>
+							<style content={`
+								.grey_title {
+									color: rgb(142, 147, 157);
+								}
+
+								.grey_text {
+									color: rgb(84, 82, 80);
+								}
+
+								.item {
+									background-color: rgba(255, 255, 255, 0.3);
+									tv-highlight-color: rgba(255, 255, 255, 0.9);
+								}
+
+								@media tv-template and (tv-theme:dark) {
+									.item {
+										background-color: rgba(255, 255, 255, 0.05);
+									}
+								}
+
+								.item_description {
+									margin: 80 0 0; 
+									text-align: center;
+								}
+							`} />
+						</head>
 						<listTemplate>
 							<banner>
-								<title style="color: rgb(142, 147, 157)">Settings</title>
+								<title class="grey_title">Settings</title>
 							</banner>
 							<list>
 								<relatedContent>
@@ -71,6 +129,7 @@ export default function() {
 									{items.map(({key, value, title, description, result}) => (
 										<listItemLockup
 											key={key}
+											class="item"
 											onSelect={this.onChangeOption.bind(this, key, value)}
 										>
 											<title>
@@ -83,7 +142,7 @@ export default function() {
 												<relatedContent>
 													<lockup>
 														{relatedImage}
-														<description style="margin: 80 0 0; color: rgb(84, 82, 80); text-align: center">
+														<description class="grey_text item_description">
 															{description}
 														</description>
 													</lockup>
@@ -96,10 +155,38 @@ export default function() {
 									<header>
 										<title>Account</title>
 									</header>
-									<listItemLockup onSelect={this.onLogoutAttempt}>
-										<title>Logout</title>
-									</listItemLockup>
+									{this.state.authorized ? (
+										<listItemLockup
+											class="item"
+											onSelect={this.onLogoutAttempt}
+										>
+											<title>Logout</title>
+											<decorationLabel>
+												{user.getLogin()}
+											</decorationLabel>
+										</listItemLockup>
+									) : (
+										<listItemLockup
+											class="item"
+											onSelect={this.onLogin}
+										>
+											<title>Login</title>
+										</listItemLockup>
+									)}
 								</section>
+								{this.state.authorized && (
+									<section>
+										<header>
+											<title>Network</title>
+										</header>
+										<listItemLockup
+											class="item"
+											onSelect={link('speedtest')}
+										>
+											<title>Speed test</title>
+										</listItemLockup>
+									</section>
+								)}
 							</list>
 						</listTemplate>
 					</document>
@@ -141,8 +228,18 @@ export default function() {
 
 			onOptionSelect(key, value) {
 				settings.set(key, value);
-				this.setState(settings.getAll());
+				this.setState({settings: settings.getAll()});
 				TVDML.removeModal();
+			},
+
+			onLogin() {
+				this.authHelper.present();
+			},
+
+			onLogout() {
+				logout()
+					.then(user.clear)
+					.then(() => TVDML.removeModal());
 			},
 
 			onLogoutAttempt() {
@@ -153,11 +250,8 @@ export default function() {
 								<title>
 									Are you sure you want to log out?
 								</title>
-								<button
-									onSelect={this.onLogout}
-									style="tv-highlight-color: rgb(218, 61, 50)"
-								>
-									<text style="tv-highlight-color: rgb(255, 255, 255)">
+								<button onSelect={this.onLogout}>
+									<text>
 										Logout
 									</text>
 								</button>
@@ -167,14 +261,6 @@ export default function() {
 							</alertTemplate>
 						</document>
 					)
-					.sink();
-			},
-
-			onLogout() {
-				TVDML
-					.render(<document />)
-					.pipe(token.remove)
-					.pipe(() => TVDML.navigate('start'))
 					.sink();
 			},
 		})));

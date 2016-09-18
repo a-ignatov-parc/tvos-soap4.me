@@ -1,71 +1,122 @@
 /** @jsx TVDML.jsx */
 
-import plur from 'plur';
 import * as TVDML from 'tvdml';
 import assign from 'object-assign';
 
+import {link} from '../utils';
 import * as settings from '../settings';
-import {get as getToken} from '../token';
-import {qualityMapping} from '../quality';
-import {parseTVShowSeasonPage} from '../info';
-import {link, fixSpecialSymbols} from '../utils';
-import {getResolvedSeasonEpisodes} from '../request/soap';
+import {processEntitiesInString} from '../utils/parser';
+import {deepEqualShouldUpdate} from '../utils/components';
+
+import * as user from '../user';
+import authFactory from '../helpers/auth';
+import {defaultErrorHandlers} from '../helpers/auth/handlers';
 
 import {
-	getTVShow,
+	localization,
+	mediaQualities,
+	mediaLocalizations,
+	addToMyTVShows,
+	saveElapsedTime,
+	getMediaStream,
 	getTVShowSeason,
-	getEpisodeMediaURL,
+	getEpisodeMedia,
+	getTVShowDescription,
+	markSeasonAsWatched,
+	markSeasonAsUnwatched,
 	markEpisodeAsWatched,
-	markEpisodeAsUnWatched,
+	markEpisodeAsUnwatched,
 } from '../request/soap';
 
 import Loader from '../components/loader';
+import Authorize from '../components/authorize';
 
 const {Promise} = TVDML;
+
 const {VIDEO_QUALITY} = settings.params;
 const {SD, HD, FULLHD} = settings.values[VIDEO_QUALITY];
+
+const subtitlesList = [
+	localization.ORIGINAL_SUBTITLES,
+	localization.LOCALIZATION_SUBTITLES,
+];
 
 export default function() {
 	return TVDML
 		.createPipeline()
 		.pipe(TVDML.passthrough(({navigation: {sid, id, title, episode}}) => ({sid, id, title, episode})))
-		.pipe(TVDML.render(({title}) => {
-			return <Loader title={title} />;
-		}))
-		.pipe(TVDML.passthrough(({sid, id}) => {
-			return Promise
-				.all([
-					getTVShow(sid),
-					getTVShowSeason(sid, id),
-				])
-				.then(([tvshow, season]) => ({tvshow, season}));
-		}))
-		.pipe(TVDML.passthrough(({tvshow, season: {season}}) => {
-			return parseTVShowSeasonPage(tvshow, season).then(({spoilers}) => ({spoilers}));
-		}))
 		.pipe(TVDML.render(TVDML.createComponent({
 			getInitialState() {
-				let episodes = getResolvedSeasonEpisodes(this.props.season)
-					.map((episode, i) => assign({}, episode, {
-						spoiler: this.props.spoilers[i],
+				let authorized = user.isAuthorized();
+
+				return {
+					authorized,
+					loading: true,
+				};
+			},
+
+			componentDidMount() {
+				this.userStateChangePipeline = user
+					.subscription()
+					.pipe(() => this.setState({
+						authorized: user.isAuthorized(),
 					}));
 
-				return episodes.reduce((result, {eid, watched}) => {
-					result[eid] = !!watched;
-					return result;
-				}, {
-					episodes,
-					poster: `http://covers.soap4.me/season/big/${this.props.id}.jpg`,
-				});
+				// To improuve UX on fast request we are adding rendering timeout.
+				let waitForAnimations = new Promise((resolve) => setTimeout(resolve, 500));
+
+				Promise
+					.all([this.loadData(), waitForAnimations])
+					.then(([payload]) => this.setState(assign({loading: false}, payload)));
+			},
+
+			componentWillUnmount() {
+				this.userStateChangePipeline.unsubscribe();
+			},
+
+			shouldComponentUpdate: deepEqualShouldUpdate,
+
+			loadData() {
+				let {sid, id} = this.props;
+
+				return Promise
+					.all([
+						getTVShowSeason(sid, id),
+						getTVShowDescription(sid),
+					])
+					.then(([season, tvshow]) => ({tvshow, season}))
+					.then(payload => assign({}, payload, getSeasonExtendedData(payload.season)));
 			},
 
 			render() {
+				if (this.state.loading) {
+					return <Loader title={this.props.title} />
+				}
+
 				let highlighted = false;
-				let {title} = this.props.tvshow;
+				let {title} = this.state.tvshow;
 				let {episodes} = this.state;
 
 				return (
 					<document>
+						<head>
+							<style content={`
+								.controls_container {
+									margin: 40 0 0;
+									tv-align: center;
+									tv-content-align: top;
+								}
+
+								.control {
+									margin: 0 24;
+								}
+
+								.item {
+									background-color: rgba(255, 255, 255, 0.05);
+									tv-highlight-color: rgba(255, 255, 255, 0.9);
+								}
+							`} />
+						</head>
 						<compilationTemplate theme="light">
 							<background>
 								<heroImg src={this.state.poster} />
@@ -73,88 +124,101 @@ export default function() {
 							<list>
 								<segmentBarHeader>
 									<title>{title}</title>
-									<subtitle>Season {this.props.season.season}</subtitle>
+									<subtitle>Season {this.state.season.season}</subtitle>
 								</segmentBarHeader>
 								<section>
 									{episodes.map((episode, i) => {
 										let {
-											eid,
 											title_en,
 											spoiler,
 											watched,
-											quality,
-											translate,
-											hasSubtitles,
-											episode: episodeIndex,
+											episode: episodeNumber,
 										} = episode;
 
+										let file = getEpisodeMedia(episode);
+										let mediaQualityCode = file && mediaQualities[file.quality];
+										let mediaTranslationCode = file && mediaLocalizations[file.translate];
+
+										let hasHD = file && mediaQualityCode !== SD;
+										let hasSubtitles = !!~subtitlesList.indexOf(mediaTranslationCode);
+
 										let highlight = false;
-										let title = fixSpecialSymbols(title_en);
-										let description = fixSpecialSymbols(spoiler);
-										let translation = (translate || '').trim();
+										let title = processEntitiesInString(title_en);
+										let description = processEntitiesInString(spoiler);
 
 										if (this.props.episode) {
-											highlight = episodeIndex === this.props.episode;
+											highlight = episodeNumber === this.props.episode;
 										} else if (!highlighted && !watched) {
 											highlight = true;
 											highlighted = true;
 										}
 
+										let badges = [
+											this.state[`eid-${episodeNumber}`] && (
+												<badge src="resource://button-checkmark" />
+											),
+											hasSubtitles && (
+												<badge src="resource://cc" />
+											),
+											hasHD && (
+												<badge src="resource://hd" />
+											),
+										];
+
 										return (
 											<listItemLockup
+												class="item"
 												autoHighlight={highlight ? 'true' : undefined}
-												onSelect={this.onPlayEpisode.bind(this, eid)}
+												onSelect={this.onPlayEpisode.bind(this, episodeNumber)}
 											>
-												<ordinal minLength="3">{episodeIndex}</ordinal>
+												<ordinal minLength="3">{episodeNumber}</ordinal>
 												<title style="tv-text-highlight-style: marquee-on-highlight">
 													{title}
 												</title>
-												{!hasSubtitles && (
-													<subtitle>
-														Translation: {translation}
-													</subtitle>
-												)}
 												<decorationLabel>
-													{this.state[eid] && (
-														<badge src="resource://button-checkmark" />
-													)}
-													{'  '}
-													{hasSubtitles && (
-														<badge src="resource://cc" />
-													)}
-													{hasSubtitles && '  '}
-													{!!~[
-														qualityMapping[HD],
-														qualityMapping[FULLHD],
-													].indexOf(quality) && (
-														<badge src="resource://hd" />
-													)}
+													{badges.filter(Boolean).reduce((result, item, i) => {
+														i && result.push('  ');
+														result.push(item);
+														return result;
+													}, [])}
 												</decorationLabel>
 												<relatedContent>
-													<itemBanner>
-														<heroImg src={this.state.poster} />
+													<lockup>
+														<img src={this.state.poster} style="tv-placeholder: tv" width="400" height="400" />
+														<row class="controls_container">
+															{this.state.authorized && (this.state[`eid-${episodeNumber}`] ? (
+																<buttonLockup
+																	class="control"
+																	onSelect={this.onMarkAsNew.bind(this, episodeNumber)}
+																>
+																	<badge src="resource://button-remove" />
+																	<title>Mark as Unwatched</title>
+																</buttonLockup>
+															) : (
+																<buttonLockup
+																	class="control"
+																	onSelect={this.onMarkAsWatched.bind(this, episodeNumber, true)}
+																>
+																	<badge src="resource://button-add" />
+																	<title>Mark as Watched</title>
+																</buttonLockup>
+															))}
+															{this.state.authorized && (
+																<buttonLockup 
+																	class="control"
+																	onSelect={this.onMore}
+																>
+																	<badge src="resource://button-more" />
+																	<title>More</title>
+																</buttonLockup>
+															)}
+														</row>
 														<description
-															moreLabel="more"
-															allowsZooming="true"
-															style="margin: 20 0 0"
+															handlesOverflow="true"
+															style="margin: 40 0 0; tv-text-max-lines: 2"
 															onSelect={this.onShowDescription.bind(this, {title, description})}
 														>{description}</description>
-														{this.state[eid] ? (
-															<row>
-																<buttonLockup onSelect={this.onMarkAsNew.bind(this, eid)}>
-																	<badge src="resource://button-remove" />
-																	<title>Mark as New</title>
-																</buttonLockup>
-															</row>
-														) : (
-															<row>
-																<buttonLockup onSelect={this.onMarkAsWatched.bind(this, eid)}>
-																	<badge src="resource://button-add" />
-																	<title>Mark as Seen</title>
-																</buttonLockup>
-															</row>
-														)}
-													</itemBanner>
+													</lockup>
 												</relatedContent>
 											</listItemLockup>
 										);
@@ -166,51 +230,88 @@ export default function() {
 				);
 			},
 
-			onPlayEpisode(eid) {
-				let {episodes} = this.state;
+			onPlayEpisode(episodeNumber) {
+				let {sid, id} = this.props;
+				let {episodes, poster, authorized} = this.state;
 				let markAsWatched = this.onMarkAsWatched.bind(this);
+
+				if (!authorized) {
+					let authHelper = authFactory({
+						onError: defaultErrorHandlers,
+						onSuccess: ({token, till}, login) => {
+							user.set({token, till, login, logged: 1});
+							this.loadData().then(payload => {
+								this.setState(payload);
+								authHelper.dismiss();
+								this.onPlayEpisode(episodeNumber);
+							});
+						},
+					});
+
+					return TVDML
+						.renderModal(<Authorize onAuthorize={() => authHelper.present()} />)
+						.sink();
+				}
 
 				let resolvers = {
 					initial() {
-						return eid;
+						return episodeNumber;
 					},
 
-					next({eid}) {
-						let episode = getEpisode(eid, episodes);
+					next({id}) {
+						let [sid, season, episodeNumber] = id.split('-');
+						let episode = getEpisode(episodeNumber, episodes);
 						let index = episodes.indexOf(episode);
 						let nextEpisode = ~index ? episodes[index + 1] : {};
-						return nextEpisode.eid || null;
+						return nextEpisode.episode || null;
 					},
 				};
 
 				TVDML
 					.createPlayer({
 						items(item, request) {
-							let id = resolvers[request] && resolvers[request](item);
-							return getEpisodeItem(id, episodes);
+							let episodeNumber = resolvers[request] && resolvers[request](item);
+							let episode = getEpisode(episodeNumber, episodes);
+							return getEpisodeItem(sid, episode, poster);
 						},
 
-						markAsWatched({eid}) {
+						markAsStopped(item, elapsedTime) {
+							let {id} = item;
+							let [sid, season, episodeNumber] = id.split('-');
+							let episode = getEpisode(episodeNumber, episodes);
+							let {eid} = getEpisodeMedia(episode);
+							return saveElapsedTime(eid, elapsedTime);
+						},
+
+						markAsWatched(item) {
+							let {id} = item;
+
 							if (!getActiveDocument()) {
-								return markAsWatched(eid);
+								let [sid, season, episodeNumber] = id.split('-');
+								return markAsWatched(episodeNumber);
 							}
 						},
 
-						uidResolver({eid}) {
-							return eid;
+						uidResolver(item) {
+							return item.id;
 						},
 					})
 					.then(player => player.play());
 			},
 
-			onMarkAsNew(eid) {
-				this.setState({[eid]: false});
-				return markEpisodeAsUnWatched(eid);
+			onMarkAsNew(episodeNumber) {
+				let {id, sid} = this.props;
+				this.setState({[`eid-${episodeNumber}`]: false});
+				return markEpisodeAsUnwatched(sid, id, episodeNumber);
 			},
 
-			onMarkAsWatched(eid) {
-				this.setState({[eid]: true});
-				return markEpisodeAsWatched(eid);
+			onMarkAsWatched(episodeNumber, addTVShowToSubscriptions) {
+				let {id, sid} = this.props;
+				this.setState({[`eid-${episodeNumber}`]: true});
+				return Promise.all([
+					markEpisodeAsWatched(sid, id, episodeNumber),
+					addTVShowToSubscriptions ? addToMyTVShows(sid) : Promise.resolve(),
+				]);
 			},
 
 			onShowDescription({title, description}) {
@@ -229,35 +330,93 @@ export default function() {
 					)
 					.sink();
 			},
+
+			onMore() {
+				let hasWatchedEpisodes = this.state.episodes.some(({watched}) => watched > 0);
+				let hasUnwatchedEpisodes = this.state.episodes.some(({watched}) => watched < 1);
+
+				TVDML
+					.renderModal(
+						<document>
+							<alertTemplate>
+								<title>More</title>
+								{hasUnwatchedEpisodes && (
+									<button onSelect={this.onMarkSeasonAsWatched}>
+										<text>Mark Season as Watched</text>
+									</button>
+								)}
+								{hasWatchedEpisodes && (
+									<button onSelect={this.onMarkSeasonAsUnwatched}>
+										<text>Mark Season as Unwatched</text>
+									</button>
+								)}
+							</alertTemplate>
+						</document>
+					)
+					.sink();
+			},
+
+			onMarkSeasonAsWatched() {
+				let {sid, id} = this.props;
+
+				return markSeasonAsWatched(sid, id)
+					.then(this.loadData.bind(this))
+					.then(this.setState.bind(this))
+					.then(TVDML.removeModal);
+			},
+
+			onMarkSeasonAsUnwatched() {
+				let {sid, id} = this.props;
+
+				return markSeasonAsUnwatched(sid, id)
+					.then(this.loadData.bind(this))
+					.then(this.setState.bind(this))
+					.then(TVDML.removeModal);
+			},
 		})));
 }
 
-function getEpisode(eid, episodes) {
-	let [episode] = episodes.filter(({eid: id}) => eid === id);
+function getEpisode(episodeNumber, episodes) {
+	let [episode] = episodes.filter(({episode}) => episode === episodeNumber);
 	return episode;
 }
 
-function getEpisodeItem(id, episodes) {
-	let episode = getEpisode(id, episodes);
-
+function getEpisodeItem(sid, episode, poster) {
 	if (!episode) return null;
 
 	let {
-		eid,
-		sid,
-		hash,
+		season,
 		spoiler,
 		title_en,
-		season_id,
+		episode: episodeNumber,
+		screenshots: {big: episodePoster},
 	} = episode;
 
-	let poster = `http://covers.soap4.me/season/big/${season_id}.jpg`;
+	let title = processEntitiesInString(title_en);
+	let description = processEntitiesInString(spoiler);
 
-	return getEpisodeMediaURL(eid, sid, hash).then(url => ({
-		eid,
-		url,
-		title: title_en,
-		description: spoiler,
-		artworkImageURL: poster,
+	let id = [sid, season, episodeNumber].join('-');
+	let file = getEpisodeMedia(episode);
+	let media = {sid, file};
+
+	return getMediaStream(media).then(({stream, start_from}) => ({
+		id,
+		title,
+		description,
+		url: stream,
+		artworkImageURL: poster || episodePoster,
+		resumeTime: start_from && parseFloat(start_from),
 	}));
+}
+
+function getSeasonExtendedData(season) {
+	let {episodes, covers: {big: poster}} = season;
+
+	return episodes.reduce((result, {episode, watched}) => {
+		result[`eid-${episode}`] = !!watched;
+		return result;
+	}, {
+		poster,
+		episodes,
+	});
 }

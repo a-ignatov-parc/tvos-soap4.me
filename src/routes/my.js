@@ -1,8 +1,11 @@
 /** @jsx TVDML.jsx */
 
-import plur from 'plur';
 import * as TVDML from 'tvdml';
 import assign from 'object-assign';
+
+import * as user from '../user';
+import authFactory from '../helpers/auth';
+import {defaultErrorHandlers} from '../helpers/auth/handlers';
 
 import {getMyTVShows} from '../request/soap';
 import {isMenuButtonPressNavigatedTo} from '../utils';
@@ -10,15 +13,21 @@ import {deepEqualShouldUpdate} from '../utils/components';
 
 import Tile from '../components/tile';
 import Loader from '../components/loader';
+import Authorize from '../components/authorize';
+
+const {Promise} = TVDML;
 
 export default function(title) {
 	return TVDML
 		.createPipeline()
 		.pipe(TVDML.render(TVDML.createComponent({
 			getInitialState() {
+				let authorized = user.isAuthorized();
+
 				return {
 					title,
-					loading: true,
+					authorized,
+					loading: !!authorized,
 				};
 			},
 
@@ -30,6 +39,26 @@ export default function(title) {
 					.pipe(isMenuButtonPressNavigatedTo(currentDocument))
 					.pipe(isNavigated => isNavigated && this.loadData().then(this.setState.bind(this)));
 
+				this.userStateChangePipeline = user
+					.subscription()
+					.pipe(() => {
+						this.setState({loading: true});
+						this.loadData().then(payload => {
+							this.setState(assign({
+								loading: false,
+								authorized: user.isAuthorized(),
+							}, payload));
+						});
+					});
+
+				this.authHelper = authFactory({
+					onError: defaultErrorHandlers,
+					onSuccess({token, till}, login) {
+						user.set({token, till, login, logged: 1});
+						this.dismiss();
+					},
+				});
+
 				this.loadData().then(payload => {
 					this.setState(assign({loading: false}, payload));
 				});
@@ -37,17 +66,27 @@ export default function(title) {
 
 			componentWillUnmount() {
 				this.menuButtonPressPipeline.unsubscribe();
+				this.userStateChangePipeline.unsubscribe();
+				this.authHelper.destroy();
+				this.authHelper = null;
 			},
 
 			shouldComponentUpdate: deepEqualShouldUpdate,
 
 			loadData() {
+				if (!user.isAuthorized()) {
+					return Promise.resolve({});
+				}
 				return getMyTVShows().then(series => ({series}));
 			},
 
 			render() {
 				if (this.state.loading) {
 					return <Loader />;
+				}
+
+				if (!this.state.authorized) {
+					return <Authorize theme="dark" onAuthorize={this.onLogin} />;
 				}
 
 				let watching = this.state.series.filter(({watching}) => watching > 0);
@@ -60,6 +99,13 @@ export default function(title) {
 
 				return (
 					<document>
+						<head>
+							<style content={`
+								.grid_indent {
+									margin: 0 0 100;
+								}
+							`} />
+						</head>
 						<stackTemplate>
 							<banner>
 								<title>{this.state.title}</title>
@@ -67,14 +113,14 @@ export default function(title) {
 							<collectionList>
 								{this.renderSectionGrid(unwatched, 'New episodes')}
 								{this.renderSectionGrid(watched, 'Watched')}
-								{this.renderSectionGrid(closed, 'Closed')}
+								{this.renderSectionGrid(closed, 'Closed', true)}
 							</collectionList>
 						</stackTemplate>
 					</document>
 				);
 			},
 
-			renderSectionGrid(collection, title) {
+			renderSectionGrid(collection, title, isLast) {
 				let header;
 
 				if (title) {
@@ -86,7 +132,7 @@ export default function(title) {
 				}
 
 				return (
-					<grid>
+					<grid class={isLast ? undefined : 'grid_indent'}>
 						{header}
 						<section>
 							{collection.map(({title, sid, unwatched}) => {
@@ -98,14 +144,19 @@ export default function(title) {
 										title={title}
 										route="tvshow"
 										poster={poster}
+										counter={unwatched}
+										isWatched={!unwatched}
 										payload={{title, sid}}
-										subtitle={!!unwatched && `${unwatched} ${plur('episode', unwatched)}`}
 									/>
 								);
 							})}
 						</section>
 					</grid>
 				);
+			},
+
+			onLogin() {
+				this.authHelper.present();
 			},
 		})));
 }
