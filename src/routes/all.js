@@ -1,6 +1,5 @@
 /** @jsx TVDML.jsx */
 
-import plur from 'plur';
 import * as TVDML from 'tvdml';
 import assign from 'object-assign';
 
@@ -59,7 +58,7 @@ export default function(title) {
 							<collectionList>
 								<grid>
 									<section>
-										{this.state.series.map(({title, sid, unwatched}) => {
+										{this.state.series.map(({title, sid, unwatched, watching}) => {
 											let poster = `http://covers.soap4.me/soap/big/${sid}.jpg`;
 
 											return (
@@ -68,8 +67,9 @@ export default function(title) {
 													title={title}
 													route="tvshow"
 													poster={poster}
+													counter={unwatched}
+													isWatched={watching > 0 && !unwatched}
 													payload={{title, sid}}
-													subtitle={!!unwatched && `${unwatched} ${plur('episode', unwatched)}`}
 												/>
 											);
 										})}

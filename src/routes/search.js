@@ -1,13 +1,15 @@
 /** @jsx TVDML.jsx */
 
-import plur from 'plur';
 import * as TVDML from 'tvdml';
+import assign from 'object-assign';
 
-import {getSearchResults} from '../request/soap';
+import {link, prettifyEpisodeNum} from '../utils';
+import {processEntitiesInString} from '../utils/parser';
 import {
-	fixSpecialSymbols,
-	prettifyEpisodeNum,
-} from '../utils';
+	getSearchResults,
+	getLatestTVShows,
+	getPopularTVShows,
+} from '../request/soap';
 
 import Tile from '../components/tile';
 
@@ -21,7 +23,12 @@ export default function() {
 		.pipe(TVDML.render(TVDML.createComponent({
 			getInitialState() {
 				return {
+					value: '',
+					loading: false,
+					latest: [],
 					series: [],
+					popular: [],
+					persons: [],
 					episodes: [],
 				};
 			},
@@ -34,38 +41,119 @@ export default function() {
 					result[item.soap_en].push(item);
 					return result;
 				}, {});
+
 				let episodes = Object.keys(tvshows);
 
 				return (
 					<document>
+						<head>
+							<style content={`
+								.shelf_indent {
+									margin: 0 0 100;
+								}
+							`} />
+						</head>
 						<searchTemplate>
-							<searchField ref={node => this.searchField = node} />
+							<searchField
+								ref={node => this.searchField = node}
+								showSpinner={this.state.loading ? 'true' : undefined}
+							/>
 							<collectionList>
-								{this.state.series.length && this.renderShows()}
-								{episodes.map(name => this.renderEpisodes(name, tvshows[name]))}
+								{this.renderLatest()}
+								{this.renderPopular()}
+								{this.renderPersons()}
+								{this.renderShows()}
+								{episodes.map((name, i) => this.renderEpisodes(name, tvshows[name], (i + 1) === episodes.length))}
 							</collectionList>
 						</searchTemplate>
 					</document>
 				);
 			},
 
-			renderShows() {
+			renderLatest() {
+				if (!this.state.latest.length || this.state.value) return null;
+
+				return (
+					<shelf class="shelf_indent">
+						<header>
+							<title>Latest TV Shows</title>
+						</header>
+						<section>
+							{this.state.latest.map(({
+								sid,
+								title,
+								covers: {big: poster},
+							}) => (
+								<Tile
+									title={title}
+									route="tvshow"
+									poster={poster}
+									payload={{title, sid}}
+								/>
+							))}
+						</section>
+					</shelf>
+				);
+			},
+
+			renderPopular() {
+				if (!this.state.popular.length || this.state.value) return null;
+
 				return (
 					<shelf>
 						<header>
-							<title>TV Shows</title>
+							<title>Popular TV Shows</title>
 						</header>
 						<section>
-							{this.state.series.map(({title, sid}) => {
-								let poster = `http://covers.soap4.me/soap/big/${sid}.jpg`;
+							{this.state.popular.map(({
+								sid,
+								title,
+								covers: {big: poster},
+							}) => (
+								<Tile
+									title={title}
+									route="tvshow"
+									poster={poster}
+									payload={{title, sid}}
+								/>
+							))}
+						</section>
+					</shelf>
+				);
+			},
+
+			renderPersons() {
+				if (!this.state.persons.length) return null;
+
+				return (
+					<shelf class="shelf_indent">
+						<header>
+							<title>Persons</title>
+						</header>
+						<section>
+							{this.state.persons.map(actor => {
+								let {
+									id,
+									name_en,
+									image_original,
+								} = actor;
+
+								let [firstName, lastName] = name_en.split(' ');
 
 								return (
-									<Tile
-										title={title}
-										route="tvshow"
-										poster={poster}
-										payload={{title, sid}}
-									/>
+									<monogramLockup
+										key={id}
+										onSelect={link('actor', {id, actor: name_en})}
+									>
+										<monogram 
+											style="tv-placeholder: monogram"
+											src={image_original}
+											firstName={firstName}
+											lastName={lastName}
+										/>
+										<title>{name_en}</title>
+										<subtitle>Actor</subtitle>
+									</monogramLockup>
 								);
 							})}
 						</section>
@@ -73,31 +161,57 @@ export default function() {
 				);
 			},
 
-			renderEpisodes(title, list) {
+			renderShows() {
+				if (!this.state.series.length) return null;
+
 				return (
-					<shelf>
+					<shelf class="shelf_indent">
+						<header>
+							<title>TV Shows</title>
+						</header>
+						<section>
+							{this.state.series.map(({
+								sid,
+								title,
+								covers: {big: poster},
+							}) => (
+								<Tile
+									title={title}
+									route="tvshow"
+									poster={poster}
+									payload={{title, sid}}
+								/>
+							))}
+						</section>
+					</shelf>
+				);
+			},
+
+			renderEpisodes(title, list, isLast) {
+				return (
+					<shelf class={isLast ? undefined : 'shelf_indent'}>
 						<header>
 							<title>{title}</title>
 						</header>
 						<section>
 							{list.map(({
 								sid,
-								season,
 								episode,
 								soap_en,
-								season_id: id,
-								title_en: title,
+								title_en,
+								season: seasonNumber,
+								covers: {big: poster},
 							}) => {
-								let seasonTitle = `Season ${season}`;
-								let poster = `http://covers.soap4.me/season/big/${id}.jpg`;
+								let seasonTitle = `Season ${seasonNumber}`;
+								let title = processEntitiesInString(title_en);
 
 								return (
 									<Tile
-										title={fixSpecialSymbols(title)}
+										title={title}
 										route="season"
 										poster={poster}
-										payload={{sid, id, episode, title: `${soap_en} — ${seasonTitle}`}}
-										subtitle={prettifyEpisodeNum(season, episode)}
+										payload={{sid, id: seasonNumber, episode, title: `${soap_en} — ${seasonTitle}`}}
+										subtitle={prettifyEpisodeNum(seasonNumber, episode)}
 									/>
 								);
 							})}
@@ -109,15 +223,27 @@ export default function() {
 			componentDidMount() {
 				let keyboard = this.searchField.getFeature('Keyboard');
 				keyboard.onTextChange = () => this.search(keyboard.text);
+				Promise
+					.all([
+						getLatestTVShows(),
+						getPopularTVShows(),
+					])
+					.then(([latest, popular]) => {
+						this.setState({latest, popular})
+					});
 			},
 
 			search(query) {
+				this.setState({value: query});
 				this.throttle && clearTimeout(this.throttle);
 				this.throttle = setTimeout(this.loadResults.bind(this, query), THROTTLE_TIMEOUT);
 			},
 
 			loadResults(query) {
-				return getSearchResults(query).then(this.setState.bind(this));
+				this.setState({loading: true});
+				return getSearchResults(query)
+					.catch(() => ({}))
+					.then(result => this.setState(assign({loading: false}, result)));
 			},
 		})));
 }

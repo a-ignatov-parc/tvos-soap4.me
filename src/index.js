@@ -1,59 +1,39 @@
 /** @jsx TVDML.jsx */
 
 import * as TVDML from 'tvdml';
-import * as token from './token';
+import * as user from './user';
+
+import {checkSession} from './request/soap';
 
 import MyRoute from './routes/my';
 import AllRoute from './routes/all';
-import AuthRoute from './routes/auth';
 import ActorRoute from './routes/actor';
 import SeasonRoute from './routes/season';
 import TVShowRoute from './routes/tvshow';
 import SearchRoute from './routes/search';
 import SettingsRoute from './routes/settings';
+import SpeedTestRoute from './routes/speedtest';
 
-const clearPreviousDocuments = TVDML
-	.createPipeline()
-	.pipe(TVDML.passthrough(({document}) => {
-		navigationDocument.documents
-			.slice(0, navigationDocument.documents.indexOf(document))
-			.forEach(document => {
-				// Workaround for strange tvOS issue when after deleting document 
-				// from `navigationDocument.documents` it still remains there.
-				while(~navigationDocument.documents.indexOf(document)) {
-					try {navigationDocument.removeDocument(document)} catch(e) {}
-				}
-			});
-	}));
+import Loader from './components/loader';
 
 TVDML
 	.subscribe(TVDML.event.LAUNCH)
-	.pipe(() => TVDML.navigate('start'));
+	.pipe(() => TVDML.navigate('get-token'));
 
 TVDML
-	.handleRoute('start')
-	.pipe(clearPreviousDocuments)
-	.pipe(() => {
-		if (token.get()) {
-			TVDML.navigate('main');
-		} else {
-			TVDML.navigate('auth', {
-				onSuccess(ticket) {
-					token.set(ticket.token, ticket.expires);
-					TVDML.navigate('main');
-				}
-			});
-		}
-	});
-
-TVDML
-	.handleRoute('auth')
-	.pipe(clearPreviousDocuments)
-	.pipe(AuthRoute());
+	.handleRoute('get-token')
+	.pipe(TVDML.render(<Loader title="Checking authorization..." />))
+	.pipe(() => checkSession().then(({logged, token, till}) => user.set({logged, token, till})))
+	.pipe(() => TVDML.redirect('main'));
+	// 
+	// Testing routes
+	// .pipe(() => TVDML.redirect('tvshow', {sid: '296', title: 'Arrow'}));
+	// .pipe(() => TVDML.redirect('season', {sid: '296', id: '4', title: 'Arrow — Season 4'}));
+	// .pipe(() => TVDML.redirect('tvshow', {sid: '692', title: 'Bref'}));
+	// .pipe(() => TVDML.redirect('season', {sid: '692', id: '1', title: 'Bref — Season 1'}));
 
 TVDML
 	.handleRoute('main')
-	.pipe(clearPreviousDocuments)
 	.pipe(TVDML.render(
 		<document>
 			<menuBarTemplate>
@@ -62,10 +42,10 @@ TVDML
 						<title>Search</title>
 					</menuItem>
 					<menuItem autoHighlight="true" route="my">
-						<title>My Series</title>
+						<title>My TV Shows</title>
 					</menuItem>
 					<menuItem route="all">
-						<title>All Series</title>
+						<title>All TV Shows</title>
 					</menuItem>
 					<menuItem route="settings">
 						<title>Settings</title>
@@ -77,11 +57,11 @@ TVDML
 
 TVDML
 	.handleRoute('my')
-	.pipe(MyRoute('My Series'));
+	.pipe(MyRoute('My TV Shows'));
 
 TVDML
 	.handleRoute('all')
-	.pipe(AllRoute('All Series'));
+	.pipe(AllRoute('All TV Shows'));
 
 TVDML
 	.handleRoute('search')
@@ -102,3 +82,7 @@ TVDML
 TVDML
 	.handleRoute('actor')
 	.pipe(ActorRoute());
+
+TVDML
+	.handleRoute('speedtest')
+	.pipe(SpeedTestRoute());

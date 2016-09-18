@@ -25,8 +25,8 @@
   "homepage": "https://github.com/a-ignatov-parc/tvos-soap4.me#readme",
   "dependencies": {
     "blueimp-md5": "^2.3.0",
+    "moment": "^2.14.1",
     "object-assign": "^4.1.0",
-    "plur": "^2.1.2",
     "simple-format-number": "^0.1.2",
     "tvdml": "a-ignatov-parc/tvdml"
   },
