@@ -8,6 +8,7 @@ build.json
 # Build directories
 node_modules/
 releases/
+quello/
 out/
 
 ## Build generated

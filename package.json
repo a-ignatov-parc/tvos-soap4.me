@@ -47,6 +47,7 @@
     "through2": "^2.0.1",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
-    "xtend": "^4.0.1"
+    "xtend": "^4.0.1",
+    "yargs": "^5.0.0"
   }
 }
