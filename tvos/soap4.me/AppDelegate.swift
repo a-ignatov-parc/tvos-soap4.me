@@ -8,7 +8,6 @@
 
 import UIKit
 import TVMLKit
-import Alamofire
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, TVApplicationControllerDelegate {
@@ -120,31 +119,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TVApplicationControllerDe
     
     func appController(appController: TVApplicationController, didStopWithOptions options: [String: AnyObject]?) {
         print("\(#function) invoked with options: \(options)")
-    }
-    
-    func appController(appController: TVApplicationController, evaluateAppJavaScriptInContext jsContext: JSContext)
-    {
-        let requests = [String : AnyObject]()
-
-        let get: @convention(block) (String, String, [String : String]?) -> Void = { (cId:String, url:String, headers:[String : String]?) in
-            
-            Alamofire.request(.GET, url, headers: headers)
-                .responseString { response in
-                    jsContext.evaluateScript("requests." + cId + "(" + response.result.value! + ")")
-            }
-        }
-        
-        let post: @convention(block) (String, String, [String : AnyObject]?, [String : String]?) -> Void = { (cId:String, url:String, parameters:[String : AnyObject]?, headers:[String : String]?) in
-            
-            Alamofire.request(.POST, url, parameters: parameters, headers: headers)
-                .responseString { response in
-                    jsContext.evaluateScript("requests." + cId + "(" + response.result.value! + ")")
-            }
-        }
-        
-        jsContext.setObject(requests, forKeyedSubscript: "requests");
-        jsContext.setObject(unsafeBitCast(get, AnyObject.self), forKeyedSubscript: "nativeGET");
-        jsContext.setObject(unsafeBitCast(post, AnyObject.self), forKeyedSubscript: "nativePOST");
     }
 }
 

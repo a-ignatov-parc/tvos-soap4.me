@@ -35,7 +35,7 @@ export function request(url, params = {}) {
 			XHR.open(method, url);
 
 			if (method === POST) {
-				XHR.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+				XHR.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 			}
 
 			return XHR;
@@ -55,7 +55,15 @@ export function request(url, params = {}) {
 				});
 			}
 
-			XHR.send(JSON.stringify(data));
+			let requestBody = Object
+				.keys(data)
+				.reduce((result, key) => {
+					result.push(`${key}=${encodeURIComponent(data[key])}`);
+					return result;
+				}, [])
+				.join('&');
+
+			XHR.send(requestBody);
 		}))
 		.then((xhr) => {
 			const {status} = xhr;

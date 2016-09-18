@@ -1,9 +1,12 @@
 import md5 from 'blueimp-md5';
+import * as TVDML from 'tvdml';
 import assign from 'object-assign';
 
 import {getToken} from '../user';
+import * as request from '../request';
 import * as settings from '../settings';
-import * as request from '../request/native';
+
+const {Promise} = TVDML;
 
 const {VIDEO_QUALITY, TRANSLATION} = settings.params;
 const {SD, HD, FULLHD} = settings.values[VIDEO_QUALITY];
@@ -77,17 +80,17 @@ export const TVShowStatusStrings = {
 };
 
 export function get(url) {
-	return request.get(url, headers()).then(response => {
-		console.log('GET', url, response);
-		return response;
-	});
+	return request
+		.get(url, {prepare: addHeaders(headers())})
+		.then(request.toJSON())
+		.then(...requestLogger('GET', url));
 }
 
 export function post(url, parameters) {
-	return request.post(url, parameters, headers()).then(response => {
-		console.log('POST', url, parameters, response);
-		return response;
-	});
+	return request
+		.post(url, parameters, {prepare: addHeaders(headers())})
+		.then(request.toJSON())
+		.then(...requestLogger('POST', url, parameters));
 }
 
 export function checkSession() {
@@ -143,7 +146,7 @@ export function getTVShowRecommendations(sid) {
 }
 
 export function getTVShowReviews(sid) {
-	return get(`https://api.soap4.me/v2/reviews/${sid}/`).then(handleEmptyResponse);
+	return get(`https://api.soap4.me/v2/reviews/${sid}/`).catch(() => []);
 }
 
 export function markReviewAsLiked(rid) {
@@ -155,7 +158,7 @@ export function markReviewAsDisliked(rid) {
 }
 
 export function getTVShowTrailers(sid) {
-	return get(`https://api.soap4.me/v2/trailers/${sid}/`).then(handleEmptyResponse);
+	return get(`https://api.soap4.me/v2/trailers/${sid}/`).catch(() => []);
 }
 
 export function getTVShowSeasons(sid) {
@@ -291,9 +294,27 @@ function headers() {
 	};
 }
 
-function handleEmptyResponse(response) {
-	if ('ok' in response && !response.ok) return [];
-	return response;
+function addHeaders(headers) {
+	return (XHR) => {
+		Object
+			.keys(headers)
+			.forEach(key => XHR.setRequestHeader(key, headers[key]));
+		return XHR;
+	}
+}
+
+function requestLogger(...params) {
+	return [
+		response => {
+			console.info(...params, response);
+			return response;
+		},
+
+		xhr => {
+			console.error(...params, xhr.status, xhr);
+			return Promise.reject(xhr);
+		},
+	];
 }
 
 function resolveCodeToIndex(code, collection = []) {

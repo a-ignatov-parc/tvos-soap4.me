@@ -7,6 +7,7 @@ var uglify = require('gulp-uglify');
 var connect = require('gulp-connect');
 var sourcemaps = require('gulp-sourcemaps');
 
+var yargs = require('yargs');
 var xtend = require('xtend');
 var babelify = require('babelify');
 var browserify = require('browserify');
@@ -17,13 +18,14 @@ var through = require('through2');
 var buffer = require('vinyl-buffer');
 var source = require('vinyl-source-stream');
 
-var LIVE = process.argv.indexOf('--production') !== -1;
+var LIVE = yargs.argv.production;
+var QUELLO = yargs.argv.quello;
 
 var PORT = 9001;
-var DEST = './out';
 var SOURCE = './src';
 var CACHE = './build.json';
 var ASSETS = SOURCE + '/assets';
+var DEST = QUELLO ? './quello/tvml' : './out';
 
 function pass() {
 	return through.obj();
@@ -61,7 +63,7 @@ gulp.task('build', function() {
 			gutil.log(gutil.colors.red('Browserify compile error:'), error.message);
 			this.emit('end');
 		})
-		.pipe(source('application.js'))
+		.pipe(source(QUELLO ? 'app.js' : 'application.js'))
 		.pipe(buffer())
 		.pipe(sourcemaps.init({loadMaps: true}))
 		.pipe(LIVE ? uglify() : pass())
