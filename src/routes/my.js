@@ -99,13 +99,6 @@ export default function(title) {
 
 				return (
 					<document>
-						<head>
-							<style content={`
-								.grid_indent {
-									margin: 0 0 100;
-								}
-							`} />
-						</head>
 						<stackTemplate>
 							<banner>
 								<title>{this.state.title}</title>
@@ -113,14 +106,14 @@ export default function(title) {
 							<collectionList>
 								{this.renderSectionGrid(unwatched, 'New episodes')}
 								{this.renderSectionGrid(watched, 'Watched')}
-								{this.renderSectionGrid(closed, 'Closed', true)}
+								{this.renderSectionGrid(closed, 'Closed')}
 							</collectionList>
 						</stackTemplate>
 					</document>
 				);
 			},
 
-			renderSectionGrid(collection, title, isLast) {
+			renderSectionGrid(collection, title) {
 				let header;
 
 				if (title) {
@@ -132,24 +125,25 @@ export default function(title) {
 				}
 
 				return (
-					<grid class={isLast ? undefined : 'grid_indent'}>
+					<grid>
 						{header}
 						<section>
-							{collection.map(({title, sid, unwatched}) => {
-								let poster = `http://covers.soap4.me/soap/big/${sid}.jpg`;
-
-								return (
-									<Tile
-										key={sid}
-										title={title}
-										route="tvshow"
-										poster={poster}
-										counter={unwatched}
-										isWatched={!unwatched}
-										payload={{title, sid}}
-									/>
-								);
-							})}
+							{collection.map(({
+								sid,
+								title,
+								unwatched,
+								covers: {big: poster},
+							}) => (
+								<Tile
+									key={sid}
+									title={title}
+									route="tvshow"
+									poster={poster}
+									counter={unwatched}
+									isWatched={!unwatched}
+									payload={{title, sid}}
+								/>
+							))}
 						</section>
 					</grid>
 				);

@@ -10,6 +10,104 @@ import {deepEqualShouldUpdate} from '../utils/components';
 import Tile from '../components/tile';
 import Loader from '../components/loader';
 
+const NAME = 'name';
+const YEAR = 'year';
+const LIKES = 'likes';
+const RATING = 'rating';
+const COMPLETENESS = 'completeness';
+
+const sections = {
+	[NAME]: {
+		title: 'Name',
+		reducer(list) {
+			return [{
+				title: 'A — Z',
+				items: list,
+			}];
+		},
+	},
+
+	[YEAR]: {
+		title: 'Year',
+		reducer(list) {
+			let collection = list.reduce((result, item) => {
+				if (!result[item.year]) result[item.year] = [];
+				result[item.year].push(item);
+				return result;
+			}, {});
+
+			return Object
+				.keys(collection)
+				.sort((a, b) => b - a)
+				.map(year => ({
+					title: year,
+					items: collection[year],
+				}));
+		},
+	},
+
+	[LIKES]: {
+		title: 'Likes',
+		reducer(list) {
+			let likesCollection = list
+				.slice(0)
+				.sort(({likes: a}, {likes: b}) => b - a)
+				.reduce((result, item) => {
+					let thousand = ~~(item.likes / 1000);
+					let hundred = ~~(item.likes / 100);
+					let key = thousand ? thousand * 10 : hundred;
+
+					if (!result[key]) result[key] = {thousand, hundred, likes: [], items: []};
+					result[key].likes.push(item.likes);
+					result[key].items.push(item);
+					return result;
+				}, {});
+
+			return Object
+				.keys(likesCollection)
+				.sort((a, b) => b - a)
+				.map(key => {
+					let {thousand, hundred, likes, items} = likesCollection[key];
+					let title = `Over ${thousand}k`;
+
+					if (!thousand) {
+						title = hundred ? `Over ${hundred * 100}` : `Lower ${(hundred + 1) * 100}`;
+					}
+					return {title, items};
+				});
+		},
+	},
+
+	[RATING]: {
+		title: 'Rating',
+		reducer(list) {
+			let collection = list.reduce((result, item) => {
+				if (!result[item.imdb_rating]) result[item.imdb_rating] = [];
+				result[item.imdb_rating].push(item);
+				return result;
+			}, {});
+
+			return Object
+				.keys(collection)
+				.sort((a, b) => b - a)
+				.map(rating => ({
+					title: rating,
+					items: collection[rating],
+				}));
+		},
+	},
+
+	[COMPLETENESS]: {
+		title: 'Completeness',
+		reducer(list) {
+			return [{
+				title: 'Completed',
+				items: list.filter(({status}) => +status),
+			}];
+		},
+	},
+};
+
 export default function(title) {
 	return TVDML
 		.createPipeline()
@@ -18,6 +116,7 @@ export default function(title) {
 				return {
 					title,
 					loading: true,
+					groupId: NAME,
 				};
 			},
 
@@ -49,6 +148,9 @@ export default function(title) {
 					return <Loader />;
 				}
 
+				let {title, reducer} = sections[this.state.groupId];
+				let groups = reducer(this.state.series);
+
 				return (
 					<document>
 						<stackTemplate>
@@ -56,12 +158,33 @@ export default function(title) {
 								<title>{this.state.title}</title>
 							</banner>
 							<collectionList>
-								<grid>
-									<section>
-										{this.state.series.map(({title, sid, unwatched, watching}) => {
-											let poster = `http://covers.soap4.me/soap/big/${sid}.jpg`;
-
-											return (
+								<separator>
+									<button onSelect={this.onSwitchGroup}>
+										<text>
+											Group by {title}
+											{' '}
+											<badge
+												width="31"
+												height="14"
+												src="resource://button-dropdown"
+												style="tv-tint-color: rgb(0, 0, 0); margin: 0 0 5 0"
+											/>
+										</text>
+									</button>
+								</separator>
+								{groups.map(({title, items}) => (
+									<grid key={title}>
+										<header>
+											<title>{title}</title>
+										</header>
+										<section>
+											{items.map(({
+												sid,
+												title,
+												watching,
+												unwatched,
+												covers: {big: poster},
+											}) => (
 												<Tile
 													key={sid}
 													title={title}
@@ -71,14 +194,44 @@ export default function(title) {
 													isWatched={watching > 0 && !unwatched}
 													payload={{title, sid}}
 												/>
-											);
-										})}
-									</section>
-								</grid>
+											))}
+										</section>
+									</grid>
+								))}
 							</collectionList>
 						</stackTemplate>
 					</document>
 				);
+			},
+
+			onSwitchGroup() {
+				let sectionsList = Object
+					.keys(sections)
+					.map(id => ({id, title: sections[id].title}));
+
+				TVDML
+					.renderModal(
+						<document>
+							<alertTemplate>
+								<title>Group by</title>
+								{sectionsList.map(({id, title}) => (
+									<button
+										key={id}
+										onSelect={this.onGroupSelect.bind(this, id)}
+										autoHighlight={id === this.state.groupId || undefined}
+									>
+										<text>{title}</text>
+									</button>
+								))}
+							</alertTemplate>
+						</document>
+					)
+					.sink();
+			},
+
+			onGroupSelect(groupId) {
+				this.setState({groupId});
+				TVDML.removeModal();
 			},
 		})));
 }

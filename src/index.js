@@ -42,10 +42,10 @@ TVDML
 						<title>Search</title>
 					</menuItem>
 					<menuItem autoHighlight="true" route="my">
-						<title>My TV Shows</title>
+						<title>My</title>
 					</menuItem>
 					<menuItem route="all">
-						<title>All TV Shows</title>
+						<title>TV Shows</title>
 					</menuItem>
 					<menuItem route="settings">
 						<title>Settings</title>
@@ -57,11 +57,11 @@ TVDML
 
 TVDML
 	.handleRoute('my')
-	.pipe(MyRoute('My TV Shows'));
+	.pipe(MyRoute('My'));
 
 TVDML
 	.handleRoute('all')
-	.pipe(AllRoute('All TV Shows'));
+	.pipe(AllRoute('TV Shows'));
 
 TVDML
 	.handleRoute('search')
