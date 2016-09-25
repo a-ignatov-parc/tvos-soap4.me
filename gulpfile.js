@@ -12,6 +12,7 @@ var xtend = require('xtend');
 var babelify = require('babelify');
 var browserify = require('browserify');
 var prettyBytes = require('pretty-bytes');
+var versionify = require('browserify-versionify');
 var incremental = require('browserify-incremental');
 
 var through = require('through2');
@@ -53,6 +54,7 @@ gulp.task('build', function() {
 			parts[0] = prettyBytes(+parts[0]);
 			gutil.log(gutil.colors.green('Build info:'), parts.join(' '));
 		})
+		.transform(versionify)
 		.transform(babelify, {
 			global: true,
 			presets: ['es2015', 'react'],

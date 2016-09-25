@@ -285,7 +285,7 @@ export function saveSpeedTestResults(results) {
 
 function headers() {
 	let token = getToken();
-	let userAgent = 'ATV: soap4.me v1.0.0';
+	let userAgent = 'ATV: soap4.me v__VERSION__'
 
 	return {
 		'X-Api-Token': token,
