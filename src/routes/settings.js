@@ -12,18 +12,21 @@ import {defaultErrorHandlers} from '../helpers/auth/handlers';
 import {logout} from '../request/soap';
 import {getStartParams} from '../utils';
 
-const {VIDEO_QUALITY, TRANSLATION} = settings.params;
+const {VIDEO_QUALITY, TRANSLATION, VIDEO_PLAYBACK} = settings.params;
 const {SD, HD, FULLHD} = settings.values[VIDEO_QUALITY];
 const {LOCALIZATION, SUBTITLES} = settings.values[TRANSLATION];
+const {CONTINUES, BY_EPISODE} = settings.values[VIDEO_PLAYBACK];
 
 const titleMapping = {
 	[VIDEO_QUALITY]: 'Video quality',
 	[TRANSLATION]: 'Translation',
+	[VIDEO_PLAYBACK]: 'Video playback',
 };
 
 const descriptionMapping = {
 	[VIDEO_QUALITY]: 'Prefered video quality that will be used if available.',
 	[TRANSLATION]: 'To be able to use subtitles special option must be activated in account preferences on soap4.me site. Until this will be done only localized episodes will be shown.',
+	[VIDEO_PLAYBACK]: 'Configure player playback mode. Should it play all episodes in season or just one.',
 };
 
 const valueMapping = {
@@ -32,6 +35,8 @@ const valueMapping = {
 	[FULLHD]: 'Full HD',
 	[SUBTITLES]: 'Subtitles priority',
 	[LOCALIZATION]: 'Localization priority',
+	[CONTINUES]: 'Continues',
+	[BY_EPISODE]: 'By episode',
 };
 
 export default function() {

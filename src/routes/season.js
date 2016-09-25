@@ -33,8 +33,9 @@ import Authorize from '../components/authorize';
 
 const {Promise} = TVDML;
 
-const {VIDEO_QUALITY} = settings.params;
+const {VIDEO_QUALITY, VIDEO_PLAYBACK} = settings.params;
 const {SD, HD, FULLHD} = settings.values[VIDEO_QUALITY];
+const {CONTINUES, BY_EPISODE} = settings.values[VIDEO_PLAYBACK];
 
 const subtitlesList = [
 	localization.ORIGINAL_SUBTITLES,
@@ -259,6 +260,7 @@ export default function() {
 					},
 
 					next({id}) {
+						if (settings.get(VIDEO_PLAYBACK) === BY_EPISODE) return null;
 						let [sid, season, episodeNumber] = id.split('-');
 						let episode = getEpisode(episodeNumber, episodes);
 						let index = episodes.indexOf(episode);

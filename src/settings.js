@@ -13,19 +13,27 @@ const translation = {
 	SUBTITLES: 'subtitles',
 };
 
+const playback = {
+	CONTINUES: 'continues',
+	BY_EPISODE: 'by_episode',
+};
+
 export const params = {
 	VIDEO_QUALITY: 'video-quality',
 	TRANSLATION: 'translation',
+	VIDEO_PLAYBACK: 'video-playback',
 };
 
 export const values = {
 	[params.VIDEO_QUALITY]: quality,
 	[params.TRANSLATION]: translation,
+	[params.VIDEO_PLAYBACK]: playback,
 };
 
 const defaults = {
 	[params.VIDEO_QUALITY]: quality.FULLHD,
 	[params.TRANSLATION]: translation.LOCALIZATION,
+	[params.VIDEO_PLAYBACK]: playback.CONTINUES,
 };
 
 const settings = getSettingsFromStorage(defaults);
