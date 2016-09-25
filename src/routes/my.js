@@ -1,5 +1,6 @@
 /** @jsx TVDML.jsx */
 
+import moment from 'moment';
 import * as TVDML from 'tvdml';
 import assign from 'object-assign';
 
@@ -7,7 +8,7 @@ import * as user from '../user';
 import authFactory from '../helpers/auth';
 import {defaultErrorHandlers} from '../helpers/auth/handlers';
 
-import {getMyTVShows} from '../request/soap';
+import {getMyTVShows, getMySchedule} from '../request/soap';
 import {isMenuButtonPressNavigatedTo} from '../utils';
 import {deepEqualShouldUpdate} from '../utils/components';
 
@@ -77,7 +78,12 @@ export default function(title) {
 				if (!user.isAuthorized()) {
 					return Promise.resolve({});
 				}
-				return getMyTVShows().then(series => ({series}));
+				return Promise
+					.all([
+						getMyTVShows(),
+						getMySchedule(),
+					])
+					.then(([series, schedule]) => ({series, schedule}));
 			},
 
 			render() {
@@ -105,7 +111,7 @@ export default function(title) {
 							</banner>
 							<collectionList>
 								{this.renderSectionGrid(unwatched, 'New episodes')}
-								{this.renderSectionGrid(watched, 'Watched')}
+								{this.renderSectionGrid(watched, 'Watched', this.state.schedule)}
 								{this.renderSectionGrid(closed, 'Closed')}
 							</collectionList>
 						</stackTemplate>
@@ -113,8 +119,12 @@ export default function(title) {
 				);
 			},
 
-			renderSectionGrid(collection, title) {
+			renderSectionGrid(collection, title, schedule = []) {
 				let header;
+				let scheduleDictionary = schedule.reduce((result, item) => {
+					result[item.sid] = item;
+					return result;
+				}, {});
 
 				if (title) {
 					header = (
@@ -133,17 +143,30 @@ export default function(title) {
 								title,
 								unwatched,
 								covers: {big: poster},
-							}) => (
-								<Tile
-									key={sid}
-									title={title}
-									route="tvshow"
-									poster={poster}
-									counter={unwatched}
-									isWatched={!unwatched}
-									payload={{title, sid}}
-								/>
-							))}
+							}) => {
+								let scheduleEpisode = scheduleDictionary[sid];
+								let isWatched = !unwatched;
+								let dateTitle;
+								let date;
+
+								if (scheduleEpisode) {
+									date = moment(scheduleEpisode.date, 'DD.MM.YYYY');
+									dateTitle = `Continues ${date.fromNow()}`;
+									isWatched = false;
+								}
+
+								return (
+									<Tile
+										key={sid}
+										title={title}
+										route="tvshow"
+										poster={poster}
+										counter={unwatched || dateTitle}
+										isWatched={isWatched}
+										payload={{title, sid}}
+									/>
+								)
+							})}
 						</section>
 					</grid>
 				);

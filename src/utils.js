@@ -24,7 +24,14 @@ export function link(route, params) {
 }
 
 export function getStartParams() {
-	return JSON.parse(sessionStorage.getItem('startParams') || '{}');
+	let params = JSON.parse(sessionStorage.getItem('startParams') || '{}');
+
+	// Ad-hoc fix for assets urls
+	if (~Device.appIdentifier.toLowerCase().indexOf('quello')) {
+		params.BASEURL = 'https://a-ignatov-parc.github.io/tvos-soap4.me-releases/quello/tvml/';
+	}
+
+	return params;
 }
 
 export function noop() {

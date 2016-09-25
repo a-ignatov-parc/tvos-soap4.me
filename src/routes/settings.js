@@ -9,7 +9,7 @@ import * as user from '../user';
 import authFactory from '../helpers/auth';
 import {defaultErrorHandlers} from '../helpers/auth/handlers';
 
-import {logout} from '../request/soap';
+import {logout, version} from '../request/soap';
 import {getStartParams} from '../utils';
 
 const {VIDEO_QUALITY, TRANSLATION, VIDEO_PLAYBACK} = settings.params;
@@ -192,6 +192,15 @@ export default function() {
 										</listItemLockup>
 									</section>
 								)}
+								<section>
+									<header>
+										<title>About</title>
+									</header>
+									<listItemLockup disabled="true">
+										<title>Version</title>
+										<decorationLabel>{version}</decorationLabel>
+									</listItemLockup>
+								</section>
 							</list>
 						</listTemplate>
 					</document>

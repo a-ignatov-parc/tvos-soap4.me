@@ -24,6 +24,7 @@ import {
 	getTVShowSeasons,
 	getTVShowReviews,
 	getTVShowTrailers,
+	getTVShowSchedule,
 	getTVShowDescription,
 	getTVShowRecommendations,
 	markTVShowAsWatched,
@@ -92,12 +93,14 @@ export default function() {
 					.all([
 						getCountriesList(),
 						getTVShowSeasons(sid),
+						getTVShowSchedule(sid),
 						getTVShowDescription(sid),
 						getTVShowRecommendations(sid),
 					])
 					.then(([
 						contries,
 						seasons,
+						schedule,
 						tvshow,
 						recomendations,
 					]) => Promise
@@ -109,6 +112,7 @@ export default function() {
 							tvshow,
 							reviews,
 							seasons,
+							schedule,
 							trailers,
 							contries,
 							recomendations,
@@ -251,9 +255,18 @@ export default function() {
 			},
 
 			renderSeasons() {
-				let {sid, title} = this.state.tvshow;
+				let {sid, title, covers} = this.state.tvshow;
 
-				if (!this.state.seasons.length) return null;
+				let scheduleDiff = this.state.schedule
+					.slice(this.state.seasons.length)
+					.map(season => assign({covers, begins: season.episodes[0].date}, season));
+
+				let seasons = this.state.seasons.concat(scheduleDiff);
+				let currentMoment = moment();
+
+				if (!seasons.length) return null;
+
+				console.log(111, this.state.schedule, seasons);
 
 				return (
 					<shelf>
@@ -261,14 +274,35 @@ export default function() {
 							<title>Seasons</title>
 						</header>
 						<section>
-							{this.state.seasons.map(season => {
+							{seasons.map((season, i) => {
 								let {
+									begins,
 									season: seasonNumber,
 									covers: {big: poster},
 								} = season;
 
 								let seasonTitle = `Season ${seasonNumber}`;
 								let unwatched = calculateUnwatchedCount(season);
+								let isWatched = !unwatched;
+
+								let {episodes: seasonEpisodes} = season;
+								let {episodes: scheduleEpisodes} = this.state.schedule[i] || {episodes: []};
+								let scheduleDiff = scheduleEpisodes.slice(seasonEpisodes.length);
+								let scheduleEpisode = scheduleDiff[0];
+								let dateTitle;
+								let date;
+
+								if (scheduleEpisode) {
+									date = moment(scheduleEpisode.date, 'DD.MM.YYYY');
+									dateTitle = date.isValid() ? `Continues ${date.fromNow()}` : 'Soon';
+									currentMoment < date && (isWatched = false);
+								}
+
+								if (begins) {
+									date = moment(begins, 'DD.MM.YYYY');
+									dateTitle = date.isValid() ? `Begins ${date.fromNow()}` : 'Soon';
+									isWatched = false;
+								}
 
 								return (
 									<Tile
@@ -276,8 +310,8 @@ export default function() {
 										title={seasonTitle}
 										route="season"
 										poster={poster}
-										counter={unwatched}
-										isWatched={!unwatched}
+										counter={unwatched || dateTitle}
+										isWatched={isWatched}
 										payload={{sid, id: seasonNumber, title: `${title} — ${seasonTitle}`}}
 									/>
 								);

@@ -1,5 +1,6 @@
 /** @jsx TVDML.jsx */
 
+import moment from 'moment';
 import * as TVDML from 'tvdml';
 import assign from 'object-assign';
 
@@ -19,8 +20,9 @@ import {
 	addToMyTVShows,
 	saveElapsedTime,
 	getMediaStream,
-	getTVShowSeason,
 	getEpisodeMedia,
+	getTVShowSeason,
+	getTVShowSchedule,
 	getTVShowDescription,
 	markSeasonAsWatched,
 	markSeasonAsUnwatched,
@@ -82,11 +84,16 @@ export default function() {
 
 				return Promise
 					.all([
+						getTVShowSchedule(sid),
 						getTVShowSeason(sid, id),
 						getTVShowDescription(sid),
 					])
-					.then(([season, tvshow]) => ({tvshow, season}))
-					.then(payload => assign({}, payload, getSeasonExtendedData(payload.season)));
+					.then(([schedule, season, tvshow]) => ({tvshow, season, schedule}))
+					.then(payload => assign({}, payload, getSeasonExtendedData(payload.season, payload.schedule) || {
+						season: {season: id},
+						poster: payload.tvshow.covers.big,
+						episodes: payload.schedule[id - 1].episodes,
+					}));
 			},
 
 			render() {
@@ -97,6 +104,15 @@ export default function() {
 				let highlighted = false;
 				let {title} = this.state.tvshow;
 				let {episodes} = this.state;
+
+				let poster = (
+					<img
+						width="400"
+						height="400"
+						src={this.state.poster}
+						style="tv-placeholder: tv"
+					/>
+				);
 
 				return (
 					<document>
@@ -116,6 +132,14 @@ export default function() {
 									background-color: rgba(255, 255, 255, 0.05);
 									tv-highlight-color: rgba(255, 255, 255, 0.9);
 								}
+
+								.item--disabled {
+									color: rgba(0, 0, 0, 0.3);
+								}
+
+								.title {
+									tv-text-highlight-style: marquee-on-highlight;
+								}
 							`} />
 						</head>
 						<compilationTemplate theme="light">
@@ -123,6 +147,11 @@ export default function() {
 								<heroImg src={this.state.poster} />
 							</background>
 							<list>
+								<relatedContent>
+									<lockup>
+										{poster}
+									</lockup>
+								</relatedContent>
 								<segmentBarHeader>
 									<title>{title}</title>
 									<subtitle>Season {this.state.season.season}</subtitle>
@@ -130,11 +159,29 @@ export default function() {
 								<section>
 									{episodes.map((episode, i) => {
 										let {
-											title_en,
 											spoiler,
 											watched,
+											title_en,
+											date: begins,
 											episode: episodeNumber,
 										} = episode;
+
+										if (begins) {
+											let date = moment(begins, 'DD.MM.YYYY');
+											let dateTitle = date.isValid() ? `Airdate ${date.format('ll')}` : '';
+
+											return (
+												<listItemLockup class="item item--disabled">
+													<ordinal minLength="3">{episodeNumber}</ordinal>
+													<title class="title">
+														{episode.title}
+													</title>
+													<decorationLabel>
+														{dateTitle}
+													</decorationLabel>
+												</listItemLockup>
+											);
+										}
 
 										let file = getEpisodeMedia(episode);
 										let mediaQualityCode = file && mediaQualities[file.quality];
@@ -173,7 +220,7 @@ export default function() {
 												onSelect={this.onPlayEpisode.bind(this, episodeNumber)}
 											>
 												<ordinal minLength="3">{episodeNumber}</ordinal>
-												<title style="tv-text-highlight-style: marquee-on-highlight">
+												<title class="title">
 													{title}
 												</title>
 												<decorationLabel>
@@ -185,7 +232,7 @@ export default function() {
 												</decorationLabel>
 												<relatedContent>
 													<lockup>
-														<img src={this.state.poster} style="tv-placeholder: tv" width="400" height="400" />
+														{poster}
 														<row class="controls_container">
 															{this.state.authorized && (this.state[`eid-${episodeNumber}`] ? (
 																<buttonLockup
@@ -411,8 +458,13 @@ function getEpisodeItem(sid, episode, poster) {
 	}));
 }
 
-function getSeasonExtendedData(season) {
-	let {episodes, covers: {big: poster}} = season;
+function getSeasonExtendedData(season, schedule) {
+	if (!season) return null;
+
+	let {episodes: seasonEpisodes, covers: {big: poster}} = season;
+	let {episodes: scheduleEpisodes} = schedule[season.season - 1];
+	let scheduleDiff = scheduleEpisodes.slice(seasonEpisodes.length);
+	let episodes = seasonEpisodes.concat(scheduleDiff);
 
 	return episodes.reduce((result, {episode, watched}) => {
 		result[`eid-${episode}`] = !!watched;
