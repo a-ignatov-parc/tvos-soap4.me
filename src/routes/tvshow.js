@@ -262,11 +262,12 @@ export default function() {
 					.map(season => assign({covers, begins: season.episodes[0].date}, season));
 
 				let seasons = this.state.seasons.concat(scheduleDiff);
+
 				let currentMoment = moment();
+				let nextDay = currentMoment.clone().add(moment.relativeTimeThreshold('h'), 'hour');
+				let nextMonth = currentMoment.clone().add(moment.relativeTimeThreshold('d'), 'day');
 
 				if (!seasons.length) return null;
-
-				console.log(111, this.state.schedule, seasons);
 
 				return (
 					<shelf>
@@ -288,19 +289,35 @@ export default function() {
 								let {episodes: seasonEpisodes} = season;
 								let {episodes: scheduleEpisodes} = this.state.schedule[i] || {episodes: []};
 								let scheduleDiff = scheduleEpisodes.slice(seasonEpisodes.length);
-								let scheduleEpisode = scheduleDiff[0];
+								let [scheduleEpisode] = scheduleDiff.filter(episode => {
+									return moment(episode.date, 'DD.MM.YYYY') > currentMoment;
+								});
 								let dateTitle;
 								let date;
 
 								if (scheduleEpisode) {
 									date = moment(scheduleEpisode.date, 'DD.MM.YYYY');
-									dateTitle = date.isValid() ? `Continues ${date.fromNow()}` : 'Soon';
+
+									if (!date.isValid() || nextMonth < date) {
+										dateTitle = `Soon`;
+									} else if (nextDay > date) {
+										dateTitle = `New episode in a day`;
+									} else {
+										dateTitle = `New episode ${date.fromNow()}`;
+									}
 									currentMoment < date && (isWatched = false);
 								}
 
 								if (begins) {
 									date = moment(begins, 'DD.MM.YYYY');
-									dateTitle = date.isValid() ? `Begins ${date.fromNow()}` : 'Soon';
+
+									if (!date.isValid() || nextMonth < date) {
+										dateTitle = `Soon`;
+									} else if (nextDay > date) {
+										dateTitle = `New season in a day`;
+									} else {
+										dateTitle = `New season ${date.fromNow()}`;
+									}
 									isWatched = false;
 								}
 

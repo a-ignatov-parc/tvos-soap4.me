@@ -134,6 +134,10 @@ export default function(title) {
 					)
 				}
 
+				let currentMoment = moment();
+				let nextDay = currentMoment.clone().add(moment.relativeTimeThreshold('h'), 'hour');
+				let nextMonth = currentMoment.clone().add(moment.relativeTimeThreshold('d'), 'day');
+
 				return (
 					<grid>
 						{header}
@@ -151,8 +155,15 @@ export default function(title) {
 
 								if (scheduleEpisode) {
 									date = moment(scheduleEpisode.date, 'DD.MM.YYYY');
-									dateTitle = `Continues ${date.fromNow()}`;
-									isWatched = false;
+
+									if (!date.isValid() || nextMonth < date) {
+										dateTitle = `Soon`;
+									} else if (nextDay > date) {
+										dateTitle = `New episode in a day`;
+									} else {
+										dateTitle = `New episode ${date.fromNow()}`;
+									}
+									currentMoment < date && (isWatched = false);
 								}
 
 								return (
