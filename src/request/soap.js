@@ -12,6 +12,8 @@ const {VIDEO_QUALITY, TRANSLATION} = settings.params;
 const {SD, HD, FULLHD} = settings.values[VIDEO_QUALITY];
 const {LOCALIZATION, SUBTITLES} = settings.values[TRANSLATION];
 
+export const version = 'v__VERSION__';
+
 export const tvshow = {
 	ENDED: 'ended',
 	CLOSED: 'closed',
@@ -191,6 +193,25 @@ export function getTVShowSeason(sid, id) {
 	return getTVShowSeasons(sid).then(seasons => seasons.filter(season => season.season === id)[0]);
 }
 
+export function getTVShowSchedule(sid) {
+	return get(`https://api.soap4.me/v2/shedule/${sid}/`).then(schedule => {
+		return schedule.reduce((result, item) => {
+			if (!result[item.season - 1]) {
+				result[item.season - 1] = {
+					episodes: [],
+					season: `${item.season}`,
+				};
+			}
+			result[item.season - 1].episodes.unshift(item);
+			return result;
+		}, []);
+	});
+}
+
+export function getMySchedule() {
+	return get(`https://api.soap4.me/v2/shedule/my/`);
+}
+
 export function getActorInfo(id) {
 	return get(`https://api.soap4.me/v2/soap/person/${id}/`);
 }
@@ -285,7 +306,7 @@ export function saveSpeedTestResults(results) {
 
 function headers() {
 	let token = getToken();
-	let userAgent = 'ATV: soap4.me v__VERSION__'
+	let userAgent = `ATV: soap4.me ${version}`;
 
 	return {
 		'X-Api-Token': token,
