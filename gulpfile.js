@@ -20,13 +20,13 @@ var buffer = require('vinyl-buffer');
 var source = require('vinyl-source-stream');
 
 var LIVE = yargs.argv.production;
-var QUELLO = yargs.argv.quello;
+var QELLO = yargs.argv.qello;
 
 var PORT = 9001;
 var SOURCE = './src';
 var CACHE = './build.json';
 var ASSETS = SOURCE + '/assets';
-var DEST = QUELLO ? './quello/tvml' : './out';
+var DEST = QELLO ? './quello/tvml' : './out';
 
 function pass() {
 	return through.obj();
@@ -65,7 +65,7 @@ gulp.task('build', function() {
 			gutil.log(gutil.colors.red('Browserify compile error:'), error.message);
 			this.emit('end');
 		})
-		.pipe(source(QUELLO ? 'app.js' : 'application.js'))
+		.pipe(source(QELLO ? 'app.js' : 'application.js'))
 		.pipe(buffer())
 		.pipe(sourcemaps.init({loadMaps: true}))
 		.pipe(LIVE ? uglify() : pass())
