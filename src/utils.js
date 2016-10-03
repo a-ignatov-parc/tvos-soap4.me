@@ -27,7 +27,7 @@ export function getStartParams() {
 	let params = JSON.parse(sessionStorage.getItem('startParams') || '{}');
 
 	// Ad-hoc fix for assets urls
-	if (~Device.appIdentifier.toLowerCase().indexOf('quello')) {
+	if (~Device.appIdentifier.toLowerCase().indexOf('qello')) {
 		params.BASEURL = 'https://a-ignatov-parc.github.io/tvos-soap4.me-releases/quello/tvml/';
 	}
 
