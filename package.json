@@ -1,6 +1,6 @@
 {
   "name": "tvos-soap4.me",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "tvOS app for soap4.me video service https://soap4.me/",
   "main": "src/index.js",
   "scripts": {
