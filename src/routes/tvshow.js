@@ -342,6 +342,8 @@ export default function() {
 			},
 
 			renderRecomendations() {
+				if (!this.state.recomendations.length) return null;
+
 				return (
 					<shelf>
 						<header>

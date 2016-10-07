@@ -144,7 +144,7 @@ export function getTVShowEpisodes(sid) {
 }
 
 export function getTVShowRecommendations(sid) {
-	return get(`https://api.soap4.me/v2/soap/recommendations/${sid}/`);
+	return get(`https://api.soap4.me/v2/soap/recommendations/${sid}/`).then(() => []);
 }
 
 export function getTVShowReviews(sid) {
