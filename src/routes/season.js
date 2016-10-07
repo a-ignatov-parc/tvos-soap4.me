@@ -47,7 +47,13 @@ const subtitlesList = [
 export default function() {
 	return TVDML
 		.createPipeline()
-		.pipe(TVDML.passthrough(({navigation: {sid, id, title, episode}}) => ({sid, id, title, episode})))
+		.pipe(TVDML.passthrough(({navigation: {
+			id,
+			sid,
+			title,
+			episode,
+			shouldPlayImmediately
+		}}) => ({sid, id, title, episode, shouldPlayImmediately})))
 		.pipe(TVDML.render(TVDML.createComponent({
 			getInitialState() {
 				let authorized = user.isAuthorized();
@@ -218,6 +224,7 @@ export default function() {
 												class="item"
 												autoHighlight={highlight ? 'true' : undefined}
 												onSelect={this.onPlayEpisode.bind(this, episodeNumber)}
+												ref={highlight ? this.onHighlightedItemRender.bind(this, episode) : undefined}
 											>
 												<ordinal minLength="3">{episodeNumber}</ordinal>
 												<title class="title">
@@ -276,6 +283,14 @@ export default function() {
 						</compilationTemplate>
 					</document>
 				);
+			},
+
+			onHighlightedItemRender(episode, node) {
+				let {episode: episodeNumber} = episode;
+
+				if (this.props.shouldPlayImmediately) {
+					this.onPlayEpisode(episodeNumber);
+				}
 			},
 
 			onPlayEpisode(episodeNumber) {

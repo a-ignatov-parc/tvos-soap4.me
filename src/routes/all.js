@@ -11,7 +11,7 @@ import Tile from '../components/tile';
 import Loader from '../components/loader';
 
 const NAME = 'name';
-const YEAR = 'year';
+const DATE = 'date';
 const LIKES = 'likes';
 const RATING = 'rating';
 const COMPLETENESS = 'completeness';
@@ -27,14 +27,17 @@ const sections = {
 		},
 	},
 
-	[YEAR]: {
-		title: 'Year',
+	[DATE]: {
+		title: 'Date',
 		reducer(list) {
-			let collection = list.reduce((result, item) => {
-				if (!result[item.year]) result[item.year] = [];
-				result[item.year].push(item);
-				return result;
-			}, {});
+			let collection = list
+				.slice(0)
+				.sort(({sid: a}, {sid: b}) => b - a)
+				.reduce((result, item) => {
+					if (!result[item.year]) result[item.year] = [];
+					result[item.year].push(item);
+					return result;
+				}, {});
 
 			return Object
 				.keys(collection)

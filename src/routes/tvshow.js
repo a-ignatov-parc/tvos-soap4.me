@@ -186,7 +186,10 @@ export default function() {
 				let buttons = <row />;
 
 				let continueWatchingBtn = (
-					<buttonLockup onSelect={this.onContinueWatching}>
+					<buttonLockup
+						onPlay={this.onContinueWatchingAndPlay}
+						onSelect={this.onContinueWatching}
+					>
 						<badge src="resource://button-play" />
 						<title>Continue Watching</title>
 					</buttonLockup>
@@ -529,13 +532,22 @@ export default function() {
 				}, null);
 			},
 
-			onContinueWatching() {
+			onContinueWatchingAndPlay(event) {
+				this.onContinueWatching(event, true);
+			},
+
+			onContinueWatching(event, shouldPlayImmediately) {
 				let uncompletedSeason = this.getSeasonToWatch(this.state.seasons);
 				let {season: seasonNumber} = uncompletedSeason;
 				let seasonTitle = `Season ${seasonNumber}`;
 				let {sid, title} = this.state.tvshow;
 
-				TVDML.navigate('season', {sid, id: seasonNumber, title: `${title} — ${seasonTitle}`});
+				TVDML.navigate('season', {
+					sid,
+					id: seasonNumber,
+					title: `${title} — ${seasonTitle}`,
+					shouldPlayImmediately,
+				});
 			},
 
 			onShowTrailer() {
