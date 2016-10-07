@@ -57,10 +57,12 @@ export default function() {
 		.pipe(TVDML.render(TVDML.createComponent({
 			getInitialState() {
 				let authorized = user.isAuthorized();
+				let {shouldPlayImmediately} = this.props;
 
 				return {
 					authorized,
 					loading: true,
+					shouldPlayImmediately,
 				};
 			},
 
@@ -288,7 +290,8 @@ export default function() {
 			onHighlightedItemRender(episode, node) {
 				let {episode: episodeNumber} = episode;
 
-				if (this.props.shouldPlayImmediately) {
+				if (this.state.shouldPlayImmediately) {
+					this.setState({shouldPlayImmediately: false});
 					this.onPlayEpisode(episodeNumber);
 				}
 			},
