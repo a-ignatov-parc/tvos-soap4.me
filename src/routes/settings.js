@@ -3,14 +3,18 @@
 import * as TVDML from 'tvdml';
 
 import * as settings from '../settings';
+import * as localization from '../localization';
 
 import {link} from '../utils';
 import * as user from '../user';
 import authFactory from '../helpers/auth';
+import {deepEqualShouldUpdate} from '../utils/components';
 import {defaultErrorHandlers} from '../helpers/auth/handlers';
 
 import {logout, version} from '../request/soap';
 import {getStartParams} from '../utils';
+
+const {get: i18n} = localization;
 
 const {
 	VIDEO_QUALITY,
@@ -25,29 +29,29 @@ const {CONTINUES, BY_EPISODE} = settings.values[VIDEO_PLAYBACK];
 const {AUTO, EN, RU} = settings.values[LANGUAGE];
 
 const titleMapping = {
-	[VIDEO_QUALITY]: 'Video quality',
-	[TRANSLATION]: 'Translation',
-	[VIDEO_PLAYBACK]: 'Video playback',
-	[LANGUAGE]: 'Interface language',
+	[VIDEO_QUALITY]: 'settings-labels-video_quality',
+	[TRANSLATION]: 'settings-labels-translation',
+	[VIDEO_PLAYBACK]: 'settings-labels-video_playback',
+	[LANGUAGE]: 'settings-labels-language',
 };
 
 const descriptionMapping = {
-	[VIDEO_QUALITY]: 'Prefered video quality that will be used if available.',
-	[TRANSLATION]: 'To be able to use subtitles special option must be activated in account preferences on soap4.me site. Until this will be done only localized episodes will be shown.',
-	[VIDEO_PLAYBACK]: 'Configure player playback mode. Should it play all episodes in season or just one.',
+	[VIDEO_QUALITY]: 'settings-descriptions-video_quality',
+	[TRANSLATION]: 'settings-descriptions-translation',
+	[VIDEO_PLAYBACK]: 'settings-descriptions-video_playback',
 };
 
 const valueMapping = {
-	[SD]: 'SD',
-	[HD]: 'HD',
-	[FULLHD]: 'Full HD',
-	[SUBTITLES]: 'Subtitles priority',
-	[LOCALIZATION]: 'Localization priority',
-	[CONTINUES]: 'Continues',
-	[BY_EPISODE]: 'By episode',
-	[AUTO]: 'System language',
-	[EN]: 'English',
-	[RU]: 'Russian',
+	[SD]: 'settings-values-sd',
+	[HD]: 'settings-values-hd',
+	[FULLHD]: 'settings-values-fhd',
+	[SUBTITLES]: 'settings-values-subtitles',
+	[LOCALIZATION]: 'settings-values-localization',
+	[CONTINUES]: 'settings-values-continues',
+	[BY_EPISODE]: 'settings-values-by_episode',
+	[AUTO]: 'settings-values-auto',
+	[EN]: 'settings-values-en',
+	[RU]: 'settings-values-ru',
 };
 
 export default function() {
@@ -56,8 +60,10 @@ export default function() {
 		.pipe(TVDML.render(TVDML.createComponent({
 			getInitialState() {
 				let authorized = user.isAuthorized();
+				let language = localization.getLanguage();
 
 				return {
+					language,
 					authorized,
 					settings: settings.getAll(),
 				};
@@ -70,6 +76,10 @@ export default function() {
 						this.setState({authorized: user.isAuthorized()});
 					});
 
+				this.languageChangePipeline = localization
+					.subscription()
+					.pipe(({language}) => this.setState({language}));
+
 				this.authHelper = authFactory({
 					onError: defaultErrorHandlers,
 					onSuccess({token, till}, login) {
@@ -81,9 +91,12 @@ export default function() {
 
 			componentWillUnmount() {
 				this.userStateChangePipeline.unsubscribe();
+				this.languageChangePipeline.unsubscribe();
 				this.authHelper.destroy();
 				this.authHelper = null;
 			},
+
+			shouldComponentUpdate: deepEqualShouldUpdate,
 
 			render() {
 				const {BASEURL} = getStartParams();
@@ -133,7 +146,9 @@ export default function() {
 						</head>
 						<listTemplate>
 							<banner>
-								<title class="grey_title">Settings</title>
+								<title class="grey_title">
+									{i18n('settings-caption')}
+								</title>
 							</banner>
 							<list>
 								<relatedContent>
@@ -169,14 +184,18 @@ export default function() {
 								</section>
 								<section>
 									<header>
-										<title>Account</title>
+										<title>
+											{i18n('settings-titles-account')}
+										</title>
 									</header>
 									{this.state.authorized ? (
 										<listItemLockup
 											class="item"
 											onSelect={this.onLogoutAttempt}
 										>
-											<title>Logout</title>
+											<title>
+												{i18n('settings-labels-logout')}
+											</title>
 											<decorationLabel>
 												{user.getLogin()}
 											</decorationLabel>
@@ -186,29 +205,39 @@ export default function() {
 											class="item"
 											onSelect={this.onLogin}
 										>
-											<title>Login</title>
+											<title>
+												{i18n('settings-labels-login')}
+											</title>
 										</listItemLockup>
 									)}
 								</section>
 								{this.state.authorized && (
 									<section>
 										<header>
-											<title>Network</title>
+											<title>
+												{i18n('settings-titles-network')}
+											</title>
 										</header>
 										<listItemLockup
 											class="item"
 											onSelect={link('speedtest')}
 										>
-											<title>Speed test</title>
+											<title>
+												{i18n('settings-labels-speedtest')}
+											</title>
 										</listItemLockup>
 									</section>
 								)}
 								<section>
 									<header>
-										<title>About</title>
+										<title>
+											{i18n('settings-titles-about')}
+										</title>
 									</header>
 									<listItemLockup disabled="true">
-										<title>Version</title>
+										<title>
+											{i18n('settings-labels-version')}
+										</title>
 										<decorationLabel>{version}</decorationLabel>
 									</listItemLockup>
 								</section>
@@ -273,15 +302,17 @@ export default function() {
 						<document>
 							<alertTemplate>
 								<title>
-									Are you sure you want to log out?
+									{i18n('settings-logout-caption')}
 								</title>
 								<button onSelect={this.onLogout}>
 									<text>
-										Logout
+										{i18n('settings-logout-logout_btn')}
 									</text>
 								</button>
 								<button onSelect={() => TVDML.removeModal()}>
-									<text>Cancel</text>
+									<text>
+										{i18n('settings-logout-cancel_btn')}
+									</text>
 								</button>
 							</alertTemplate>
 						</document>
@@ -292,13 +323,13 @@ export default function() {
 }
 
 function getTitleForKey(key) {
-	return titleMapping[key] || key;
+	return i18n(titleMapping[key] || key);
 }
 
 function getDescriptionForKey(key) {
-	return descriptionMapping[key];
+	return i18n(descriptionMapping[key]);
 }
 
 function getTitleForValue(key) {
-	return valueMapping[key] || key;
+	return i18n(valueMapping[key] || key);
 }

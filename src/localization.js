@@ -33,7 +33,7 @@ export function get(name, params = {}) {
 		return key(params);
 	}
 
-	return key;
+	return key || name;
 }
 
 export function getSystemCountryCode() {

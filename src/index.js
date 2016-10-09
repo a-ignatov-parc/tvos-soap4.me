@@ -40,11 +40,12 @@ TVDML
 			route: 'search',
 		}, {
 			route: 'my',
-			active: true,
+			// active: true,
 		}, {
 			route: 'all',
 		}, {
 			route: 'settings',
+			active: true,
 		}
 	]));
 

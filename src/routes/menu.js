@@ -41,7 +41,7 @@ export default function(menu) {
 										route={route}
 										autoHighlight={active ? true : undefined}
 									>
-										<title>{localization.get(route)}</title>
+										<title>{localization.get(`menu-${route}`)}</title>
 									</menuItem>
 								))}
 							</menuBar>
