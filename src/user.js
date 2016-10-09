@@ -1,8 +1,9 @@
-import * as TVDML from 'tvdml';
+import EventBus from './event-bus';
+
+const bus = new EventBus();
 
 const STORAGE_KEY = 'soap4me-user';
 
-const subscriptions = [];
 const cache = {
 	payload: JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'),
 };
@@ -13,6 +14,8 @@ const contract = [
 	'token',
 	'logged',
 ];
+
+export const subscription = bus.subscription.bind(bus);
 
 export function set(payload) {
 	let prevState = isAuthorized();
@@ -33,7 +36,7 @@ export function set(payload) {
 	localStorage.setItem(STORAGE_KEY, JSON.stringify(cache.payload));
 
 	if (prevState !== isAuthorized()) {
-		broadcast();
+		bus.broadcast(cache);
 	}
 
 	return cache.payload;
@@ -46,7 +49,7 @@ export function get() {
 export function clear() {
 	cache.payload = {};
 	localStorage.removeItem(STORAGE_KEY);
-	broadcast();
+	bus.broadcast(cache);
 }
 
 export function getToken() {
@@ -63,26 +66,4 @@ export function isExtended() {
 
 export function isAuthorized() {
 	return get().logged > 0;
-}
-
-export function subscription() {
-	let pipeline = TVDML.createPassThroughPipeline({
-		extend: {
-			unsubscribe() {
-				let index = subscriptions.indexOf(pipeline);
-
-				if (~index) {
-					subscriptions.splice(index, 1);
-				}
-			}
-		}
-	});
-
-	subscriptions.push(pipeline);
-
-	return pipeline;
-}
-
-function broadcast() {
-	subscriptions.forEach(pipeline => pipeline.sink(cache));
 }

@@ -7,6 +7,7 @@ import {checkSession} from './request/soap';
 
 import MyRoute from './routes/my';
 import AllRoute from './routes/all';
+import MenuRoute from './routes/menu';
 import ActorRoute from './routes/actor';
 import SeasonRoute from './routes/season';
 import TVShowRoute from './routes/tvshow';
@@ -34,26 +35,18 @@ TVDML
 
 TVDML
 	.handleRoute('main')
-	.pipe(TVDML.render(
-		<document>
-			<menuBarTemplate>
-				<menuBar>
-					<menuItem route="search">
-						<title>Search</title>
-					</menuItem>
-					<menuItem autoHighlight="true" route="my">
-						<title>My</title>
-					</menuItem>
-					<menuItem route="all">
-						<title>TV Shows</title>
-					</menuItem>
-					<menuItem route="settings">
-						<title>Settings</title>
-					</menuItem>
-				</menuBar>
-			</menuBarTemplate>
-		</document>
-	));
+	.pipe(MenuRoute([
+		{
+			route: 'search',
+		}, {
+			route: 'my',
+			active: true,
+		}, {
+			route: 'all',
+		}, {
+			route: 'settings',
+		}
+	]));
 
 TVDML
 	.handleRoute('my')

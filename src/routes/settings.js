@@ -12,15 +12,23 @@ import {defaultErrorHandlers} from '../helpers/auth/handlers';
 import {logout, version} from '../request/soap';
 import {getStartParams} from '../utils';
 
-const {VIDEO_QUALITY, TRANSLATION, VIDEO_PLAYBACK} = settings.params;
+const {
+	VIDEO_QUALITY,
+	TRANSLATION,
+	VIDEO_PLAYBACK,
+	LANGUAGE,
+} = settings.params;
+
 const {SD, HD, FULLHD} = settings.values[VIDEO_QUALITY];
 const {LOCALIZATION, SUBTITLES} = settings.values[TRANSLATION];
 const {CONTINUES, BY_EPISODE} = settings.values[VIDEO_PLAYBACK];
+const {AUTO, EN, RU} = settings.values[LANGUAGE];
 
 const titleMapping = {
 	[VIDEO_QUALITY]: 'Video quality',
 	[TRANSLATION]: 'Translation',
 	[VIDEO_PLAYBACK]: 'Video playback',
+	[LANGUAGE]: 'Interface language',
 };
 
 const descriptionMapping = {
@@ -37,6 +45,9 @@ const valueMapping = {
 	[LOCALIZATION]: 'Localization priority',
 	[CONTINUES]: 'Continues',
 	[BY_EPISODE]: 'By episode',
+	[AUTO]: 'System language',
+	[EN]: 'English',
+	[RU]: 'Russian',
 };
 
 export default function() {

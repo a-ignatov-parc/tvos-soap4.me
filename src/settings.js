@@ -1,4 +1,9 @@
 import assign from 'object-assign';
+import EventBus from './event-bus';
+
+const bus = new EventBus();
+
+export const subscription = bus.subscription.bind(bus);
 
 const STORAGE_KEY = 'soap4me-settings';
 
@@ -18,22 +23,31 @@ const playback = {
 	BY_EPISODE: 'by_episode',
 };
 
+const language = {
+	AUTO: 'auto',
+	EN: 'en',
+	RU: 'ru',
+};
+
 export const params = {
 	VIDEO_QUALITY: 'video-quality',
 	TRANSLATION: 'translation',
 	VIDEO_PLAYBACK: 'video-playback',
+	LANGUAGE: 'language',
 };
 
 export const values = {
 	[params.VIDEO_QUALITY]: quality,
 	[params.TRANSLATION]: translation,
 	[params.VIDEO_PLAYBACK]: playback,
+	[params.LANGUAGE]: language,
 };
 
 const defaults = {
 	[params.VIDEO_QUALITY]: quality.FULLHD,
 	[params.TRANSLATION]: translation.LOCALIZATION,
 	[params.VIDEO_PLAYBACK]: playback.CONTINUES,
+	[params.LANGUAGE]: language.AUTO,
 };
 
 const settings = getSettingsFromStorage(defaults);
@@ -45,8 +59,11 @@ export function set(key, value) {
 	if (!hasParam) throw new Error(`Unsupported settings param "${key}"`);
 	if (!hasValue) throw new Error(`Unsupported value "${value}" for settings param "${key}"`);
 
+	let prevValue = settings[key];
+
 	settings[key] = value;
 	localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+	bus.broadcast({key, value, prevValue});
 }
 
 export function get(key) {
