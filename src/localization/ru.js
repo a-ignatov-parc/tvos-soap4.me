@@ -37,4 +37,16 @@ export default {
 	'settings-values-auto': 'Язык системы',
 	'settings-values-en': 'English',
 	'settings-values-ru': 'Русский',
+
+	'my-caption': 'Мои',
+
+	'my-closed': 'Завершенные',
+	'my-watched': 'Просмотренные',
+	'my-new-episodes': 'С новыми эпизодами',
+
+	'my-tvshow-title': ({title_ru}) => title_ru,
+
+	'my-new-episode-soon': 'Скоро',
+	'my-new-episode-day': 'Эпизод в течении дня',
+	'my-new-episode-custom-date': ({date}) => `Эпизод ${date}`,
 };

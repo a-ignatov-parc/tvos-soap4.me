@@ -37,4 +37,16 @@ export default {
 	'settings-values-auto': 'System language',
 	'settings-values-en': 'English',
 	'settings-values-ru': 'Русский',
+
+	'my-caption': 'My',
+
+	'my-closed': 'Closed',
+	'my-watched': 'Watched',
+	'my-new-episodes': 'New episodes',
+
+	'my-tvshow-title': ({title}) => title,
+
+	'my-new-episode-soon': 'Soon',
+	'my-new-episode-day': 'Episode in a day',
+	'my-new-episode-custom-date': ({date}) => `Episode ${date}`,
 };

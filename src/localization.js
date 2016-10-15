@@ -1,3 +1,8 @@
+import moment from 'moment';
+
+// Loading extra locales
+import momentRU from 'moment/locale/ru';
+
 import EventBus from './event-bus';
 import * as settings from './settings';
 
@@ -15,11 +20,18 @@ const translations = {
 	[RU]: Russian,
 };
 
+// Configuring initial locale.
+moment.locale(getLanguage());
+
 settings
 	.subscription()
 	.pipe(({key}) => {
 		if (key === LANGUAGE) {
-			bus.broadcast({language: getLanguage()});
+			const language = getLanguage();
+
+			// Updating locale
+			moment.locale(language);
+			bus.broadcast({language});
 		}
 	});
 
