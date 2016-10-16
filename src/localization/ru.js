@@ -1,4 +1,6 @@
 export default {
+	'auth-checking': 'Проверяем авторизацию...',
+
 	'menu-my': 'Мои',
 	'menu-all': 'Сериалы',
 	'menu-search': 'Поиск',
@@ -38,15 +40,35 @@ export default {
 	'settings-values-en': 'English',
 	'settings-values-ru': 'Русский',
 
+	'tvshow-title': ({title_ru}) => title_ru,
+
+	'new-episode-soon': 'Скоро',
+	'new-episode-day': 'Эпизод в течении дня',
+	'new-episode-custom-date': ({date}) => `Эпизод ${date}`,
+
 	'my-caption': 'Мои',
 
 	'my-closed': 'Завершенные',
 	'my-watched': 'Просмотренные',
 	'my-new-episodes': 'С новыми эпизодами',
 
-	'my-tvshow-title': ({title_ru}) => title_ru,
+	'all-caption': 'Сериалы',
 
-	'my-new-episode-soon': 'Скоро',
-	'my-new-episode-day': 'Эпизод в течении дня',
-	'my-new-episode-custom-date': ({date}) => `Эпизод ${date}`,
+	'all-group-by': 'Группировать по',
+	'all-group-by-title': ({title}) => `Группировать по ${title}`,
+
+	'all-group-title-name': 'Имени',
+	'all-group-name-title': 'A — Z',
+
+	'all-group-title-date': 'Дате',
+
+	'all-group-title-likes': 'Лайкам',
+	'all-group-likes-title-over-thousand': ({thousand}) => `Более ${thousand}k`,
+	'all-group-likes-title-over-hundred': ({hundred}) => `Более ${hundred}`,
+	'all-group-likes-title-lower-hundred': ({hundred}) => `Менее ${hundred}`,
+
+	'all-group-title-rating': 'Рейтингу',
+
+	'all-group-title-completeness': 'Завершенности',
+	'all-group-completeness-title': 'Завершенные',
 };

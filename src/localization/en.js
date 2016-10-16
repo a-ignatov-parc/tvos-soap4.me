@@ -1,4 +1,6 @@
 export default {
+	'auth-checking': 'Checking authorization...',
+
 	'menu-my': 'My',
 	'menu-all': 'TV Shows',
 	'menu-search': 'Search',
@@ -38,15 +40,35 @@ export default {
 	'settings-values-en': 'English',
 	'settings-values-ru': 'Русский',
 
+	'tvshow-title': ({title}) => title,
+
+	'new-episode-soon': 'Soon',
+	'new-episode-day': 'Episode in a day',
+	'new-episode-custom-date': ({date}) => `Episode ${date}`,
+
 	'my-caption': 'My',
 
 	'my-closed': 'Closed',
 	'my-watched': 'Watched',
 	'my-new-episodes': 'New episodes',
 
-	'my-tvshow-title': ({title}) => title,
+	'all-caption': 'TV Shows',
 
-	'my-new-episode-soon': 'Soon',
-	'my-new-episode-day': 'Episode in a day',
-	'my-new-episode-custom-date': ({date}) => `Episode ${date}`,
+	'all-group-by': 'Group by',
+	'all-group-by-title': ({title}) => `Group by ${title}`,
+
+	'all-group-title-name': 'Name',
+	'all-group-name-title': 'A — Z',
+
+	'all-group-title-date': 'Date',
+
+	'all-group-title-likes': 'Likes',
+	'all-group-likes-title-over-thousand': ({thousand}) => `Over ${thousand}k`,
+	'all-group-likes-title-over-hundred': ({hundred}) => `Over ${hundred}`,
+	'all-group-likes-title-lower-hundred': ({hundred}) => `Lower ${hundred}`,
+
+	'all-group-title-rating': 'Rating',
+
+	'all-group-title-completeness': 'Completeness',
+	'all-group-completeness-title': 'Completed',
 };

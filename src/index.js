@@ -3,6 +3,7 @@
 import * as TVDML from 'tvdml';
 import * as user from './user';
 
+import {get as i18n} from './localization';
 import {checkSession} from './request/soap';
 
 import MyRoute from './routes/my';
@@ -23,7 +24,7 @@ TVDML
 
 TVDML
 	.handleRoute('get-token')
-	.pipe(TVDML.render(<Loader title="Checking authorization..." />))
+	.pipe(TVDML.render(<Loader title={i18n('auth-checking')} />))
 	.pipe(() => checkSession().then(({logged, token, till}) => user.set({logged, token, till})))
 	.pipe(() => TVDML.redirect('main'));
 	// 
@@ -54,7 +55,7 @@ TVDML
 
 TVDML
 	.handleRoute('all')
-	.pipe(AllRoute('TV Shows'));
+	.pipe(AllRoute());
 
 TVDML
 	.handleRoute('search')

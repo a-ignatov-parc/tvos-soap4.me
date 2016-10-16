@@ -6,7 +6,7 @@ import assign from 'object-assign';
 
 import * as user from '../user';
 import authFactory from '../helpers/auth';
-import * as localization from '../localization';
+import {get as i18n} from '../localization';
 import {defaultErrorHandlers} from '../helpers/auth/handlers';
 
 import {getMyTVShows, getMySchedule} from '../request/soap';
@@ -25,10 +25,8 @@ export default function() {
 		.pipe(TVDML.render(TVDML.createComponent({
 			getInitialState() {
 				let authorized = user.isAuthorized();
-				let language = localization.getLanguage();
 
 				return {
-					language,
 					authorized,
 					loading: !!authorized,
 				};
@@ -54,10 +52,6 @@ export default function() {
 						});
 					});
 
-				this.languageChangePipeline = localization
-					.subscription()
-					.pipe(({language}) => this.setState({language}));
-
 				this.authHelper = authFactory({
 					onError: defaultErrorHandlers,
 					onSuccess({token, till}, login) {
@@ -74,7 +68,6 @@ export default function() {
 			componentWillUnmount() {
 				this.menuButtonPressPipeline.unsubscribe();
 				this.userStateChangePipeline.unsubscribe();
-				this.languageChangePipeline.unsubscribe();
 				this.authHelper.destroy();
 				this.authHelper = null;
 			},
@@ -115,7 +108,7 @@ export default function() {
 						<stackTemplate>
 							<banner>
 								<title>
-									{localization.get('my-caption')}
+									{i18n('my-caption')}
 								</title>
 							</banner>
 							<collectionList>
@@ -139,7 +132,7 @@ export default function() {
 					header = (
 						<header>
 							<title>
-								{localization.get(title)}
+								{i18n(title)}
 							</title>
 						</header>
 					)
@@ -160,7 +153,7 @@ export default function() {
 									covers: {big: poster},
 								} = tvshow;
 
-								let title = localization.get('my-tvshow-title', tvshow);
+								let title = i18n('tvshow-title', tvshow);
 								let scheduleEpisode = scheduleDictionary[sid];
 								let isWatched = !unwatched;
 								let dateTitle;
@@ -170,11 +163,11 @@ export default function() {
 									date = moment(scheduleEpisode.date, 'DD.MM.YYYY');
 
 									if (!date.isValid() || nextMonth < date) {
-										dateTitle = localization.get('my-new-episode-soon');
+										dateTitle = i18n('new-episode-soon');
 									} else if (nextDay > date) {
-										dateTitle = localization.get('my-new-episode-day');
+										dateTitle = i18n('new-episode-day');
 									} else {
-										dateTitle = localization.get('my-new-episode-custom-date', {date: date.fromNow()});
+										dateTitle = i18n('new-episode-custom-date', {date: date.fromNow()});
 									}
 									currentMoment < date && (isWatched = false);
 								}
