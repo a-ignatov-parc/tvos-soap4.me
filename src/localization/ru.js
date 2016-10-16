@@ -41,6 +41,9 @@ export default {
 	'settings-values-ru': 'Русский',
 
 	'tvshow-title': ({title_ru}) => title_ru,
+	'tvshow-title-from-episode': ({soap_ru}) => soap_ru,
+	'tvshow-episode-title': ({title_ru}) => title_ru,
+	'tvshow-season': ({seasonNumber}) => `Сезон ${seasonNumber}`,
 
 	'new-episode-soon': 'Скоро',
 	'new-episode-day': 'Эпизод в течении дня',
@@ -71,4 +74,10 @@ export default {
 
 	'all-group-title-completeness': 'Завершенности',
 	'all-group-completeness-title': 'Завершенные',
+
+	'search-latest': 'Новые сериалы',
+	'search-popular': 'Популярные сериалы',
+	'search-persons': 'Люди',
+	'search-actor': 'Актер',
+	'search-tvshows': 'Сериалы',
 };

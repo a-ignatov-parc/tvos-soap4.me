@@ -51,9 +51,9 @@ export default function() {
 			id,
 			sid,
 			title,
-			episode,
+			episodeNumber,
 			shouldPlayImmediately
-		}}) => ({sid, id, title, episode, shouldPlayImmediately})))
+		}}) => ({sid, id, title, episodeNumber, shouldPlayImmediately})))
 		.pipe(TVDML.render(TVDML.createComponent({
 			getInitialState() {
 				let authorized = user.isAuthorized();
@@ -202,8 +202,8 @@ export default function() {
 										let title = processEntitiesInString(title_en);
 										let description = processEntitiesInString(spoiler);
 
-										if (this.props.episode) {
-											highlight = episodeNumber === this.props.episode;
+										if (this.props.episodeNumber) {
+											highlight = episodeNumber === this.props.episodeNumber;
 										} else if (!highlighted && !watched) {
 											highlight = true;
 											highlighted = true;

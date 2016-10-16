@@ -41,6 +41,9 @@ export default {
 	'settings-values-ru': 'Русский',
 
 	'tvshow-title': ({title}) => title,
+	'tvshow-title-from-episode': ({soap_en}) => soap_en,
+	'tvshow-episode-title': ({title_en}) => title_en,
+	'tvshow-season': ({seasonNumber}) => `Season ${seasonNumber}`,
 
 	'new-episode-soon': 'Soon',
 	'new-episode-day': 'Episode in a day',
@@ -71,4 +74,10 @@ export default {
 
 	'all-group-title-completeness': 'Completeness',
 	'all-group-completeness-title': 'Completed',
+
+	'search-latest': 'Latest TV Shows',
+	'search-popular': 'Popular TV Shows',
+	'search-persons': 'Persons',
+	'search-actor': 'Actor',
+	'search-tvshows': 'TV Shows',
 };
