@@ -45,9 +45,52 @@ export default {
 	'tvshow-episode-title': ({title_ru}) => title_ru,
 	'tvshow-season': ({seasonNumber}) => `Сезон ${seasonNumber}`,
 
+	'tvshow-status': 'Статус',
+	'tvshow-genres': 'Жанры',
+	'tvshow-actors': 'Актеры',
+	'tvshow-seasons': 'Сезоны',
+	'tvshow-also-watched': 'Рекомендации',
+	'tvshow-ratings': 'Рейтинги и Отзывы',
+	'tvshow-cast-crew': 'Актеры',
+
+	'tvshow-information': 'Информация',
+	'tvshow-information-year': 'Год',
+	'tvshow-information-runtime': 'Тайминг',
+	'tvshow-information-country': 'Страна',
+	'tvshow-information-network': 'Телесеть',
+
+	'tvshow-languages': 'Языки',
+	'tvshow-languages-primary': 'Основные',
+	'tvshow-languages-primary-values': 'Русский, Английский',
+
+	'tvshow-title-more': 'Еще',
+	'tvshow-mark-as-watched': 'Отметить Сериал как просмотренный',
+	'tvshow-mark-as-unwatched': 'Отметить Сериал как не просмотренный',
+
+	'tvshow-average-imdb': ({amount}) => `На основе рейтинга ${amount} пользователей IMDB.`,
+	'tvshow-average-kinopoisk': ({amount}) => `На основе рейтинга ${amount} пользователей Кинопоиска.`,
+
+	'tvshow-liked-by': 'Нравится',
+	'tvshow-liked-by-people': ({likes}) => `пользователям: ${likes}`,
+	'tvshow-liked-by-no-one': 'никому',
+
+	'tvshow-status-ended': 'Закончен',
+	'tvshow-status-closed': 'Закрыт',
+	'tvshow-status-running': 'Идет показ',
+
+	'tvshow-control-continue-watching': 'Продолжить Просмотр',
+	'tvshow-control-show-trailer': 'Посмотреть Трейлер',
+	'tvshow-control-start-watching': 'Начать Просмотр',
+	'tvshow-control-stop-watching': 'Закончить Просмотр',
+	'tvshow-control-more': 'Еще',
+
 	'new-episode-soon': 'Скоро',
 	'new-episode-day': 'Эпизод в течении дня',
 	'new-episode-custom-date': ({date}) => `Эпизод ${date}`,
+
+	'new-season-soon': 'Скоро',
+	'new-season-day': 'Сезон в течении дня',
+	'new-season-custom-date': ({date}) => `Сезон ${date}`,
 
 	'my-caption': 'Мои',
 

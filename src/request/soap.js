@@ -76,9 +76,9 @@ export const TVShowStatuses = {
 };
 
 export const TVShowStatusStrings = {
-	[tvshow.ENDED]: 'Ended',
-	[tvshow.CLOSED]: 'Closed',
-	[tvshow.RUNNING]: 'Running',
+	[tvshow.ENDED]: 'tvshow-status-ended',
+	[tvshow.CLOSED]: 'tvshow-status-closed',
+	[tvshow.RUNNING]: 'tvshow-status-running',
 };
 
 export function get(url) {

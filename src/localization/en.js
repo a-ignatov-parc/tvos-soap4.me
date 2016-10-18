@@ -45,9 +45,52 @@ export default {
 	'tvshow-episode-title': ({title_en}) => title_en,
 	'tvshow-season': ({seasonNumber}) => `Season ${seasonNumber}`,
 
+	'tvshow-status': 'Status',
+	'tvshow-genres': 'Genres',
+	'tvshow-actors': 'Actors',
+	'tvshow-seasons': 'Seasons',
+	'tvshow-also-watched': 'Viewers Also Watched',
+	'tvshow-ratings': 'Ratings and Reviews',
+	'tvshow-cast-crew': 'Cast and Crew',
+
+	'tvshow-information': 'Information',
+	'tvshow-information-year': 'Year',
+	'tvshow-information-runtime': 'Runtime',
+	'tvshow-information-country': 'Country',
+	'tvshow-information-network': 'Network',
+
+	'tvshow-languages': 'Languages',
+	'tvshow-languages-primary': 'Primary',
+	'tvshow-languages-primary-values': 'Russian, English',
+
+	'tvshow-title-more': 'More',
+	'tvshow-mark-as-watched': 'Mark TV Show as Watched',
+	'tvshow-mark-as-unwatched': 'Mark TV Show as Unwatched',
+
+	'tvshow-average-imdb': ({amount}) => `Average of ${amount} IMDB user ratings.`,
+	'tvshow-average-kinopoisk': ({amount}) => `Average of ${amount} Kinopoisk user ratings.`,
+
+	'tvshow-liked-by': 'Liked by',
+	'tvshow-liked-by-people': ({likes}) => `${likes} people`,
+	'tvshow-liked-by-no-one': 'no one',
+
+	'tvshow-status-ended': 'Ended',
+	'tvshow-status-closed': 'Closed',
+	'tvshow-status-running': 'Running',
+
+	'tvshow-control-continue-watching': 'Continue Watching',
+	'tvshow-control-show-trailer': 'Show\nTrailer',
+	'tvshow-control-start-watching': 'Start Watching',
+	'tvshow-control-stop-watching': 'Stop Watching',
+	'tvshow-control-more': 'More',
+
 	'new-episode-soon': 'Soon',
 	'new-episode-day': 'Episode in a day',
 	'new-episode-custom-date': ({date}) => `Episode ${date}`,
+
+	'new-season-soon': 'Soon',
+	'new-season-day': 'Season in a day',
+	'new-season-custom-date': ({date}) => `Season ${date}`,
 
 	'my-caption': 'My',
 
