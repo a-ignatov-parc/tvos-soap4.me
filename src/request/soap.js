@@ -194,22 +194,24 @@ export function getTVShowSeason(sid, id) {
 }
 
 export function getTVShowSchedule(sid) {
-	return get(`https://api.soap4.me/v2/shedule/${sid}/`).then(schedule => {
-		return schedule.reduce((result, item) => {
-			if (!result[item.season - 1]) {
-				result[item.season - 1] = {
-					episodes: [],
-					season: `${item.season}`,
-				};
-			}
-			result[item.season - 1].episodes.unshift(item);
-			return result;
-		}, []);
-	});
+	return get(`https://api.soap4.me/v2/shedule/${sid}/`)
+		.then(schedule => {
+			return schedule.reduce((result, item) => {
+				if (!result[item.season - 1]) {
+					result[item.season - 1] = {
+						episodes: [],
+						season: `${item.season}`,
+					};
+				}
+				result[item.season - 1].episodes.unshift(item);
+				return result;
+			}, []);
+		})
+		.catch(() => []);
 }
 
 export function getMySchedule() {
-	return get(`https://api.soap4.me/v2/shedule/my/`);
+	return get(`https://api.soap4.me/v2/shedule/my/`).catch(() => []);
 }
 
 export function getActorInfo(id) {
