@@ -6,6 +6,7 @@ import assign from 'object-assign';
 
 import {link} from '../utils';
 import * as settings from '../settings';
+import {get as i18n} from '../localization';
 import {processEntitiesInString} from '../utils/parser';
 import {deepEqualShouldUpdate} from '../utils/components';
 
@@ -109,9 +110,14 @@ export default function() {
 					return <Loader title={this.props.title} />
 				}
 
+				let {
+					episodes,
+					season: {season: seasonNumber},
+				} = this.state;
+
 				let highlighted = false;
-				let {title} = this.state.tvshow;
-				let {episodes} = this.state;
+				let title = i18n('tvshow-title', this.state.tvshow);
+				let seasonTitle = i18n('tvshow-season', {seasonNumber});
 
 				let poster = (
 					<img
@@ -162,14 +168,13 @@ export default function() {
 								</relatedContent>
 								<segmentBarHeader>
 									<title>{title}</title>
-									<subtitle>Season {this.state.season.season}</subtitle>
+									<subtitle>{seasonTitle}</subtitle>
 								</segmentBarHeader>
 								<section>
 									{episodes.map((episode, i) => {
 										let {
 											spoiler,
 											watched,
-											title_en,
 											date: begins,
 											episode: episodeNumber,
 										} = episode;
@@ -199,7 +204,7 @@ export default function() {
 										let hasSubtitles = !!~subtitlesList.indexOf(mediaTranslationCode);
 
 										let highlight = false;
-										let title = processEntitiesInString(title_en);
+										let title = processEntitiesInString(i18n('tvshow-episode-title', episode));
 										let description = processEntitiesInString(spoiler);
 
 										if (this.props.episodeNumber) {
@@ -249,7 +254,9 @@ export default function() {
 																	onSelect={this.onMarkAsNew.bind(this, episodeNumber)}
 																>
 																	<badge src="resource://button-remove" />
-																	<title>Mark as Unwatched</title>
+																	<title>
+																		{i18n('episode-mark-as-unwatched')}
+																	</title>
 																</buttonLockup>
 															) : (
 																<buttonLockup
@@ -257,7 +264,9 @@ export default function() {
 																	onSelect={this.onMarkAsWatched.bind(this, episodeNumber, true)}
 																>
 																	<badge src="resource://button-add" />
-																	<title>Mark as Watched</title>
+																	<title>
+																		{i18n('episode-mark-as-watched')}
+																	</title>
 																</buttonLockup>
 															))}
 															{this.state.authorized && (
@@ -266,7 +275,9 @@ export default function() {
 																	onSelect={this.onMore}
 																>
 																	<badge src="resource://button-more" />
-																	<title>More</title>
+																	<title>
+																		{i18n('episode-more')}
+																	</title>
 																</buttonLockup>
 															)}
 														</row>
@@ -406,15 +417,21 @@ export default function() {
 					.renderModal(
 						<document>
 							<alertTemplate>
-								<title>More</title>
+								<title>
+									{i18n('season-title-more')}
+								</title>
 								{hasUnwatchedEpisodes && (
 									<button onSelect={this.onMarkSeasonAsWatched}>
-										<text>Mark Season as Watched</text>
+										<text>
+											{i18n('season-mark-as-watched')}
+										</text>
 									</button>
 								)}
 								{hasWatchedEpisodes && (
 									<button onSelect={this.onMarkSeasonAsUnwatched}>
-										<text>Mark Season as Unwatched</text>
+										<text>
+											{i18n('season-mark-as-unwatched')}
+										</text>
 									</button>
 								)}
 							</alertTemplate>
@@ -454,12 +471,11 @@ function getEpisodeItem(sid, episode, poster) {
 	let {
 		season,
 		spoiler,
-		title_en,
 		episode: episodeNumber,
 		screenshots: {big: episodePoster},
 	} = episode;
 
-	let title = processEntitiesInString(title_en);
+	let title = processEntitiesInString(i18n('tvshow-episode-title', episode));
 	let description = processEntitiesInString(spoiler);
 
 	let id = [sid, season, episodeNumber].join('-');

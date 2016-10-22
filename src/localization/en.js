@@ -40,6 +40,14 @@ export default {
 	'settings-values-en': 'English',
 	'settings-values-ru': 'Русский',
 
+	'episode-more': 'More',
+	'episode-mark-as-watched': 'Mark as Watched',
+	'episode-mark-as-unwatched': 'Mark as Unwatched',
+
+	'season-title-more': 'More',
+	'season-mark-as-watched': 'Mark Season as Watched',
+	'season-mark-as-unwatched': 'Mark Season as Unwatched',
+
 	'tvshow-title': ({title}) => title,
 	'tvshow-title-from-episode': ({soap_en}) => soap_en,
 	'tvshow-episode-title': ({title_en}) => title_en,
