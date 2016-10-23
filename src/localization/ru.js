@@ -25,9 +25,9 @@ export default {
 	'settings-labels-speedtest': 'Тест скорости',
 	'settings-labels-version': 'Версия',
 
-	'settings-descriptions-video_quality': 'Prefered video quality that will be used if available.',
-	'settings-descriptions-translation': 'To be able to use subtitles special option must be activated in account preferences on soap4.me site. Until this will be done only localized episodes will be shown.',
-	'settings-descriptions-video_playback': 'Configure player playback mode. Should it play all episodes in season or just one.',
+	'settings-descriptions-video_quality': 'Предпочитаемое качество видео для воспроизведения если оно доступно.',
+	'settings-descriptions-translation': 'Для того чтоб просматривать эпизоды с субтитрами необходимо активировать специальный параметр в настройках сайта soap4.me. В противном случае будут отображаться только серии с переводом.',
+	'settings-descriptions-video_playback': 'Настройка воспроизведения серий. Воспроизводить их непрерывно друг за другом или по эпизоду.',
 
 	'settings-values-sd': 'SD',
 	'settings-values-hd': 'HD',
@@ -39,6 +39,19 @@ export default {
 	'settings-values-auto': 'Язык системы',
 	'settings-values-en': 'English',
 	'settings-values-ru': 'Русский',
+
+	'speedtest-caption': 'Тест скорости',
+	'speedtest-loading': 'Загрузка информации о серверах...',
+	'speedtest-begin': 'Начать тест',
+	'speedtest-testing': 'Тестируем скорость загрузки...',
+
+	'speedtest-result': ({speed}) => `${speed} Мб/с`,
+	'speedtest-result-too-slow': 'Слишком медленно. Пропускаем...',
+
+	'speedtest-country-fr': 'Франция',
+	'speedtest-country-de': 'Германия',
+	'speedtest-country-nl': 'Нидерланды',
+	'speedtest-country-ru': 'Россия',
 
 	'episode-more': 'Еще',
 	'episode-mark-as-watched': 'Отметить просмотренным',

@@ -40,6 +40,19 @@ export default {
 	'settings-values-en': 'English',
 	'settings-values-ru': 'Русский',
 
+	'speedtest-caption': 'Speed test',
+	'speedtest-loading': 'Loading servers info...',
+	'speedtest-begin': 'Begin test',
+	'speedtest-testing': 'Testing download speed...',
+
+	'speedtest-result': ({speed}) => `${speed} Mb/s`,
+	'speedtest-result-too-slow': 'Too slow. Skipped...',
+
+	'speedtest-country-fr': 'France',
+	'speedtest-country-de': 'Germany',
+	'speedtest-country-nl': 'Netherlands',
+	'speedtest-country-ru': 'Russian Federation',
+
 	'episode-more': 'More',
 	'episode-mark-as-watched': 'Mark as Watched',
 	'episode-mark-as-unwatched': 'Mark as Unwatched',
