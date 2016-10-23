@@ -3,6 +3,7 @@
 import * as TVDML from 'tvdml';
 import assign from 'object-assign';
 
+import {get as i18n} from '../localization';
 import {link, prettifyEpisodeNum} from '../utils';
 import {processEntitiesInString} from '../utils/parser';
 import {
@@ -35,10 +36,9 @@ export default function() {
 
 			render() {
 				let tvshows = this.state.episodes.reduce((result, item) => {
-					if (!result[item.soap_en]) {
-						result[item.soap_en] = [];
-					}
-					result[item.soap_en].push(item);
+					let title = i18n('tvshow-title-from-episode', item);
+					if (!result[title]) result[title] = [];
+					result[title].push(item);
 					return result;
 				}, {});
 
@@ -49,7 +49,7 @@ export default function() {
 						<head>
 							<style content={`
 								.shelf_indent {
-									margin: 0 0 100;
+									margin: 0 0 60;
 								}
 							`} />
 						</head>
@@ -74,23 +74,30 @@ export default function() {
 				if (!this.state.latest.length || this.state.value) return null;
 
 				return (
-					<shelf class="shelf_indent">
+					<shelf>
 						<header>
-							<title>Latest TV Shows</title>
+							<title>
+								{i18n('search-latest')}
+							</title>
 						</header>
 						<section>
-							{this.state.latest.map(({
-								sid,
-								title,
-								covers: {big: poster},
-							}) => (
-								<Tile
-									title={title}
-									route="tvshow"
-									poster={poster}
-									payload={{title, sid}}
-								/>
-							))}
+							{this.state.latest.map(tvshow => {
+								let {
+									sid,
+									covers: {big: poster},
+								} = tvshow;
+
+								let title = i18n('tvshow-title', tvshow);
+
+								return (
+									<Tile
+										title={title}
+										route="tvshow"
+										poster={poster}
+										payload={{title, sid}}
+									/>
+								);
+							})}
 						</section>
 					</shelf>
 				);
@@ -102,21 +109,28 @@ export default function() {
 				return (
 					<shelf>
 						<header>
-							<title>Popular TV Shows</title>
+							<title>
+								{i18n('search-popular')}
+							</title>
 						</header>
 						<section>
-							{this.state.popular.map(({
-								sid,
-								title,
-								covers: {big: poster},
-							}) => (
-								<Tile
-									title={title}
-									route="tvshow"
-									poster={poster}
-									payload={{title, sid}}
-								/>
-							))}
+							{this.state.popular.map(tvshow => {
+								let {
+									sid,
+									covers: {big: poster},
+								} = tvshow;
+
+								let title = i18n('tvshow-title', tvshow);
+
+								return (
+									<Tile
+										title={title}
+										route="tvshow"
+										poster={poster}
+										payload={{title, sid}}
+									/>
+								);
+							})}
 						</section>
 					</shelf>
 				);
@@ -128,7 +142,9 @@ export default function() {
 				return (
 					<shelf class="shelf_indent">
 						<header>
-							<title>Persons</title>
+							<title>
+								{i18n('search-persons')}
+							</title>
 						</header>
 						<section>
 							{this.state.persons.map(actor => {
@@ -152,7 +168,9 @@ export default function() {
 											lastName={lastName}
 										/>
 										<title>{name_en}</title>
-										<subtitle>Actor</subtitle>
+										<subtitle>
+											{i18n('search-actor')}
+										</subtitle>
 									</monogramLockup>
 								);
 							})}
@@ -167,21 +185,28 @@ export default function() {
 				return (
 					<shelf class="shelf_indent">
 						<header>
-							<title>TV Shows</title>
+							<title>
+								{i18n('search-tvshows')}
+							</title>
 						</header>
 						<section>
-							{this.state.series.map(({
-								sid,
-								title,
-								covers: {big: poster},
-							}) => (
-								<Tile
-									title={title}
-									route="tvshow"
-									poster={poster}
-									payload={{title, sid}}
-								/>
-							))}
+							{this.state.series.map(tvshow => {
+								let {
+									sid,
+									covers: {big: poster},
+								} = tvshow;
+
+								let title = i18n('tvshow-title', tvshow);
+
+								return (
+									<Tile
+										title={title}
+										route="tvshow"
+										poster={poster}
+										payload={{title, sid}}
+									/>
+								);
+							})}
 						</section>
 					</shelf>
 				);
@@ -194,24 +219,24 @@ export default function() {
 							<title>{title}</title>
 						</header>
 						<section>
-							{list.map(({
-								sid,
-								episode,
-								soap_en,
-								title_en,
-								season: seasonNumber,
-								covers: {big: poster},
-							}) => {
-								let seasonTitle = `Season ${seasonNumber}`;
-								let title = processEntitiesInString(title_en);
+							{list.map(episode => {
+								let {
+									sid,
+									season: seasonNumber,
+									episode: episodeNumber,
+									covers: {big: poster},
+								} = episode;
+
+								let seasonTitle = i18n('tvshow-season', {seasonNumber});
+								let episodeTitle = processEntitiesInString(i18n('tvshow-episode-title', episode));
 
 								return (
 									<Tile
-										title={title}
+										title={episodeTitle}
 										route="season"
 										poster={poster}
-										payload={{sid, id: seasonNumber, episode, title: `${soap_en} — ${seasonTitle}`}}
-										subtitle={prettifyEpisodeNum(seasonNumber, episode)}
+										payload={{sid, id: seasonNumber, episodeNumber, title: `${title} — ${seasonTitle}`}}
+										subtitle={prettifyEpisodeNum(seasonNumber, episodeNumber)}
 									/>
 								);
 							})}

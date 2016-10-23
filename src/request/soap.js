@@ -76,9 +76,9 @@ export const TVShowStatuses = {
 };
 
 export const TVShowStatusStrings = {
-	[tvshow.ENDED]: 'Ended',
-	[tvshow.CLOSED]: 'Closed',
-	[tvshow.RUNNING]: 'Running',
+	[tvshow.ENDED]: 'tvshow-status-ended',
+	[tvshow.CLOSED]: 'tvshow-status-closed',
+	[tvshow.RUNNING]: 'tvshow-status-running',
 };
 
 export function get(url) {
@@ -144,11 +144,11 @@ export function getTVShowEpisodes(sid) {
 }
 
 export function getTVShowRecommendations(sid) {
-	return get(`https://api.soap4.me/v2/soap/recommendations/${sid}/`).then(() => []);
+	return get(`https://api.soap4.me/v2/soap/recommendations/${sid}/`).then(...emptyOrErrorsResolvers([]));
 }
 
 export function getTVShowReviews(sid) {
-	return get(`https://api.soap4.me/v2/reviews/${sid}/`).catch(() => []);
+	return get(`https://api.soap4.me/v2/reviews/${sid}/`).then(...emptyOrErrorsResolvers([]));
 }
 
 export function markReviewAsLiked(rid) {
@@ -160,7 +160,7 @@ export function markReviewAsDisliked(rid) {
 }
 
 export function getTVShowTrailers(sid) {
-	return get(`https://api.soap4.me/v2/trailers/${sid}/`).catch(() => []);
+	return get(`https://api.soap4.me/v2/trailers/${sid}/`).then(...emptyOrErrorsResolvers([]));
 }
 
 export function getTVShowSeasons(sid) {
@@ -337,6 +337,13 @@ function requestLogger(...params) {
 			console.error(...params, xhr.status, xhr);
 			return Promise.reject(xhr);
 		},
+	];
+}
+
+function emptyOrErrorsResolvers(defaults) {
+	return [
+		response => response != null ? response : defaults,
+		xhr => defaults,
 	];
 }
 

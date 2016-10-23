@@ -3,10 +3,12 @@
 import * as TVDML from 'tvdml';
 import * as user from './user';
 
+import {get as i18n} from './localization';
 import {checkSession} from './request/soap';
 
 import MyRoute from './routes/my';
 import AllRoute from './routes/all';
+import MenuRoute from './routes/menu';
 import ActorRoute from './routes/actor';
 import SeasonRoute from './routes/season';
 import TVShowRoute from './routes/tvshow';
@@ -22,7 +24,7 @@ TVDML
 
 TVDML
 	.handleRoute('get-token')
-	.pipe(TVDML.render(<Loader title="Checking authorization..." />))
+	.pipe(TVDML.render(<Loader title={i18n('auth-checking')} />))
 	.pipe(() => checkSession().then(({logged, token, till}) => user.set({logged, token, till})))
 	.pipe(() => TVDML.redirect('main'));
 	// 
@@ -34,34 +36,26 @@ TVDML
 
 TVDML
 	.handleRoute('main')
-	.pipe(TVDML.render(
-		<document>
-			<menuBarTemplate>
-				<menuBar>
-					<menuItem route="search">
-						<title>Search</title>
-					</menuItem>
-					<menuItem autoHighlight="true" route="my">
-						<title>My</title>
-					</menuItem>
-					<menuItem route="all">
-						<title>TV Shows</title>
-					</menuItem>
-					<menuItem route="settings">
-						<title>Settings</title>
-					</menuItem>
-				</menuBar>
-			</menuBarTemplate>
-		</document>
-	));
+	.pipe(MenuRoute([
+		{
+			route: 'search',
+		}, {
+			route: 'my',
+			active: true,
+		}, {
+			route: 'all',
+		}, {
+			route: 'settings',
+		}
+	]));
 
 TVDML
 	.handleRoute('my')
-	.pipe(MyRoute('My'));
+	.pipe(MyRoute());
 
 TVDML
 	.handleRoute('all')
-	.pipe(AllRoute('TV Shows'));
+	.pipe(AllRoute());
 
 TVDML
 	.handleRoute('search')

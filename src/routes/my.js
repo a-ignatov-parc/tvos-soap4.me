@@ -6,6 +6,7 @@ import assign from 'object-assign';
 
 import * as user from '../user';
 import authFactory from '../helpers/auth';
+import {get as i18n} from '../localization';
 import {defaultErrorHandlers} from '../helpers/auth/handlers';
 
 import {getMyTVShows, getMySchedule} from '../request/soap';
@@ -18,7 +19,7 @@ import Authorize from '../components/authorize';
 
 const {Promise} = TVDML;
 
-export default function(title) {
+export default function() {
 	return TVDML
 		.createPipeline()
 		.pipe(TVDML.render(TVDML.createComponent({
@@ -26,7 +27,6 @@ export default function(title) {
 				let authorized = user.isAuthorized();
 
 				return {
-					title,
 					authorized,
 					loading: !!authorized,
 				};
@@ -107,12 +107,14 @@ export default function(title) {
 					<document>
 						<stackTemplate>
 							<banner>
-								<title>{this.state.title}</title>
+								<title>
+									{i18n('my-caption')}
+								</title>
 							</banner>
 							<collectionList>
-								{this.renderSectionGrid(unwatched, 'New episodes')}
-								{this.renderSectionGrid(watched, 'Watched', this.state.schedule)}
-								{this.renderSectionGrid(closed, 'Closed')}
+								{this.renderSectionGrid(unwatched, 'my-new-episodes')}
+								{this.renderSectionGrid(watched, 'my-watched', this.state.schedule)}
+								{this.renderSectionGrid(closed, 'my-closed')}
 							</collectionList>
 						</stackTemplate>
 					</document>
@@ -129,7 +131,9 @@ export default function(title) {
 				if (title) {
 					header = (
 						<header>
-							<title>{title}</title>
+							<title>
+								{i18n(title)}
+							</title>
 						</header>
 					)
 				}
@@ -142,12 +146,14 @@ export default function(title) {
 					<grid>
 						{header}
 						<section>
-							{collection.map(({
-								sid,
-								title,
-								unwatched,
-								covers: {big: poster},
-							}) => {
+							{collection.map(tvshow => {
+								let {
+									sid,
+									unwatched,
+									covers: {big: poster},
+								} = tvshow;
+
+								let title = i18n('tvshow-title', tvshow);
 								let scheduleEpisode = scheduleDictionary[sid];
 								let isWatched = !unwatched;
 								let dateTitle;
@@ -157,11 +163,11 @@ export default function(title) {
 									date = moment(scheduleEpisode.date, 'DD.MM.YYYY');
 
 									if (!date.isValid() || nextMonth < date) {
-										dateTitle = `Soon`;
+										dateTitle = i18n('new-episode-soon');
 									} else if (nextDay > date) {
-										dateTitle = `New episode in a day`;
+										dateTitle = i18n('new-episode-day');
 									} else {
-										dateTitle = `New episode ${date.fromNow()}`;
+										dateTitle = i18n('new-episode-custom-date', {date: date.fromNow()});
 									}
 									currentMoment < date && (isWatched = false);
 								}

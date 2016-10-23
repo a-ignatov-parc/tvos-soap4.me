@@ -4,6 +4,7 @@ import * as TVDML from 'tvdml';
 import assign from 'object-assign';
 
 import {request} from '../request';
+import {get as i18n} from '../localization';
 import {noop, getStartParams} from '../utils';
 import {
 	getSpeedTestServers,
@@ -13,13 +14,6 @@ import {
 import Loader from '../components/loader';
 
 const {Promise} = TVDML;
-
-const countriesMapping = {
-	fr: 'France',
-	de: 'Germany',
-	nl: 'Netherlands',
-	ru: 'Russian Federation',
-};
 
 const fileSize = 10567604;
 
@@ -60,7 +54,7 @@ export default function() {
 				} = this.state;
 
 				if (loading) {
-					return <Loader title="Loading servers info..." />
+					return <Loader title={i18n('speedtest-loading')} />
 				}
 
 				let serversList = Object
@@ -71,7 +65,9 @@ export default function() {
 					<document>
 						<stackTemplate>
 							<banner>
-								<title>Speed test</title>
+								<title>
+									{i18n('speedtest-caption')}
+								</title>
 							</banner>
 							<collectionList>
 								<shelf centered="true" style="tv-interitem-spacing: 150; margin: 228 0 0">
@@ -80,14 +76,16 @@ export default function() {
 											let result = '...';
 
 											if (skipped[id]) {
-												result = 'Too slow. Skipped...';
+												result = i18n('speedtest-result-too-slow');
 											} else if (results[id]) {
-												result = `${results[id]} Mb/s`;
+												result = i18n('speedtest-result', {speed: results[id]});
 											}
 
 											return (
 												<lockup key={id} disabled="true">
-													<title style="margin: 0 0 10">{countriesMapping[id]}</title>
+													<title style="margin: 0 0 10">
+														{i18n(`speedtest-country-${id}`)}
+													</title>
 													<img
 														width="298"
 														height="200"
@@ -113,11 +111,13 @@ export default function() {
 								<row style="tv-align: center">
 									{running ? (
 										<text style="tv-text-style: headline; color: rgb(84, 82, 80)">
-											Testing download speed...
+											{i18n('speedtest-testing')}
 										</text>
 									) : (
 										<button onSelect={this.onStart}>
-											<text>Begin test</text>
+											<text>
+												{i18n('speedtest-begin')}
+											</text>
 										</button>
 									)}
 								</row>

@@ -2,6 +2,7 @@
 
 import * as TVDML from 'tvdml';
 
+import {get as i18n} from '../localization';
 import {getActorInfo} from '../request/soap';
 
 import Tile from '../components/tile';
@@ -42,16 +43,27 @@ export default function(title) {
 											lastName={lastName}
 										/>
 										<title>{name_en}</title>
-										<subtitle>Actor</subtitle>
+										<subtitle>
+											{i18n('actor-title')}
+										</subtitle>
 									</monogramLockup>
 								</section>
 							</shelf>
 							<grid>
 								<header>
-									<title>TV Shows</title>
+									<title>
+										{i18n('actor-tvshows')}
+									</title>
 								</header>
 								<section>
-									{tvshows.map(({title, sid, covers: {big: poster}}) => {
+									{tvshows.map(tvshow => {
+										let {
+											sid,
+											covers: {big: poster},
+										} = tvshow;
+
+										let title = i18n('tvshow-title', tvshow);
+
 										return (
 											<Tile
 												title={title}

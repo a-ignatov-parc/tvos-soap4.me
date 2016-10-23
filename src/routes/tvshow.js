@@ -6,6 +6,7 @@ import assign from 'object-assign';
 import formatNumber from 'simple-format-number';
 
 import * as user from '../user';
+import {get as i18n} from '../localization';
 import {processEntitiesInString} from '../utils/parser';
 import {deepEqualShouldUpdate} from '../utils/components';
 
@@ -49,6 +50,7 @@ export default function() {
 				let authorized = user.isAuthorized();
 
 				return {
+					likes: 0,
 					authorized,
 					loading: true,
 					watching: false,
@@ -119,6 +121,7 @@ export default function() {
 						}))
 					)
 					.then(payload => assign({
+						likes: +payload.tvshow.likes,
 						watching: payload.tvshow.watching > 0,
 						continueWatching: !!this.getSeasonToWatch(payload.seasons),
 					}, payload));
@@ -154,13 +157,19 @@ export default function() {
 					<infoList>
 						<info>
 							<header>
-								<title>Status</title>
+								<title>
+									{i18n('tvshow-status')}
+								</title>
 							</header>
-							<text>{TVShowStatusStrings[TVShowStatuses[status]]}</text>
+							<text>
+								{i18n(TVShowStatusStrings[TVShowStatuses[status]])}
+							</text>
 						</info>
 						<info>
 							<header>
-								<title>Genres</title>
+								<title>
+									{i18n('tvshow-genres')}
+								</title>
 							</header>
 							{genres.map(capitalizeText).map(genre => {
 								return <text key={genre}>{genre}</text>;
@@ -169,7 +178,9 @@ export default function() {
 						{actors.length && (
 							<info>
 								<header>
-									<title>Actors</title>
+									<title>
+										{i18n('tvshow-actors')}
+									</title>
 								</header>
 								{actors.map(({person_en}) => {
 									return <text key={person_en}>{person_en}</text>;
@@ -181,7 +192,9 @@ export default function() {
 			},
 
 			renderInfo() {
-				let {title, description, likes} = this.state.tvshow;
+				let {likes} = this.state;
+				let {description} = this.state.tvshow;
+				let title = i18n('tvshow-title', this.state.tvshow);
 				let hasTrailers = !!this.state.trailers.length;
 				let buttons = <row />;
 
@@ -191,35 +204,45 @@ export default function() {
 						onSelect={this.onContinueWatching}
 					>
 						<badge src="resource://button-play" />
-						<title>Continue Watching</title>
+						<title>
+							{i18n('tvshow-control-continue-watching')}
+						</title>
 					</buttonLockup>
 				);
 
 				let showTrailerBtn = (
 					<buttonLockup onSelect={this.onShowTrailer}>
 						<badge src="resource://button-preview" />
-						<title>Show{'\n'}Trailer</title>
+						<title>
+							{i18n('tvshow-control-show-trailer')}
+						</title>
 					</buttonLockup>
 				);
 
 				let startWatchingBtn = (
 					<buttonLockup onSelect={this.onAddToSubscriptions}>
 						<badge src="resource://button-add" />
-						<title>Start Watching</title>
+						<title>
+							{i18n('tvshow-control-start-watching')}
+						</title>
 					</buttonLockup>
 				);
 
 				let stopWatchingBtn = (
 					<buttonLockup onSelect={this.onRemoveFromSubscription}>
 						<badge src="resource://button-remove" />
-						<title>Stop Watching</title>
+						<title>
+							{i18n('tvshow-control-stop-watching')}
+						</title>
 					</buttonLockup>
 				);
 
 				let moreBtn = (
 					<buttonLockup onSelect={this.onMore}>
 						<badge src="resource://button-more" />
-						<title>More</title>
+						<title>
+							{i18n('tvshow-control-more')}
+						</title>
 					</buttonLockup>
 				);
 
@@ -246,7 +269,11 @@ export default function() {
 					<stack>
 						<title>{title}</title>
 						<row>
-							<text>Liked by {likes > 0 ? `${likes} people` : `no one`}</text>
+							<text>
+								{i18n('tvshow-liked-by')}
+								{' '}
+								{likes > 0 ? i18n('tvshow-liked-by-people', {likes}) : i18n('tvshow-liked-by-no-one')}
+							</text>
 						</row>
 						<description
 							handlesOverflow="true"
@@ -258,7 +285,8 @@ export default function() {
 			},
 
 			renderSeasons() {
-				let {sid, title, covers} = this.state.tvshow;
+				let {sid, covers} = this.state.tvshow;
+				let title = i18n('tvshow-title', this.state.tvshow);
 
 				let scheduleDiff = this.state.schedule
 					.slice(this.state.seasons.length)
@@ -275,7 +303,9 @@ export default function() {
 				return (
 					<shelf>
 						<header>
-							<title>Seasons</title>
+							<title>
+								{i18n('tvshow-seasons')}
+							</title>
 						</header>
 						<section>
 							{seasons.map((season, i) => {
@@ -285,7 +315,7 @@ export default function() {
 									covers: {big: poster},
 								} = season;
 
-								let seasonTitle = `Season ${seasonNumber}`;
+								let seasonTitle = i18n('tvshow-season', {seasonNumber});
 								let unwatched = calculateUnwatchedCount(season);
 								let isWatched = !unwatched;
 
@@ -302,11 +332,11 @@ export default function() {
 									date = moment(scheduleEpisode.date, 'DD.MM.YYYY');
 
 									if (!date.isValid() || nextMonth < date) {
-										dateTitle = `Soon`;
+										dateTitle = i18n('new-episode-soon');
 									} else if (nextDay > date) {
-										dateTitle = `New episode in a day`;
+										dateTitle = i18n('new-episode-day');
 									} else {
-										dateTitle = `New episode ${date.fromNow()}`;
+										dateTitle = i18n('new-episode-custom-date', {date: date.fromNow()});
 									}
 									currentMoment < date && (isWatched = false);
 								}
@@ -315,11 +345,11 @@ export default function() {
 									date = moment(begins, 'DD.MM.YYYY');
 
 									if (!date.isValid() || nextMonth < date) {
-										dateTitle = `Soon`;
+										dateTitle = i18n('new-season-soon');
 									} else if (nextDay > date) {
-										dateTitle = `New season in a day`;
+										dateTitle = i18n('new-season-day');
 									} else {
-										dateTitle = `New season ${date.fromNow()}`;
+										dateTitle = i18n('new-season-custom-date', {date: date.fromNow()});
 									}
 									isWatched = false;
 								}
@@ -347,10 +377,19 @@ export default function() {
 				return (
 					<shelf>
 						<header>
-							<title>Viewers Also Watched</title>
+							<title>
+								{i18n('tvshow-also-watched')}
+							</title>
 						</header>
 						<section>
-							{this.state.recomendations.map(({sid, title, covers: {big: poster}}) => {
+							{this.state.recomendations.map(tvshow => {
+								let {
+									sid,
+									covers: {big: poster}
+								} = tvshow;
+
+								let title = i18n('tvshow-title', tvshow);
+
 								return (
 									<Tile
 										key={sid}
@@ -377,7 +416,9 @@ export default function() {
 				return (
 					<shelf>
 						<header>
-							<title>Ratings and Reviews</title>
+							<title>
+								{i18n('tvshow-ratings')}
+							</title>
 						</header>
 						<section>
 							{!!+imdb_rating && (
@@ -385,7 +426,7 @@ export default function() {
 									<title>{(`${imdb_rating}`).slice(0, 3)} / 10</title>
 									<ratingBadge value={imdb_rating / 10} />
 									<description>
-										Average of {formatNumber(+imdb_votes, {fractionDigits: 0})} IMDB user ratings.
+										{i18n('tvshow-average-imdb', {amount: formatNumber(+imdb_votes, {fractionDigits: 0})})}
 									</description>
 								</ratingCard>
 							)}
@@ -394,7 +435,7 @@ export default function() {
 									<title>{(`${kinopoisk_rating}`).slice(0, 3)} / 10</title>
 									<ratingBadge value={kinopoisk_rating / 10} />
 									<description>
-										Average of {formatNumber(+kinopoisk_votes, {fractionDigits: 0})} Kinopoisk user ratings.
+										{i18n('tvshow-average-kinopoisk', {amount: formatNumber(+kinopoisk_votes, {fractionDigits: 0})})}
 									</description>
 								</ratingCard>
 							)}
@@ -434,7 +475,9 @@ export default function() {
 				return (
 					<shelf>
 						<header>
-							<title>Cast and Crew</title>
+							<title>
+								{i18n('tvshow-cast-crew')}
+							</title>
 						</header>
 						<section>
 							{this.state.tvshow.actors.map(actor => {
@@ -485,42 +528,58 @@ export default function() {
 					<productInfo>
 						<infoTable>
 							<header>
-								<title>Information</title>
+								<title>
+									{i18n('tvshow-information')}
+								</title>
 							</header>
 							<info>
 								<header>
-									<title>Year</title>
+									<title>
+										{i18n('tvshow-information-year')}
+									</title>
 								</header>
 								<text>{year}</text>
 							</info>
 							<info>
 								<header>
-									<title>Runtime</title>
+									<title>
+										{i18n('tvshow-information-runtime')}
+									</title>
 								</header>
 								<text>{moment.duration(+episode_runtime, 'minutes').humanize()}</text>
 							</info>
 							<info>
 								<header>
-									<title>Country</title>
+									<title>
+										{i18n('tvshow-information-country')}
+									</title>
 								</header>
 								<text>{country}</text>
 							</info>
 							<info>
 								<header>
-									<title>Network</title>
+									<title>
+										{i18n('tvshow-information-network')}
+									</title>
 								</header>
 								<text>{network}</text>
 							</info>
 						</infoTable>
 						<infoTable>
 							<header>
-								<title>Languages</title>
+								<title>
+									{i18n('tvshow-languages')}
+								</title>
 							</header>
 							<info>
 								<header>
-									<title>Primary</title>
+									<title>
+										{i18n('tvshow-languages-primary')}
+									</title>
 								</header>
-								<text>Russian, English</text>
+								<text>
+									{i18n('tvshow-languages-primary-values')}
+								</text>
 							</info>
 						</infoTable>
 					</productInfo>
@@ -541,8 +600,9 @@ export default function() {
 			onContinueWatching(event, shouldPlayImmediately) {
 				let uncompletedSeason = this.getSeasonToWatch(this.state.seasons);
 				let {season: seasonNumber} = uncompletedSeason;
-				let seasonTitle = `Season ${seasonNumber}`;
-				let {sid, title} = this.state.tvshow;
+				let seasonTitle = i18n('tvshow-season', {seasonNumber});
+				let title = i18n('tvshow-title', this.state.tvshow);
+				let {sid} = this.state.tvshow;
 
 				TVDML.navigate('season', {
 					sid,
@@ -571,18 +631,25 @@ export default function() {
 
 			onAddToSubscriptions() {
 				let {sid} = this.state.tvshow;
-				this.setState({watching: true});
+				this.setState({
+					watching: true,
+					likes: this.state.likes + 1,
+				});
 				return addToMyTVShows(sid);
 			},
 
 			onRemoveFromSubscription() {
 				let {sid} = this.state.tvshow;
-				this.setState({watching: false});
+				this.setState({
+					watching: false,
+					likes: this.state.likes - 1,
+				});
 				return removeFromMyTVShows(sid);
 			},
 
 			onShowFullDescription() {
-				let {title, description} = this.state.tvshow;
+				let title = i18n('tvshow-title', this.state.tvshow);
+				let {description} = this.state.tvshow;
 
 				TVDML
 					.renderModal(
@@ -641,15 +708,21 @@ export default function() {
 					.renderModal(
 						<document>
 							<alertTemplate>
-								<title>More</title>
+								<title>
+									{i18n('tvshow-title-more')}
+								</title>
 								{hasUnwatchedEpisodes && (
 									<button onSelect={this.onMarkTVShowAsWatched}>
-										<text>Mark TV Show as Watched</text>
+										<text>
+											{i18n('tvshow-mark-as-watched')}
+										</text>
 									</button>
 								)}
 								{hasWatchedEpisodes && (
 									<button onSelect={this.onMarkTVShowAsUnwatched}>
-										<text>Mark TV Show as Unwatched</text>
+										<text>
+											{i18n('tvshow-mark-as-unwatched')}
+										</text>
 									</button>
 								)}
 							</alertTemplate>

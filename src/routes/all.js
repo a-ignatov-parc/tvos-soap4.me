@@ -3,6 +3,8 @@
 import * as TVDML from 'tvdml';
 import assign from 'object-assign';
 
+import {get as i18n} from '../localization';
+
 import {getAllTVShows} from '../request/soap';
 import {isMenuButtonPressNavigatedTo} from '../utils';
 import {deepEqualShouldUpdate} from '../utils/components';
@@ -18,17 +20,17 @@ const COMPLETENESS = 'completeness';
 
 const sections = {
 	[NAME]: {
-		title: 'Name',
+		title: 'all-group-title-name',
 		reducer(list) {
 			return [{
-				title: 'A — Z',
+				title: i18n('all-group-name-title'),
 				items: list,
 			}];
 		},
 	},
 
 	[DATE]: {
-		title: 'Date',
+		title: 'all-group-title-date',
 		reducer(list) {
 			let collection = list
 				.slice(0)
@@ -50,7 +52,7 @@ const sections = {
 	},
 
 	[LIKES]: {
-		title: 'Likes',
+		title: 'all-group-title-likes',
 		reducer(list) {
 			let likesCollection = list
 				.slice(0)
@@ -71,10 +73,14 @@ const sections = {
 				.sort((a, b) => b - a)
 				.map(key => {
 					let {thousand, hundred, likes, items} = likesCollection[key];
-					let title = `Over ${thousand}k`;
+					let title = i18n('all-group-likes-title-over-thousand', {thousand});
 
 					if (!thousand) {
-						title = hundred ? `Over ${hundred * 100}` : `Lower ${(hundred + 1) * 100}`;
+						if (hundred) {
+							title = i18n('all-group-likes-title-over-hundred', {hundred: hundred * 100});
+						} else {
+							title = i18n('all-group-likes-title-lower-hundred', {hundred: (hundred + 1) * 100});
+						}
 					}
 					return {title, items};
 				});
@@ -82,7 +88,7 @@ const sections = {
 	},
 
 	[RATING]: {
-		title: 'Rating',
+		title: 'all-group-title-rating',
 		reducer(list) {
 			let collection = list.reduce((result, item) => {
 				if (!result[item.imdb_rating]) result[item.imdb_rating] = [];
@@ -101,23 +107,22 @@ const sections = {
 	},
 
 	[COMPLETENESS]: {
-		title: 'Completeness',
+		title: 'all-group-title-completeness',
 		reducer(list) {
 			return [{
-				title: 'Completed',
+				title: i18n('all-group-completeness-title'),
 				items: list.filter(({status}) => +status),
 			}];
 		},
 	},
 };
 
-export default function(title) {
+export default function() {
 	return TVDML
 		.createPipeline()
 		.pipe(TVDML.render(TVDML.createComponent({
 			getInitialState() {
 				return {
-					title,
 					loading: true,
 					groupId: NAME,
 				};
@@ -151,20 +156,23 @@ export default function(title) {
 					return <Loader />;
 				}
 
-				let {title, reducer} = sections[this.state.groupId];
+				let {title: titleCode, reducer} = sections[this.state.groupId];
 				let groups = reducer(this.state.series);
+				let title = i18n(titleCode);
 
 				return (
 					<document>
 						<stackTemplate>
 							<banner>
-								<title>{this.state.title}</title>
+								<title>
+									{i18n('all-caption')}
+								</title>
 							</banner>
 							<collectionList>
 								<separator>
 									<button onSelect={this.onSwitchGroup}>
 										<text>
-											Group by {title}
+											{i18n('all-group-by-title', {title})}
 											{' '}
 											<badge
 												width="31"
@@ -181,23 +189,28 @@ export default function(title) {
 											<title>{title}</title>
 										</header>
 										<section>
-											{items.map(({
-												sid,
-												title,
-												watching,
-												unwatched,
-												covers: {big: poster},
-											}) => (
-												<Tile
-													key={sid}
-													title={title}
-													route="tvshow"
-													poster={poster}
-													counter={unwatched}
-													isWatched={watching > 0 && !unwatched}
-													payload={{title, sid}}
-												/>
-											))}
+											{items.map(tvshow => {
+												let {
+													sid,
+													watching,
+													unwatched,
+													covers: {big: poster},
+												} = tvshow;
+
+												let title = i18n('tvshow-title', tvshow);
+
+												return (
+													<Tile
+														key={sid}
+														title={title}
+														route="tvshow"
+														poster={poster}
+														counter={unwatched}
+														isWatched={watching > 0 && !unwatched}
+														payload={{title, sid}}
+													/>
+												);
+											})}
 										</section>
 									</grid>
 								))}
@@ -216,14 +229,16 @@ export default function(title) {
 					.renderModal(
 						<document>
 							<alertTemplate>
-								<title>Group by</title>
-								{sectionsList.map(({id, title}) => (
+								<title>
+									{i18n('all-group-by')}
+								</title>
+								{sectionsList.map(({id, title: titleCode}) => (
 									<button
 										key={id}
 										onSelect={this.onGroupSelect.bind(this, id)}
 										autoHighlight={id === this.state.groupId || undefined}
 									>
-										<text>{title}</text>
+										<text>{i18n(titleCode)}</text>
 									</button>
 								))}
 							</alertTemplate>

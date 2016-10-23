@@ -3,6 +3,10 @@
   "version": "1.0.6",
   "description": "tvOS app for soap4.me video service https://soap4.me/",
   "main": "src/index.js",
+  "engine-strict": true,
+  "engines": {
+    "node": ">=4.0.0"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -11,11 +15,13 @@
     "url": "git+https://github.com/a-ignatov-parc/tvos-soap4.me.git"
   },
   "keywords": [
+    "soap4.me",
+    "apple",
     "tvdml",
+    "tvml",
     "tvos",
     "tvjs",
-    "appletv",
-    "soap4.me"
+    "tv"
   ],
   "author": "Anton Ignatov <abietis@gmail.com>",
   "license": "MIT",
@@ -45,10 +51,6 @@
     "gulp-util": "^3.0.7",
     "gulp-watch": "^4.3.8",
     "pretty-bytes": "^3.0.1",
-    "through2": "^2.0.1",
-    "vinyl-buffer": "^1.0.0",
-    "vinyl-source-stream": "^1.1.0",
-    "xtend": "^4.0.1",
     "yargs": "^5.0.0"
   }
 }
