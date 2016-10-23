@@ -2,6 +2,8 @@
 
 import {jsx} from 'tvdml';
 
+import {get as i18n} from '../localization';
+
 export default function Authorize({key, attrs = {}, events = {}}) {
 	let {theme} = attrs;
 	let {onAuthorize} = events;
@@ -28,13 +30,15 @@ export default function Authorize({key, attrs = {}, events = {}}) {
 			</head>
 			<alertTemplate>
 				<title class="grey_text">
-					Authorization
+					{i18n('authorize-caption')}
 				</title>
 				<description class="grey_description">
-					You need to be authorized in order to see your subscriptions or watch content
+					{i18n('authorize-description')}
 				</description>
 				<button onSelect={onAuthorize}>
-					<text>Authorize</text>
+					<text>
+						{i18n('authorize-control-trigger')}
+					</text>
 				</button>
 			</alertTemplate>
 		</document>

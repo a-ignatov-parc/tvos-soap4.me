@@ -147,4 +147,21 @@ export default {
 
 	'actor-tvshows': 'Сериалы',
 	'actor-title': 'Актер / Актриса',
+
+	'authorize-caption': 'Авторизация',
+	'authorize-description': 'Для того чтоб просматривать свои подписки и контент необходимо авторизоваться',
+	'authorize-control-trigger': 'Авторизоваться',
+
+	'login-step1-caption': 'Введите логин (e-mail не является логином)',
+	'login-step1-placeholder': 'Логин',
+	'login-step1-button': 'Далее',
+
+	'login-step2-caption': 'Введите пароль (минимум 6 символов)',
+	'login-step2-placeholder': 'Пароль',
+	'login-step2-button': 'Авторизоваться',
+
+	'login-step3-caption': 'Авторизация...',
+
+	'login-error-wrong-login': 'Не верный логин или пароль',
+	'login-error-something-went-wrong': 'Что-то пошло не так =(',
 };

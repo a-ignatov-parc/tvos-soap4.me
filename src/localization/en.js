@@ -147,4 +147,21 @@ export default {
 
 	'actor-tvshows': 'TV Shows',
 	'actor-title': 'Actor',
+
+	'authorize-caption': 'Authorization',
+	'authorize-description': 'You need to be authorized in order to see your subscriptions or watch content',
+	'authorize-control-trigger': 'Authorize',
+
+	'login-step1-caption': 'Enter user login (not e-mail)',
+	'login-step1-placeholder': 'Login',
+	'login-step1-button': 'Next',
+
+	'login-step2-caption': 'Enter account password (minimum 6 symbols)',
+	'login-step2-placeholder': 'Password',
+	'login-step2-button': 'Authorize',
+
+	'login-step3-caption': 'Authorizing...',
+
+	'login-error-wrong-login': 'Incorrect login or password',
+	'login-error-something-went-wrong': 'Something went wrong =(',
 };

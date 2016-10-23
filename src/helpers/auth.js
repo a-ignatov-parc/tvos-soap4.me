@@ -4,6 +4,7 @@ import * as TVDML from 'tvdml';
 import assign from 'object-assign';
 
 import {authorize} from '../request/soap';
+import {get as i18n} from '../localization';
 import {noop, getStartParams, removeDocumentFromNavigation} from '../utils';
 
 import Loader from '../components/loader';
@@ -42,9 +43,9 @@ export default function(options = {}) {
 		.handleRoute(getLoginRouteName(id))
 		.pipe(TVDML.passthrough(() => state = LOGIN))
 		.pipe(createForm({
-			description: 'Enter user login (not e-mail)',
-			placeholder: 'Login',
-			button: 'Next',
+			description: i18n('login-step1-caption'),
+			placeholder: i18n('login-step1-placeholder'),
+			button: i18n('login-step1-button'),
 
 			onSubmit(login) {
 				envelope.login = login;
@@ -56,9 +57,9 @@ export default function(options = {}) {
 		.handleRoute(getPasswordRouteName(id))
 		.pipe(TVDML.passthrough(() => state = PASSWORD))
 		.pipe(createForm({
-			description: 'Enter account password (minimum 6 symbols)',
-			placeholder: 'Password',
-			button: 'Authorize',
+			description: i18n('login-step2-caption'),
+			placeholder: i18n('login-step2-placeholder'),
+			button: i18n('login-step2-button'),
 			secure: true,
 
 			validate(value) {
@@ -74,7 +75,7 @@ export default function(options = {}) {
 	TVDML
 		.handleRoute(getAuthorizingRouteName(id))
 		.pipe(TVDML.passthrough(() => state = AUTHORIZING))
-		.pipe(TVDML.render(<Loader title="Authorizing..." />))
+		.pipe(TVDML.render(<Loader title={i18n('login-step3-caption')} />))
 		.pipe(() => {
 			return new Promise((resolve, reject) => {
 					let {login, password} = envelope;
