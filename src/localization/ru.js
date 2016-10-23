@@ -129,6 +129,9 @@ export default {
 	'search-latest': 'Новые сериалы',
 	'search-popular': 'Популярные сериалы',
 	'search-persons': 'Люди',
-	'search-actor': 'Актер',
+	'search-actor': 'Актер / Актриса',
 	'search-tvshows': 'Сериалы',
+
+	'actor-tvshows': 'Сериалы',
+	'actor-title': 'Актер / Актриса',
 };

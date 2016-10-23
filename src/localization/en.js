@@ -131,4 +131,7 @@ export default {
 	'search-persons': 'Persons',
 	'search-actor': 'Actor',
 	'search-tvshows': 'TV Shows',
+
+	'actor-tvshows': 'TV Shows',
+	'actor-title': 'Actor',
 };
