@@ -25,6 +25,6 @@ Now you can build Xcode project and run it in simulator or on Apple TV.
 
 ## Screenshots
 
-![Main Screen](https://cldup.com/ZEwilw0WIM.png)
-![TV Show Screen](https://cldup.com/-1J97GBf4p.png)
-![Season Screen](https://cldup.com/hZ0kRhmRdt.png)
+![Main Screen](screenshots/tvshows.png)
+![TV Show Screen](screenshots/tvshow.png)
+![Season Screen](screenshots/season.png)
