@@ -8,7 +8,7 @@ export default class EventBus {
 	subscription() {
 		let {subscriptions} = this;
 
-		let pipeline = TVDML.createPassThroughPipeline({
+		let pipeline = TVDML.createStream({
 			extend: {
 				unsubscribe() {
 					let index = subscriptions.indexOf(pipeline);
