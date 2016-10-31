@@ -8,10 +8,10 @@ export default class EventBus {
 	subscription() {
 		let {subscriptions} = this;
 
-		let pipeline = TVDML.createStream({
+		let stream = TVDML.createStream({
 			extend: {
 				unsubscribe() {
-					let index = subscriptions.indexOf(pipeline);
+					let index = subscriptions.indexOf(stream);
 
 					if (~index) {
 						subscriptions.splice(index, 1);
@@ -20,12 +20,12 @@ export default class EventBus {
 			}
 		});
 
-		subscriptions.push(pipeline);
+		subscriptions.push(stream);
 
-		return pipeline;
+		return stream;
 	}
 
 	broadcast(value) {
-		this.subscriptions.forEach(pipeline => pipeline.sink(value));
+		this.subscriptions.forEach(stream => stream.sink(value));
 	}
 }
