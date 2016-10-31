@@ -19,13 +19,12 @@ export default function(menu) {
 			},
 
 			componentDidMount() {
-				this.languageChangePipeline = localization
-					.subscription()
-					.pipe(({language}) => this.setState({language}));
+				this.languageChangeStream = localization.subscription();
+				this.languageChangeStream.pipe(({language}) => this.setState({language}));
 			},
 
 			componentWillUnmount() {
-				this.languageChangePipeline.unsubscribe();
+				this.languageChangeStream.unsubscribe();
 			},
 
 			shouldComponentUpdate: deepEqualShouldUpdate,

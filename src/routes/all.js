@@ -131,8 +131,8 @@ export default function() {
 			componentDidMount() {
 				let currentDocument = this._rootNode.ownerDocument;
 
-				this.menuButtonPressPipeline = TVDML
-					.subscribe('menu-button-press')
+				this.menuButtonPressStream = TVDML.subscribe('menu-button-press');
+				this.menuButtonPressStream
 					.pipe(isMenuButtonPressNavigatedTo(currentDocument))
 					.pipe(isNavigated => isNavigated && this.loadData().then(this.setState.bind(this)));
 
@@ -142,7 +142,7 @@ export default function() {
 			},
 
 			componentWillUnmount() {
-				this.menuButtonPressPipeline.unsubscribe();
+				this.menuButtonPressStream.unsubscribe();
 			},
 
 			shouldComponentUpdate: deepEqualShouldUpdate,

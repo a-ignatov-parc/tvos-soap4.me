@@ -11,7 +11,7 @@ export default class EventBus {
 		let stream = TVDML.createStream({
 			extend: {
 				unsubscribe() {
-					let index = subscriptions.indexOf(stream);
+					let index = subscriptions.indexOf(this);
 
 					if (~index) {
 						subscriptions.splice(index, 1);

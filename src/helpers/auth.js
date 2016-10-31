@@ -30,7 +30,7 @@ export default function(options = {}) {
 		onSuccess = noop(),
 	} = options;
 
-	let menuButtonPressPipeline = null;
+	let menuButtonPressStream = null;
 	let state = IDLE;
 
 	let routesList = [
@@ -103,26 +103,25 @@ export default function(options = {}) {
 
 		present() {
 			if (state === IDLE) {
-				menuButtonPressPipeline = TVDML
-					.subscribe('menu-button-press')
-					.pipe(({from: {route: routeFrom, modal}, to: {route: routeTo}}) => {
-						if (routeFrom === getLoginRouteName(id) && !modal) {
-							let error = new Error('User aborted login process');
-							error.code = 'EABORT';
-							onError.call(instance, error);
-							this.dismiss();
-						}
+				menuButtonPressStream = TVDML.subscribe('menu-button-press');
+				menuButtonPressStream.pipe(({from: {route: routeFrom, modal}, to: {route: routeTo}}) => {
+					if (routeFrom === getLoginRouteName(id) && !modal) {
+						let error = new Error('User aborted login process');
+						error.code = 'EABORT';
+						onError.call(instance, error);
+						this.dismiss();
+					}
 
-						if (routeTo === getLoginRouteName(id)) {
-							envelope.password = '';
-							state = LOGIN;
-						}
+					if (routeTo === getLoginRouteName(id)) {
+						envelope.password = '';
+						state = LOGIN;
+					}
 
-						if (routeTo === getPasswordRouteName(id)) {
-							envelope.reject && envelope.reject();
-							state = PASSWORD;
-						}
-					});
+					if (routeTo === getPasswordRouteName(id)) {
+						envelope.reject && envelope.reject();
+						state = PASSWORD;
+					}
+				});
 
 				return TVDML.navigate(getLoginRouteName(id));
 			} else {
@@ -153,9 +152,9 @@ export default function(options = {}) {
 		dismiss() {
 			state = IDLE;
 
-			if (menuButtonPressPipeline) {
-				menuButtonPressPipeline();
-				menuButtonPressPipeline = null;
+			if (menuButtonPressStream) {
+				menuButtonPressStream.unsubscribe();
+				menuButtonPressStream = null;
 			}
 
 			navigationDocument.documents
