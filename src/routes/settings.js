@@ -70,15 +70,13 @@ export default function() {
 			},
 
 			componentDidMount() {
-				this.userStateChangePipeline = user
-					.subscription()
-					.pipe(() => {
-						this.setState({authorized: user.isAuthorized()});
-					});
+				this.userStateChangeStream = user.subscription();
+				this.userStateChangeStream.pipe(() => {
+					this.setState({authorized: user.isAuthorized()});
+				});
 
-				this.languageChangePipeline = localization
-					.subscription()
-					.pipe(({language}) => this.setState({language}));
+				this.languageChangeStream = localization.subscription();
+				this.languageChangeStream.pipe(({language}) => this.setState({language}));
 
 				this.authHelper = authFactory({
 					onError: defaultErrorHandlers,
@@ -90,8 +88,8 @@ export default function() {
 			},
 
 			componentWillUnmount() {
-				this.userStateChangePipeline.unsubscribe();
-				this.languageChangePipeline.unsubscribe();
+				this.userStateChangeStream.unsubscribe();
+				this.languageChangeStream.unsubscribe();
 				this.authHelper.destroy();
 				this.authHelper = null;
 			},

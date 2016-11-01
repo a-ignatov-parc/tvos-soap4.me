@@ -62,16 +62,15 @@ export default function() {
 				let {sid} = this.props;
 				let currentDocument = this._rootNode.ownerDocument;
 
-				this.menuButtonPressPipeline = TVDML
-					.subscribe('menu-button-press')
+				this.menuButtonPressStream = TVDML.subscribe('menu-button-press');
+				this.menuButtonPressStream
 					.pipe(isMenuButtonPressNavigatedTo(currentDocument))
 					.pipe(isNavigated => isNavigated && this.loadData().then(this.setState.bind(this)));
 
-				this.userStateChangePipeline = user
-					.subscription()
-					.pipe(() => this.setState({
-						authorized: user.isAuthorized(),
-					}));
+				this.userStateChangeStream = user.subscription();
+				this.userStateChangeStream.pipe(() => this.setState({
+					authorized: user.isAuthorized(),
+				}));
 
 				// To improuve UX on fast request we are adding rendering timeout.
 				let waitForAnimations = new Promise((resolve) => setTimeout(resolve, 500));
@@ -82,8 +81,8 @@ export default function() {
 			},
 
 			componentWillUnmount() {
-				this.menuButtonPressPipeline.unsubscribe();
-				this.userStateChangePipeline.unsubscribe();
+				this.menuButtonPressStream.unsubscribe();
+				this.userStateChangeStream.unsubscribe();
 			},
 
 			shouldComponentUpdate: deepEqualShouldUpdate,

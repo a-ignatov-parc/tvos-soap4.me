@@ -68,11 +68,10 @@ export default function() {
 			},
 
 			componentDidMount() {
-				this.userStateChangePipeline = user
-					.subscription()
-					.pipe(() => this.setState({
-						authorized: user.isAuthorized(),
-					}));
+				this.userStateChangeStream = user.subscription();
+				this.userStateChangeStream.pipe(() => this.setState({
+					authorized: user.isAuthorized(),
+				}));
 
 				// To improuve UX on fast request we are adding rendering timeout.
 				let waitForAnimations = new Promise((resolve) => setTimeout(resolve, 500));
@@ -83,7 +82,7 @@ export default function() {
 			},
 
 			componentWillUnmount() {
-				this.userStateChangePipeline.unsubscribe();
+				this.userStateChangeStream.unsubscribe();
 			},
 
 			shouldComponentUpdate: deepEqualShouldUpdate,

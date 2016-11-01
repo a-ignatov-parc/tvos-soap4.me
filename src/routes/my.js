@@ -35,22 +35,21 @@ export default function() {
 			componentDidMount() {
 				let currentDocument = this._rootNode.ownerDocument;
 
-				this.menuButtonPressPipeline = TVDML
-					.subscribe('menu-button-press')
+				this.menuButtonPressStream = TVDML.subscribe('menu-button-press');
+				this.menuButtonPressStream
 					.pipe(isMenuButtonPressNavigatedTo(currentDocument))
 					.pipe(isNavigated => isNavigated && this.loadData().then(this.setState.bind(this)));
 
-				this.userStateChangePipeline = user
-					.subscription()
-					.pipe(() => {
-						this.setState({loading: true});
-						this.loadData().then(payload => {
-							this.setState(assign({
-								loading: false,
-								authorized: user.isAuthorized(),
-							}, payload));
-						});
+				this.userStateChangeStream = user.subscription();
+				this.userStateChangeStream.pipe(() => {
+					this.setState({loading: true});
+					this.loadData().then(payload => {
+						this.setState(assign({
+							loading: false,
+							authorized: user.isAuthorized(),
+						}, payload));
 					});
+				});
 
 				this.authHelper = authFactory({
 					onError: defaultErrorHandlers,
@@ -66,8 +65,8 @@ export default function() {
 			},
 
 			componentWillUnmount() {
-				this.menuButtonPressPipeline.unsubscribe();
-				this.userStateChangePipeline.unsubscribe();
+				this.menuButtonPressStream.unsubscribe();
+				this.userStateChangeStream.unsubscribe();
 				this.authHelper.destroy();
 				this.authHelper = null;
 			},
