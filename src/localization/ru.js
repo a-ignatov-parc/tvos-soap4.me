@@ -106,11 +106,11 @@ export default {
 	'tvshow-control-more': 'Еще',
 
 	'new-episode-soon': 'Скоро',
-	'new-episode-day': 'Эпизод в течении дня',
+	'new-episode-day': 'Эпизод в течение дня',
 	'new-episode-custom-date': ({date}) => `Эпизод ${date}`,
 
 	'new-season-soon': 'Скоро',
-	'new-season-day': 'Сезон в течении дня',
+	'new-season-day': 'Сезон в течение дня',
 	'new-season-custom-date': ({date}) => `Сезон ${date}`,
 
 	'my-caption': 'Мои',
