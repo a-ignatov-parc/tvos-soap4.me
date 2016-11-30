@@ -36,13 +36,19 @@ import Authorize from '../components/authorize';
 
 const {Promise} = TVDML;
 
-const {VIDEO_QUALITY, VIDEO_PLAYBACK} = settings.params;
+const {VIDEO_QUALITY, VIDEO_PLAYBACK, TRANSLATION} = settings.params;
 const {SD, HD, FULLHD} = settings.values[VIDEO_QUALITY];
 const {CONTINUES, BY_EPISODE} = settings.values[VIDEO_PLAYBACK];
+const {LOCALIZATION, SUBTITLES} = settings.values[TRANSLATION];
 
 const subtitlesList = [
 	localization.ORIGINAL_SUBTITLES,
 	localization.LOCALIZATION_SUBTITLES,
+];
+
+const translationOrder = [
+	LOCALIZATION,
+	SUBTITLES,
 ];
 
 export default function() {
@@ -57,11 +63,13 @@ export default function() {
 		}}) => ({sid, id, title, episodeNumber, shouldPlayImmediately})))
 		.pipe(TVDML.render(TVDML.createComponent({
 			getInitialState() {
-				let authorized = user.isAuthorized();
-				let {shouldPlayImmediately} = this.props;
+				const authorized = user.isAuthorized();
+				const {shouldPlayImmediately} = this.props;
+				const translation = settings.get(TRANSLATION);
 
 				return {
 					authorized,
+					translation,
 					loading: true,
 					shouldPlayImmediately,
 				};
@@ -111,12 +119,16 @@ export default function() {
 
 				let {
 					episodes,
+					translation,
 					season: {season: seasonNumber},
 				} = this.state;
 
 				let highlighted = false;
+				let settingsTranslation = settings.get(TRANSLATION);
 				let title = i18n('tvshow-title', this.state.tvshow);
 				let seasonTitle = i18n('tvshow-season', {seasonNumber});
+
+				console.log(987, translation, this.state);
 
 				let poster = (
 					<img
@@ -168,6 +180,17 @@ export default function() {
 								<segmentBarHeader>
 									<title>{title}</title>
 									<subtitle>{seasonTitle}</subtitle>
+									<segmentBar>
+										{translationOrder.map(item => (
+											<segmentBarItem
+												key={item}
+												autoHighlight={settingsTranslation === item ? true : undefined}
+												onHighlight={this.switchLocalTranslation.bind(this, item)}
+											>
+												<title>{i18n(`translation-${item}`)}</title>
+											</segmentBarItem>
+										))}
+									</segmentBar>
 								</segmentBarHeader>
 								<section>
 									{episodes.map((episode, i) => {
@@ -195,7 +218,7 @@ export default function() {
 											);
 										}
 
-										let file = getEpisodeMedia(episode);
+										let file = getEpisodeMedia(episode, translation);
 										let mediaQualityCode = file && mediaQualities[file.quality];
 										let mediaTranslationCode = file && mediaLocalizations[file.translate];
 
@@ -297,6 +320,11 @@ export default function() {
 				);
 			},
 
+			switchLocalTranslation(translation) {
+				console.log('switchLocalTranslation', translation);
+				this.setState({translation});
+			},
+
 			onHighlightedItemRender(episode, node) {
 				let {episode: episodeNumber} = episode;
 
@@ -308,7 +336,7 @@ export default function() {
 
 			onPlayEpisode(episodeNumber) {
 				let {sid, id} = this.props;
-				let {episodes, poster, authorized} = this.state;
+				let {episodes, poster, authorized, translation} = this.state;
 				let markAsWatched = this.onMarkAsWatched.bind(this);
 
 				if (!authorized) {
@@ -349,14 +377,14 @@ export default function() {
 						items(item, request) {
 							let episodeNumber = resolvers[request] && resolvers[request](item);
 							let episode = getEpisode(episodeNumber, episodes);
-							return getEpisodeItem(sid, episode, poster);
+							return getEpisodeItem(sid, episode, poster, translation);
 						},
 
 						markAsStopped(item, elapsedTime) {
 							let {id} = item;
 							let [sid, season, episodeNumber] = id.split('-');
 							let episode = getEpisode(episodeNumber, episodes);
-							let {eid} = getEpisodeMedia(episode);
+							let {eid} = getEpisodeMedia(episode, translation);
 							return saveElapsedTime(eid, elapsedTime);
 						},
 
@@ -464,7 +492,7 @@ function getEpisode(episodeNumber, episodes) {
 	return episode;
 }
 
-function getEpisodeItem(sid, episode, poster) {
+function getEpisodeItem(sid, episode, poster, translation) {
 	if (!episode) return null;
 
 	let {
@@ -478,7 +506,7 @@ function getEpisodeItem(sid, episode, poster) {
 	let description = processEntitiesInString(spoiler);
 
 	let id = [sid, season, episodeNumber].join('-');
-	let file = getEpisodeMedia(episode);
+	let file = getEpisodeMedia(episode, translation);
 	let media = {sid, file};
 
 	return getMediaStream(media).then(({stream, start_from}) => ({

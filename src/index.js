@@ -26,11 +26,11 @@ TVDML
 	.handleRoute('get-token')
 	.pipe(TVDML.render(<Loader title={i18n('auth-checking')} />))
 	.pipe(() => checkSession().then(({logged, token, till}) => user.set({logged, token, till})))
-	.pipe(() => TVDML.redirect('main'));
+	// .pipe(() => TVDML.redirect('main'));
 	// 
 	// Testing routes
 	// .pipe(() => TVDML.redirect('tvshow', {sid: '296', title: 'Arrow'}));
-	// .pipe(() => TVDML.redirect('season', {sid: '296', id: '4', title: 'Arrow — Season 4'}));
+	.pipe(() => TVDML.redirect('season', {sid: '296', id: '4', title: 'Arrow — Season 4'}));
 	// .pipe(() => TVDML.redirect('tvshow', {sid: '692', title: 'Bref'}));
 	// .pipe(() => TVDML.redirect('season', {sid: '692', id: '1', title: 'Bref — Season 1'}));
 

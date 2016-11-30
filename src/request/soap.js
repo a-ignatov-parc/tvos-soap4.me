@@ -218,9 +218,9 @@ export function getActorInfo(id) {
 	return get(`https://api.soap4.me/v2/soap/person/${id}/`);
 }
 
-export function getEpisodeMedia({files = []}) {
+export function getEpisodeMedia({files = []}, translation) {
 	let qualitySettings = settings.get(VIDEO_QUALITY);
-	let translationSettings = settings.get(TRANSLATION);
+	let translationSettings = translation || settings.get(TRANSLATION);
 
 	let qualityRanking = mediaQualityRanking.slice(mediaQualityRanking.indexOf(qualitySettings));
 	let localizationRanking = mediaLocalizationRanking[translationSettings];
