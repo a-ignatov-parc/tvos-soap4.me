@@ -6,6 +6,7 @@ export default {
 	'menu-all': 'TV Shows',
 	'menu-search': 'Search',
 	'menu-settings': 'Settings',
+	'menu-login': 'Login',
 
 	'settings-caption': 'Settings',
 

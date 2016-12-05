@@ -2,6 +2,7 @@
 
 import * as TVDML from 'tvdml';
 
+import * as user from '../user';
 import * as localization from '../localization';
 import {deepEqualShouldUpdate} from '../utils/components';
 
@@ -43,6 +44,16 @@ export default function(menu) {
 										<title>{localization.get(`menu-${route}`)}</title>
 									</menuItem>
 								))}
+								<menuItem
+									key="nickname"
+									route="user"
+								>
+									{user.isAuthorized() ? (
+										<title>👤 {user.getLogin()}</title>
+									) : (
+										<title>{localization.get('menu-login')}</title>
+									)}
+								</menuItem>
 							</menuBar>
 						</menuBarTemplate>
 					</document>

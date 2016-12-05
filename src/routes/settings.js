@@ -92,8 +92,8 @@ export default function() {
 
 				this.authHelper = authFactory({
 					onError: defaultErrorHandlers,
-					onSuccess({token, till}, login) {
-						user.set({token, till, login, logged: 1});
+					onSuccess({token, till}) {
+						user.set({token, till, logged: 1});
 						this.dismiss();
 					},
 				});

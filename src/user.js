@@ -10,7 +10,6 @@ const cache = {
 
 const contract = [
 	'till',
-	'login',
 	'token',
 	'logged',
 	'family',
@@ -59,7 +58,7 @@ export function getToken() {
 }
 
 export function getLogin() {
-	return get().login;
+	return get().selected.name;
 }
 
 export function isExtended() {

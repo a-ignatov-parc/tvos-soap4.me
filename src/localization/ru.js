@@ -6,6 +6,7 @@ export default {
 	'menu-all': 'Сериалы',
 	'menu-search': 'Поиск',
 	'menu-settings': 'Настройки',
+	'menu-login': 'Войти',
 
 	'settings-caption': 'Настройки',
 
