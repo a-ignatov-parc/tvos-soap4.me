@@ -164,4 +164,7 @@ export default {
 
 	'login-error-wrong-login': 'Incorrect login or password',
 	'login-error-something-went-wrong': 'Something went wrong =(',
+
+	'translation-localization': 'Localization',
+	'translation-subtitles': 'Subtitles',
 };
