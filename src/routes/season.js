@@ -540,5 +540,5 @@ function getSeasonExtendedData(season, schedule) {
 }
 
 function someEpisodesHasSubtitles(episodes) {
-	return episodes.some(({files}) => files.some(({translate}) => mediaLocalizations[translate] !== localization.LOCALIZATION));
+	return episodes.some(({files = []}) => files.some(({translate}) => mediaLocalizations[translate] !== localization.LOCALIZATION));
 }

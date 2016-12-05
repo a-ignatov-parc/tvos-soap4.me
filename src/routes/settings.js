@@ -11,7 +11,7 @@ import authFactory from '../helpers/auth';
 import {deepEqualShouldUpdate} from '../utils/components';
 import {defaultErrorHandlers} from '../helpers/auth/handlers';
 
-import {logout, version} from '../request/soap';
+import {logout, version, checkSession} from '../request/soap';
 import {getStartParams} from '../utils';
 
 const {get: i18n} = localization;
@@ -76,7 +76,19 @@ export default function() {
 				});
 
 				this.languageChangeStream = localization.subscription();
-				this.languageChangeStream.pipe(({language}) => this.setState({language}));
+				this.languageChangeStream.pipe(({language}) => {
+					this.createAuthHelper();
+					this.setState({language});
+				});
+
+				this.createAuthHelper();
+			},
+
+			createAuthHelper() {
+				if (this.authHelper) {
+					this.authHelper.destroy();
+					this.authHelper = null;
+				}
 
 				this.authHelper = authFactory({
 					onError: defaultErrorHandlers,
@@ -291,6 +303,8 @@ export default function() {
 			onLogout() {
 				logout()
 					.then(user.clear)
+					.then(checkSession)
+					.then(({logged, token, till}) => user.set({logged, token, till}))
 					.then(() => TVDML.removeModal());
 			},
 
