@@ -164,4 +164,7 @@ export default {
 
 	'login-error-wrong-login': 'Не верный логин или пароль',
 	'login-error-something-went-wrong': 'Что-то пошло не так =(',
+
+	'translation-localization': 'Озвучка',
+	'translation-subtitles': 'Субтитры',
 };

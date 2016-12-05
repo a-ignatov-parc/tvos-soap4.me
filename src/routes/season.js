@@ -109,6 +109,9 @@ export default function() {
 						season: {season: id},
 						poster: payload.tvshow.covers.big,
 						episodes: payload.schedule[id - 1].episodes,
+					}))
+					.then(payload => assign({}, payload, {
+						episodesHasSubtitles: someEpisodesHasSubtitles(payload.episodes),
 					}));
 			},
 
@@ -120,6 +123,7 @@ export default function() {
 				let {
 					episodes,
 					translation,
+					episodesHasSubtitles,
 					season: {season: seasonNumber},
 				} = this.state;
 
@@ -127,8 +131,6 @@ export default function() {
 				let settingsTranslation = settings.get(TRANSLATION);
 				let title = i18n('tvshow-title', this.state.tvshow);
 				let seasonTitle = i18n('tvshow-season', {seasonNumber});
-
-				console.log(987, translation, this.state);
 
 				let poster = (
 					<img
@@ -180,17 +182,19 @@ export default function() {
 								<segmentBarHeader>
 									<title>{title}</title>
 									<subtitle>{seasonTitle}</subtitle>
-									<segmentBar>
-										{translationOrder.map(item => (
-											<segmentBarItem
-												key={item}
-												autoHighlight={settingsTranslation === item ? true : undefined}
-												onHighlight={this.switchLocalTranslation.bind(this, item)}
-											>
-												<title>{i18n(`translation-${item}`)}</title>
-											</segmentBarItem>
-										))}
-									</segmentBar>
+									{episodesHasSubtitles && (
+										<segmentBar>
+											{translationOrder.map(item => (
+												<segmentBarItem
+													key={item}
+													autoHighlight={settingsTranslation === item ? true : undefined}
+													onHighlight={this.switchLocalTranslation.bind(this, item)}
+												>
+													<title>{i18n(`translation-${item}`)}</title>
+												</segmentBarItem>
+											))}
+										</segmentBar>
+									)}
 								</segmentBarHeader>
 								<section>
 									{episodes.map((episode, i) => {
@@ -321,7 +325,6 @@ export default function() {
 			},
 
 			switchLocalTranslation(translation) {
-				console.log('switchLocalTranslation', translation);
 				this.setState({translation});
 			},
 
@@ -534,4 +537,8 @@ function getSeasonExtendedData(season, schedule) {
 		poster,
 		episodes,
 	});
+}
+
+function someEpisodesHasSubtitles(episodes) {
+	return episodes.some(({files}) => files.some(({translate}) => mediaLocalizations[translate] !== localization.LOCALIZATION));
 }
