@@ -1,5 +1,6 @@
 export default {
 	'auth-checking': 'Проверяем авторизацию...',
+	'account-migration': 'Миграция семейного аккаунта...',
 
 	'menu-my': 'Мои',
 	'menu-all': 'Сериалы',

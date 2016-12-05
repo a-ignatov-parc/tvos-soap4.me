@@ -13,6 +13,8 @@ const contract = [
 	'login',
 	'token',
 	'logged',
+	'family',
+	'selected',
 ];
 
 export const subscription = bus.subscription.bind(bus);

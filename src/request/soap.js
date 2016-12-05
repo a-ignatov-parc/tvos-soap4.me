@@ -103,6 +103,14 @@ export function authorize({login, password}) {
 	return post('https://api.soap4.me/v2/auth/', {login, password});
 }
 
+export function getFamilyAccounts() {
+	return get('https://api.soap4.me/v2/family/');
+}
+
+export function migrateToFamilyAccount() {
+	return post('https://api.soap4.me/v2/family/migrate/');
+}
+
 export function logout() {
 	return post('https://api.soap4.me/v2/auth/logout/');
 }

@@ -1,5 +1,6 @@
 export default {
 	'auth-checking': 'Checking authorization...',
+	'account-migration': 'Migrating to family account...',
 
 	'menu-my': 'My',
 	'menu-all': 'TV Shows',
