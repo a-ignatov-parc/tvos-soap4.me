@@ -9,6 +9,7 @@ import {checkSession, migrateToFamilyAccount, getFamilyAccounts} from './request
 import MyRoute from './routes/my';
 import AllRoute from './routes/all';
 import MenuRoute from './routes/menu';
+import UserRoute from './routes/user';
 import ActorRoute from './routes/actor';
 import SeasonRoute from './routes/season';
 import TVShowRoute from './routes/tvshow';
@@ -29,7 +30,8 @@ TVDML
 	.pipe(() => getFamilyAccounts().then(({family, selected}) => user.set({family, selected})))
 	.pipe(({family}) => {
 		if (family.length) {
-			TVDML.redirect('main');
+			TVDML.redirect('user');
+			// TVDML.redirect('main');
 		} else {
 			TVDML.redirect('family-account-migration');
 		}
@@ -87,3 +89,7 @@ TVDML
 TVDML
 	.handleRoute('speedtest')
 	.pipe(SpeedTestRoute());
+
+TVDML
+	.handleRoute('user')
+	.pipe(UserRoute());

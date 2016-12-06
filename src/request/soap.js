@@ -111,6 +111,22 @@ export function migrateToFamilyAccount() {
 	return post('https://api.soap4.me/v2/family/migrate/');
 }
 
+export function selectAccount(fid) {
+	return post(`https://api.soap4.me/v2/family/set/${fid}/`, {fid});
+}
+
+export function addAccount(name) {
+	return post('https://api.soap4.me/v2/family/add/', {name});
+}
+
+export function renameAccount(fid, name) {
+	return post(`https://api.soap4.me/v2/family/rename/${fid}/`, {fid, name});
+}
+
+export function deleteAccount(fid) {
+	return post(`https://api.soap4.me/v2/family/remove/${fid}/`, {fid});
+}
+
 export function logout() {
 	return post('https://api.soap4.me/v2/auth/logout/');
 }

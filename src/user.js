@@ -58,7 +58,7 @@ export function getToken() {
 }
 
 export function getLogin() {
-	return get().selected.name;
+	return (get().selected || {}).name;
 }
 
 export function isExtended() {

@@ -11,11 +11,15 @@ export default function(menu) {
 		.createPipeline()
 		.pipe(TVDML.render(TVDML.createComponent({
 			getInitialState() {
-				let language = localization.getLanguage();
+				const language = localization.getLanguage();
+				const authorized = user.isAuthorized();
+				const nickname = user.getLogin();
 
 				return {
 					menu,
+					nickname,
 					language,
+					authorized,
 				};
 			},
 
@@ -31,11 +35,17 @@ export default function(menu) {
 			shouldComponentUpdate: deepEqualShouldUpdate,
 
 			render() {
+				const {
+					menu,
+					nickname,
+					authorized,
+				} = this.state;
+
 				return (
 					<document>
 						<menuBarTemplate>
 							<menuBar>
-								{this.state.menu.map(({route, active}) => (
+								{menu.map(({route, active}) => (
 									<menuItem
 										key={route}
 										route={route}
@@ -48,8 +58,8 @@ export default function(menu) {
 									key="nickname"
 									route="user"
 								>
-									{user.isAuthorized() ? (
-										<title>👤 {user.getLogin()}</title>
+									{authorized ? (
+										<title>👤 {nickname}</title>
 									) : (
 										<title>{localization.get('menu-login')}</title>
 									)}
