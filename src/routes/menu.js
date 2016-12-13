@@ -26,10 +26,21 @@ export default function(menu) {
 			componentDidMount() {
 				this.languageChangeStream = localization.subscription();
 				this.languageChangeStream.pipe(({language}) => this.setState({language}));
+
+				this.userStateChangeStream = user.subscription();
+				this.userStateChangeStream.pipe(() => {
+					const authorized = user.isAuthorized();
+					const nickname = user.getLogin();
+
+					console.log(8765, this.state, nickname);
+
+					this.setState({nickname, authorized});
+				});
 			},
 
 			componentWillUnmount() {
 				this.languageChangeStream.unsubscribe();
+				this.userStateChangeStream.unsubscribe();
 			},
 
 			shouldComponentUpdate: deepEqualShouldUpdate,

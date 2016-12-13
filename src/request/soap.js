@@ -132,7 +132,7 @@ export function logout() {
 }
 
 export function getMyTVShows() {
-	return get('https://api.soap4.me/v2/soap/my/');
+	return get('https://api.soap4.me/v2/soap/my/').then(...emptyOrErrorsResolvers([]));
 }
 
 export function getAllTVShows() {

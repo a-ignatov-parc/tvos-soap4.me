@@ -10,7 +10,7 @@ import {get as i18n} from '../localization';
 import {defaultErrorHandlers} from '../helpers/auth/handlers';
 
 import {getMyTVShows, getMySchedule} from '../request/soap';
-import {isMenuButtonPressNavigatedTo} from '../utils';
+import {link, isMenuButtonPressNavigatedTo} from '../utils';
 import {deepEqualShouldUpdate} from '../utils/components';
 
 import Tile from '../components/tile';
@@ -92,6 +92,37 @@ export default function() {
 
 				if (!this.state.authorized) {
 					return <Authorize theme="dark" onAuthorize={this.onLogin} />;
+				}
+
+				if (!this.state.series.length) {
+					return (
+						<document>
+							<head>
+								<style content={`
+									.grey_text {
+										color: rgb(84, 82, 80);
+									}
+
+									.grey_description {
+										color: rgb(132, 133, 135);
+									}
+								`} />
+							</head>
+							<alertTemplate>
+								<title class="grey_text">
+									You don't have any subscriptions
+								</title>
+								<description class="grey_description">
+									You can start from adding some tv series from "TV Shows" sections
+								</description>
+								<button onSelect={link('all')}>
+									<text>
+										Go to TV Shows
+									</text>
+								</button>
+							</alertTemplate>
+						</document>
+					);
 				}
 
 				let watching = this.state.series.filter(({watching}) => watching > 0);

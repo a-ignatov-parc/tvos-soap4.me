@@ -43,18 +43,17 @@ export default function() {
 					authorized,
 				} = this.state;
 
-				const {fid: currentFid} = selected;
+				const currentFid = `${selected.fid}`;
 
-				const accountsList = family.slice(0);
-
-				if (accountsList.length < 3) {
-					accountsList.push({
+				const accountsList = [...Array(3)].map((item, i) => {
+					if (family[i]) return family[i];
+					return {
 						firstName: '+',
-						fid: ADD_ACCOUNT,
 						action: ADD_ACCOUNT,
 						name: 'Add new account',
-					});
-				}
+						disabled: i !== family.length,
+					};
+				});
 
 				return (
 					<document>
@@ -68,13 +67,12 @@ export default function() {
 								<shelf centered="true" style="tv-interitem-spacing: 100; margin: 247 0 0">
 									<section>
 										{accountsList.map(account => {
-											const {fid, name, firstName} = account;
+											const {fid, name, firstName, disabled} = account;
 											const isActive = currentFid === fid;
 
 											return (
 												<monogramLockup
-													key={fid}
-													disabled={isActive}
+													disabled={isActive || disabled}
 													onSelect={this.onActivate.bind(this, account)}
 													onHoldselect={this.onAction.bind(this, account)}
 												>
@@ -201,7 +199,12 @@ export default function() {
 			},
 
 			selectAccount(fid) {
-				console.log('selectAccount', fid);
+				return selectAccount(fid)
+					.then(getFamilyAccounts)
+					.then(({family, selected}) => {
+						user.set({family, selected});
+						this.setState({family, selected});
+					});
 			},
 
 			renameAccount(fid) {
@@ -209,7 +212,7 @@ export default function() {
 			},
 
 			deleteAccount(fid) {
-				deleteAccount(fid)
+				return deleteAccount(fid)
 					.then(getFamilyAccounts)
 					.then(({family, selected}) => {
 						user.set({family, selected});

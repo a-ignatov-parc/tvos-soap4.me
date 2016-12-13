@@ -19,8 +19,6 @@ const contract = [
 export const subscription = bus.subscription.bind(bus);
 
 export function set(payload) {
-	let prevState = isAuthorized();
-
 	cache.payload = Object
 		.keys(payload)
 		.reduce((result, key) => {
@@ -35,11 +33,7 @@ export function set(payload) {
 		}, cache.payload);
 
 	localStorage.setItem(STORAGE_KEY, JSON.stringify(cache.payload));
-
-	if (prevState !== isAuthorized()) {
-		bus.broadcast(cache);
-	}
-
+	bus.broadcast(cache.payload);
 	return cache.payload;
 }
 
@@ -50,7 +44,7 @@ export function get() {
 export function clear() {
 	cache.payload = {};
 	localStorage.removeItem(STORAGE_KEY);
-	bus.broadcast(cache);
+	bus.broadcast(cache.payload);
 }
 
 export function getToken() {

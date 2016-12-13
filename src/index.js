@@ -30,8 +30,8 @@ TVDML
 	.pipe(() => getFamilyAccounts().then(({family, selected}) => user.set({family, selected})))
 	.pipe(({family}) => {
 		if (family.length) {
-			TVDML.redirect('user');
-			// TVDML.redirect('main');
+			// TVDML.redirect('user');
+			TVDML.redirect('main');
 		} else {
 			TVDML.redirect('family-account-migration');
 		}
