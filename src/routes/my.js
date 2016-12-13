@@ -17,6 +17,8 @@ import Tile from '../components/tile';
 import Loader from '../components/loader';
 import Authorize from '../components/authorize';
 
+import commonStyles from '../common/styles';
+
 const {Promise} = TVDML;
 
 export default function() {
@@ -98,15 +100,7 @@ export default function() {
 					return (
 						<document>
 							<head>
-								<style content={`
-									.grey_text {
-										color: rgb(84, 82, 80);
-									}
-
-									.grey_description {
-										color: rgb(132, 133, 135);
-									}
-								`} />
+								{commonStyles}
 							</head>
 							<alertTemplate>
 								<title class="grey_text">
