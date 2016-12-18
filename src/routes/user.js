@@ -6,16 +6,22 @@ import * as user from '../user';
 import {get as i18n} from '../localization';
 import {deepEqualShouldUpdate} from '../utils/components';
 import {
+	logout,
 	addAccount,
 	selectAccount,
 	renameAccount,
 	deleteAccount,
+	checkSession,
 	getFamilyAccounts,
+	turnOffFamilyAccount,
+	migrateToFamilyAccount,
 } from '../request/soap';
 
 import Loader from '../components/loader';
 
 const ADD_ACCOUNT = 'add_account';
+const TURN_ON_FAMILY_ACCOUNT = 'turn_on_family_account';
+const TURN_OFF_FAMILY_ACCOUNT = 'turn_off_family_account';
 
 const nameRegex = /^[a-zа-я0-9_ ]{1,50}$/i;
 
@@ -24,13 +30,20 @@ export default function() {
 		.createPipeline()
 		.pipe(TVDML.render(TVDML.createComponent({
 			getInitialState() {
+				return this.getStateData();
+			},
+
+			getStateData() {
 				const authorized = user.isAuthorized();
 				const {family, selected} = user.get();
+				const isFamilyAccount = user.isFamily();
+				const mainAccount = user.getMainAccount();
 
 				return {
 					family,
-					selected,
 					authorized,
+					isFamilyAccount,
+					selected : selected || mainAccount,
 				};
 			},
 
@@ -41,19 +54,27 @@ export default function() {
 					family,
 					selected,
 					authorized,
+					isFamilyAccount,
 				} = this.state;
+
+				console.log(888, this.state);
 
 				const currentFid = `${selected.fid}`;
 
-				const accountsList = [...Array(3)].map((item, i) => {
-					if (family[i]) return family[i];
-					return {
+				const accountsList = isFamilyAccount
+					? family.concat({
 						firstName: '+',
 						action: ADD_ACCOUNT,
 						name: 'Add new account',
-						disabled: i !== family.length,
-					};
-				});
+					})
+					: [selected];
+
+				// Исправление рендеринга списка аккаунтов.
+				// Если изменять количество элементов в `shelf` и не тригерить пересчет стилей 
+				// на самом `shelf`, то будут артефакты позиционирования. Для того чтоб это 
+				// исправить изменяем значение боковых отсутпов для того чтоб TVMLKit запустил 
+				// пересчет геометрии.
+				const shelfStyles = `tv-interitem-spacing: 100; margin: 247 ${accountsList.length} 0`;
 
 				return (
 					<document>
@@ -64,7 +85,7 @@ export default function() {
 								</title>
 							</banner>
 							<collectionList>
-								<shelf centered="true" style="tv-interitem-spacing: 100; margin: 247 0 0">
+								<shelf centered="true" style={shelfStyles}>
 									<section>
 										{accountsList.map(account => {
 											const {fid, name, firstName, disabled} = account;
@@ -72,7 +93,7 @@ export default function() {
 
 											return (
 												<monogramLockup
-													disabled={isActive || disabled}
+													disabled={disabled}
 													onSelect={this.onActivate.bind(this, account)}
 													onHoldselect={this.onAction.bind(this, account)}
 												>
@@ -92,7 +113,23 @@ export default function() {
 									</section>
 								</shelf>
 								<row style="tv-align: center">
-									<button>
+									{isFamilyAccount ? (
+										<button onSelect={this.onTurnOffFamilyAccountAttempt}>
+											<text>
+												Turn Off Family Account
+											</text>
+										</button>
+									) : (
+										<button onSelect={this.onTurnOnFamilyAccountAttempt}>
+											<text>
+												Turn On Family Account
+											</text>
+										</button>
+									)}
+									
+								</row>
+								<row style="tv-align: center; margin: 80 0 0">
+									<button onSelect={this.onLogoutAttempt}>
 										<text>
 											Logout
 										</text>
@@ -104,27 +141,63 @@ export default function() {
 				);
 			},
 
-			onActivate(account) {
-				if (account.action === ADD_ACCOUNT) {
-					return this.addAccount();
-				}
-
-				this.selectAccount(account.fid);
+			onTurnOnFamilyAccount() {
+				return migrateToFamilyAccount().then(this.fetchAccountUpdate.bind(this));
 			},
 
-			onAction(account) {
+			onTurnOffFamilyAccount() {
+				return turnOffFamilyAccount().then(this.fetchAccountUpdate.bind(this));
+			},
+
+			onTurnOnFamilyAccountAttempt() {
+				this.onSwitchFamilyAccountStateAttempt(TURN_ON_FAMILY_ACCOUNT);
+			},
+
+			onTurnOffFamilyAccountAttempt() {
+				this.onSwitchFamilyAccountStateAttempt(TURN_OFF_FAMILY_ACCOUNT);
+			},
+
+			onSwitchFamilyAccountStateAttempt(state) {
 				TVDML
 					.renderModal(
 						<document>
 							<alertTemplate>
-								<title>
-									{account.name}
-								</title>
-								<button onSelect={() => {
-									this.deleteAccount(account.fid);
-									TVDML.removeModal();
-								}}>
-									<text>Delete</text>
+								{state === TURN_ON_FAMILY_ACCOUNT && (
+									<title>
+										Are you sure you want to turn on Family Accounts?
+									</title>
+								)}
+								{state === TURN_OFF_FAMILY_ACCOUNT && (
+									<title>
+										Are you sure you want to turn off Family Accounts?
+									</title>
+								)}
+								{state === TURN_ON_FAMILY_ACCOUNT && (
+									<button onSelect={() => {
+										this
+											.onTurnOnFamilyAccount()
+											.then(TVDML.removeModal);
+									}}>
+										<text>
+											Turn On
+										</text>
+									</button>
+								)}
+								{state === TURN_OFF_FAMILY_ACCOUNT && (
+									<button onSelect={() => {
+										this
+											.onTurnOffFamilyAccount()
+											.then(TVDML.removeModal);
+									}}>
+										<text>
+											Turn Off
+										</text>
+									</button>
+								)}
+								<button onSelect={() => TVDML.removeModal()}>
+									<text>
+										Cancel
+									</text>
 								</button>
 							</alertTemplate>
 						</document>
@@ -132,9 +205,111 @@ export default function() {
 					.sink();
 			},
 
-			addAccount() {
-				const setState = this.setState.bind(this);
+			onLogout() {
+				logout()
+					.then(user.clear)
+					.then(checkSession)
+					.then(({logged, token, till}) => user.set({logged, token, till}))
+					.then(getFamilyAccounts)
+					.then(({family, selected}) => {
+						user.set({family, selected});
+						this.setState(this.getStateData());
+					})
+					.then(() => TVDML.removeModal());
+			},
 
+			onLogoutAttempt() {
+				TVDML
+					.renderModal(
+						<document>
+							<alertTemplate>
+								<title>
+									{i18n('settings-logout-caption')}
+								</title>
+								<button onSelect={this.onLogout}>
+									<text>
+										{i18n('settings-logout-logout_btn')}
+									</text>
+								</button>
+								<button onSelect={() => TVDML.removeModal()}>
+									<text>
+										{i18n('settings-logout-cancel_btn')}
+									</text>
+								</button>
+							</alertTemplate>
+						</document>
+					)
+					.sink();
+			},
+
+			onActivate(account) {
+				if (this.state.selected === account) return;
+
+				if (account.action === ADD_ACCOUNT) {
+					return this.showUserRenamePopover({
+						title: 'Account creation',
+						description: 'Enter name for new account.',
+						button: 'Add',
+						submit: value => {
+							this
+								.addAccount(value)
+								.then(TVDML.removeModal);
+						},
+					});
+				}
+
+				this.selectAccount(account.fid);
+			},
+
+			onAction(account) {
+				const isActive = this.state.selected === account;
+
+				TVDML
+					.renderModal(
+						<document>
+							<alertTemplate>
+								<title>
+									What you want to do with "{account.name}"?
+								</title>
+								{!isActive && (
+									<button onSelect={() => {
+										this
+											.selectAccount(account.fid)
+											.then(TVDML.removeModal);
+									}}>
+										<text>Set as Active</text>
+									</button>
+								)}
+								<button onSelect={() => {
+									this.showUserRenamePopover({
+										title: `Rename account "${account.name}"`,
+										description: 'Enter new name for the account.',
+										button: 'Update',
+										submit: value => {
+											this
+												.renameAccount(account.fid, value)
+												.then(TVDML.removeModal);
+										},
+									});
+								}}>
+									<text>Rename</text>
+								</button>
+								{!isActive && (
+									<button onSelect={() => {
+										this
+											.deleteAccount(account.fid)
+											.then(TVDML.removeModal);
+									}}>
+										<text>Delete</text>
+									</button>
+								)}
+							</alertTemplate>
+						</document>
+					)
+					.sink();
+			},
+
+			showUserRenamePopover(params = {}) {
 				TVDML
 					.renderModal(TVDML.createComponent({
 						getInitialState() {
@@ -164,10 +339,10 @@ export default function() {
 									<formTemplate>
 										<banner>
 											<title>
-												Account creation
+												{params.title}
 											</title>
 											<description>
-												Enter name for new account.
+												{params.description}
 											</description>
 										</banner>
 										<textField ref={node => this.textField = node} />
@@ -176,7 +351,9 @@ export default function() {
 												onSelect={this.onSubmit}
 												disabled={!this.state.valid}
 											>
-												<text>Add</text>
+												<text>
+													{params.button}
+												</text>
 											</button>
 										</footer>
 									</formTemplate>
@@ -185,39 +362,37 @@ export default function() {
 						},
 
 						onSubmit() {
-							this.setState({loading: true})
-							addAccount(this.state.value)
-								.then(getFamilyAccounts)
-								.then(({family, selected}) => {
-									user.set({family, selected});
-									setState({family, selected});
-									TVDML.removeModal();
-								});
+							this.setState({loading: true});
+
+							if (typeof(params.submit) === 'function') {
+								params.submit(this.state.value);
+							}
 						},
 					}))
 					.sink();
 			},
 
 			selectAccount(fid) {
-				return selectAccount(fid)
-					.then(getFamilyAccounts)
-					.then(({family, selected}) => {
-						user.set({family, selected});
-						this.setState({family, selected});
-					});
+				return selectAccount(fid).then(this.fetchAccountUpdate.bind(this));
 			},
 
-			renameAccount(fid) {
-				console.log('renameAccount', fid);
+			addAccount(name) {
+				return addAccount(name).then(this.fetchAccountUpdate.bind(this));
+			},
+
+			renameAccount(fid, name) {
+				return renameAccount(fid, name).then(this.fetchAccountUpdate.bind(this));
 			},
 
 			deleteAccount(fid) {
-				return deleteAccount(fid)
-					.then(getFamilyAccounts)
-					.then(({family, selected}) => {
-						user.set({family, selected});
-						this.setState({family, selected});
-					});
+				return deleteAccount(fid).then(this.fetchAccountUpdate.bind(this));
+			},
+
+			fetchAccountUpdate() {
+				return getFamilyAccounts().then(({family, selected}) => {
+					user.set({family, selected});
+					this.setState(this.getStateData());
+				});
 			},
 		})));
 }

@@ -4,7 +4,7 @@ import * as TVDML from 'tvdml';
 import * as user from './user';
 
 import {get as i18n} from './localization';
-import {checkSession, migrateToFamilyAccount, getFamilyAccounts} from './request/soap';
+import {checkSession, getFamilyAccounts} from './request/soap';
 
 import MyRoute from './routes/my';
 import AllRoute from './routes/all';
@@ -28,20 +28,14 @@ TVDML
 	.pipe(TVDML.render(<Loader title={i18n('auth-checking')} />))
 	.pipe(() => checkSession().then(({logged, token, till}) => user.set({logged, token, till})))
 	.pipe(() => getFamilyAccounts().then(({family, selected}) => user.set({family, selected})))
-	.pipe(({family}) => {
-		if (family.length) {
-			// TVDML.redirect('user');
-			TVDML.redirect('main');
-		} else {
-			TVDML.redirect('family-account-migration');
-		}
-	});
-
-TVDML
-	.handleRoute('family-account-migration')
-	.pipe(TVDML.render(<Loader title={i18n('account-migration')} />))
-	.pipe(() => migrateToFamilyAccount())
-	.pipe(() => TVDML.redirect('get-token'));
+	// .pipe(() => TVDML.redirect('main'));
+	.pipe(() => TVDML.redirect('user'));
+	// 
+	// Testing routes
+	// .pipe(() => TVDML.redirect('tvshow', {sid: '296', title: 'Arrow'}));
+	// .pipe(() => TVDML.redirect('season', {sid: '296', id: '4', title: 'Arrow — Season 4'}));
+	// .pipe(() => TVDML.redirect('tvshow', {sid: '692', title: 'Bref'}));
+	// .pipe(() => TVDML.redirect('season', {sid: '692', id: '1', title: 'Bref — Season 1'}));
 
 TVDML
 	.handleRoute('main')

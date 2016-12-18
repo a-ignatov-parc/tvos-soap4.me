@@ -23,7 +23,7 @@ export function set(payload) {
 		.keys(payload)
 		.reduce((result, key) => {
 			if (~contract.indexOf(key)) {
-				if (payload[key] != null) {
+				if (typeof(payload[key]) !== 'undefined') {
 					result[key] = payload[key];
 				}
 			} else {
@@ -52,7 +52,12 @@ export function getToken() {
 }
 
 export function getLogin() {
-	return (get().selected || {}).name;
+	return (get().selected || getMainAccount()).name;
+}
+
+export function getMainAccount() {
+	const [mainAccount] = get().family.slice(0).sort(({main: a}, {main: b}) => b - a);
+	return mainAccount;
 }
 
 export function isExtended() {
@@ -61,4 +66,8 @@ export function isExtended() {
 
 export function isAuthorized() {
 	return get().logged > 0;
+}
+
+export function isFamily() {
+	return get().selected != null;
 }

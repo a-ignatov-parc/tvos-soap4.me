@@ -111,6 +111,10 @@ export function migrateToFamilyAccount() {
 	return post('https://api.soap4.me/v2/family/migrate/');
 }
 
+export function turnOffFamilyAccount() {
+	return post('https://api.soap4.me/v2/family/unset/');
+}
+
 export function selectAccount(fid) {
 	return post(`https://api.soap4.me/v2/family/set/${fid}/`, {fid});
 }
