@@ -56,7 +56,7 @@ export function getLogin() {
 }
 
 export function getMainAccount() {
-	const [mainAccount] = get().family.slice(0).sort(({main: a}, {main: b}) => b - a);
+	const [mainAccount] = (get().family || []).slice(0).sort(({main: a}, {main: b}) => b - a);
 	return mainAccount;
 }
 

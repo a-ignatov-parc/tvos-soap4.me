@@ -12,7 +12,6 @@ export default function(menu) {
 		.pipe(TVDML.render(TVDML.createComponent({
 			getInitialState() {
 				const language = localization.getLanguage();
-				const isFamilyAccount = user.isFamily();
 				const authorized = user.isAuthorized();
 				const nickname = user.getLogin();
 
@@ -21,7 +20,6 @@ export default function(menu) {
 					nickname,
 					language,
 					authorized,
-					isFamilyAccount,
 				};
 			},
 
@@ -49,7 +47,6 @@ export default function(menu) {
 					menu,
 					nickname,
 					authorized,
-					isFamilyAccount,
 				} = this.state;
 
 				return (
@@ -70,7 +67,7 @@ export default function(menu) {
 									route="user"
 								>
 									{authorized ? (
-										<title>{isFamilyAccount ? '👥' : '👤'} {nickname}</title>
+										<title>👤 {nickname}</title>
 									) : (
 										<title>{localization.get('menu-login')}</title>
 									)}

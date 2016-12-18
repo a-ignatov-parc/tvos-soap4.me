@@ -27,9 +27,12 @@ TVDML
 	.handleRoute('get-token')
 	.pipe(TVDML.render(<Loader title={i18n('auth-checking')} />))
 	.pipe(() => checkSession().then(({logged, token, till}) => user.set({logged, token, till})))
-	.pipe(() => getFamilyAccounts().then(({family, selected}) => user.set({family, selected})))
-	// .pipe(() => TVDML.redirect('main'));
-	.pipe(() => TVDML.redirect('user'));
+	.pipe(() => {
+		return getFamilyAccounts()
+			.catch(() => ({family: null, selected: null}))
+			.then(({family, selected}) => user.set({family, selected}));
+	})
+	.pipe(() => TVDML.redirect('main'));
 	// 
 	// Testing routes
 	// .pipe(() => TVDML.redirect('tvshow', {sid: '296', title: 'Arrow'}));

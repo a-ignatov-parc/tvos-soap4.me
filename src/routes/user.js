@@ -3,8 +3,11 @@
 import * as TVDML from 'tvdml';
 
 import * as user from '../user';
+import authFactory from '../helpers/auth';
 import {get as i18n} from '../localization';
 import {deepEqualShouldUpdate} from '../utils/components';
+import {defaultErrorHandlers} from '../helpers/auth/handlers';
+
 import {
 	logout,
 	addAccount,
@@ -18,6 +21,7 @@ import {
 } from '../request/soap';
 
 import Loader from '../components/loader';
+import Authorize from '../components/authorize';
 
 const ADD_ACCOUNT = 'add_account';
 const TURN_ON_FAMILY_ACCOUNT = 'turn_on_family_account';
@@ -49,6 +53,23 @@ export default function() {
 
 			shouldComponentUpdate: deepEqualShouldUpdate,
 
+			componentDidMount() {
+				const fetchAccountUpdate = this.fetchAccountUpdate.bind(this);
+
+				this.authHelper = authFactory({
+					onError: defaultErrorHandlers,
+					onSuccess({token, till}) {
+						user.set({token, till, logged: 1});
+						fetchAccountUpdate().then(this.dismiss.bind(this));
+					},
+				});
+			},
+
+			componentWillUnmount() {
+				this.authHelper.destroy();
+				this.authHelper = null;
+			},
+
 			render() {
 				const {
 					family,
@@ -57,7 +78,9 @@ export default function() {
 					isFamilyAccount,
 				} = this.state;
 
-				console.log(888, this.state);
+				if (!authorized) {
+					return <Authorize theme="dark" onAuthorize={this.onLogin} />;
+				}
 
 				const currentFid = `${selected.fid}`;
 
@@ -81,21 +104,19 @@ export default function() {
 						<stackTemplate>
 							<banner>
 								<title>
-									Accounts
+									Account
 								</title>
 							</banner>
 							<collectionList>
 								<shelf centered="true" style={shelfStyles}>
 									<section>
 										{accountsList.map(account => {
-											const {fid, name, firstName, disabled} = account;
+											const {fid, name, firstName} = account;
 											const isActive = currentFid === fid;
 
 											return (
 												<monogramLockup
-													disabled={disabled}
 													onSelect={this.onActivate.bind(this, account)}
-													onHoldselect={this.onAction.bind(this, account)}
 												>
 													<monogram
 														style="tv-placeholder: monogram"
@@ -112,7 +133,7 @@ export default function() {
 										})}
 									</section>
 								</shelf>
-								<row style="tv-align: center">
+								<row style="tv-align: center; margin: 70 0 0">
 									{isFamilyAccount ? (
 										<button onSelect={this.onTurnOffFamilyAccountAttempt}>
 											<text>
@@ -128,7 +149,7 @@ export default function() {
 									)}
 									
 								</row>
-								<row style="tv-align: center; margin: 80 0 0">
+								<row style="tv-align: center; margin: 50 0 0">
 									<button onSelect={this.onLogoutAttempt}>
 										<text>
 											Logout
@@ -142,7 +163,11 @@ export default function() {
 			},
 
 			onTurnOnFamilyAccount() {
-				return migrateToFamilyAccount().then(this.fetchAccountUpdate.bind(this));
+				const mainAccount = user.getMainAccount();
+
+				return migrateToFamilyAccount()
+					.catch(() => null)
+					.then(this.selectAccount.bind(this, mainAccount.fid));
 			},
 
 			onTurnOffFamilyAccount() {
@@ -205,14 +230,18 @@ export default function() {
 					.sink();
 			},
 
+			onLogin() {
+				this.authHelper.present();
+			},
+
 			onLogout() {
 				logout()
 					.then(user.clear)
 					.then(checkSession)
-					.then(({logged, token, till}) => user.set({logged, token, till}))
-					.then(getFamilyAccounts)
-					.then(({family, selected}) => {
-						user.set({family, selected});
+					.then(({logged, token, till}) => {
+						const family = null;
+						const selected = null;
+						user.set({logged, token, till, family, selected});
 						this.setState(this.getStateData());
 					})
 					.then(() => TVDML.removeModal());
@@ -243,8 +272,6 @@ export default function() {
 			},
 
 			onActivate(account) {
-				if (this.state.selected === account) return;
-
 				if (account.action === ADD_ACCOUNT) {
 					return this.showUserRenamePopover({
 						title: 'Account creation',
@@ -258,11 +285,11 @@ export default function() {
 					});
 				}
 
-				this.selectAccount(account.fid);
+				this.onAction(account);
 			},
 
 			onAction(account) {
-				const isActive = this.state.selected === account;
+				const isActive = this.isActiveAccount(account);
 
 				TVDML
 					.renderModal(
@@ -393,6 +420,10 @@ export default function() {
 					user.set({family, selected});
 					this.setState(this.getStateData());
 				});
+			},
+
+			isActiveAccount(account) {
+				return this.state.selected.fid == account.fid;
 			},
 		})));
 }
