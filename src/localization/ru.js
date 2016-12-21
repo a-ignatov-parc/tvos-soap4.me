@@ -1,6 +1,5 @@
 export default {
 	'auth-checking': 'Проверяем авторизацию...',
-	'account-migration': 'Миграция семейного аккаунта...',
 
 	'menu-my': 'Мои',
 	'menu-all': 'Сериалы',
@@ -14,7 +13,6 @@ export default {
 	'settings-logout-logout_btn': 'Выйти',
 	'settings-logout-cancel_btn': 'Отмена',
 
-	'settings-titles-account': 'Акканут',
 	'settings-titles-network': 'Сеть',
 	'settings-titles-about': 'О программе',
 
@@ -22,8 +20,6 @@ export default {
 	'settings-labels-translation': 'Перевод серий',
 	'settings-labels-video_playback': 'Воспроизведение видео',
 	'settings-labels-language': 'Язык интерфейса',
-	'settings-labels-login': 'Войти в аккаунт',
-	'settings-labels-logout': 'Выйти из аккаунта',
 	'settings-labels-speedtest': 'Тест скорости',
 	'settings-labels-version': 'Версия',
 

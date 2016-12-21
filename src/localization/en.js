@@ -1,20 +1,44 @@
 export default {
 	'auth-checking': 'Checking authorization...',
-	'account-migration': 'Migrating to family account...',
 
 	'menu-my': 'My',
 	'menu-all': 'TV Shows',
 	'menu-search': 'Search',
 	'menu-settings': 'Settings',
-	'menu-login': 'Login',
+	'menu-account': 'Account',
+
+	'user-caption': 'Account',
+
+	'user-account-active': 'Active',
+	'user-turn-on-family-account-button': 'Turn On Family Account',
+	'user-turn-on-family-account-title': 'Are you sure you want to turn on Family Account?',
+	'user-turn-on-family-account-action_button': 'Turn On',
+	'user-turn-off-family-account-button': 'Turn Off Family Account',
+	'user-turn-off-family-account-title': 'Are you sure you want to turn off Family Account?',
+	'user-turn-off-family-account-action_button': 'Turn Off',
+	'user-switch-family-account-cancel_button': 'Cancel',
+
+	'user-add-account-button': 'Add new account',
+	'user-add-account-form-title': 'Account creation',
+	'user-add-account-form-description': 'Enter name for new account.',
+	'user-add-account-form-button': 'Add',
+
+	'user-action-menu-title': ({name}) => `What you want to do with "${name}"?`,
+	'user-action-set-as-active-button': 'Set as Active',
+	'user-action-rename-button': 'Rename',
+	'user-action-delete-button': 'Delete',
+
+	'user-rename-account-form-title': ({name}) => `Rename account "${name}"`,
+	'user-rename-account-form-description': 'Enter new name for the account.',
+	'user-rename-account-form-button': 'Update',
+
+	'user-logout-button': 'Logout',
+	'user-logout-caption': 'Are you sure you want to log out?',
+	'user-logout-logout_button': 'Logout',
+	'user-logout-cancel_button': 'Cancel',
 
 	'settings-caption': 'Settings',
 
-	'settings-logout-caption': 'Are you sure you want to log out?',
-	'settings-logout-logout_btn': 'Logout',
-	'settings-logout-cancel_btn': 'Cancel',
-
-	'settings-titles-account': 'Account',
 	'settings-titles-network': 'Network',
 	'settings-titles-about': 'About',
 
@@ -22,8 +46,6 @@ export default {
 	'settings-labels-translation': 'Translation',
 	'settings-labels-video_playback': 'Video playback',
 	'settings-labels-language': 'Interface language',
-	'settings-labels-login': 'Login',
-	'settings-labels-logout': 'Logout',
 	'settings-labels-speedtest': 'Speed test',
 	'settings-labels-version': 'Version',
 

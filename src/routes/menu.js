@@ -69,7 +69,7 @@ export default function(menu) {
 									{authorized ? (
 										<title>👤 {nickname}</title>
 									) : (
-										<title>{localization.get('menu-login')}</title>
+										<title>{localization.get('menu-account')}</title>
 									)}
 								</menuItem>
 							</menuBar>

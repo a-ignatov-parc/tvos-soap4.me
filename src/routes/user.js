@@ -88,7 +88,7 @@ export default function() {
 					? family.concat({
 						firstName: '+',
 						action: ADD_ACCOUNT,
-						name: 'Add new account',
+						name: i18n('user-add-account-button'),
 					})
 					: [selected];
 
@@ -104,7 +104,7 @@ export default function() {
 						<stackTemplate>
 							<banner>
 								<title>
-									Account
+									{i18n('user-caption')}
 								</title>
 							</banner>
 							<collectionList>
@@ -125,7 +125,7 @@ export default function() {
 													<title>{name}</title>
 													{isActive && (
 														<subtitle>
-															Active
+															{i18n('user-account-active')}
 														</subtitle>
 													)}
 												</monogramLockup>
@@ -137,22 +137,21 @@ export default function() {
 									{isFamilyAccount ? (
 										<button onSelect={this.onTurnOffFamilyAccountAttempt}>
 											<text>
-												Turn Off Family Account
+												{i18n('user-turn-off-family-account-button')}
 											</text>
 										</button>
 									) : (
 										<button onSelect={this.onTurnOnFamilyAccountAttempt}>
 											<text>
-												Turn On Family Account
+												{i18n('user-turn-on-family-account-button')}
 											</text>
 										</button>
 									)}
-									
 								</row>
 								<row style="tv-align: center; margin: 50 0 0">
 									<button onSelect={this.onLogoutAttempt}>
 										<text>
-											Logout
+											{i18n('user-logout-button')}
 										</text>
 									</button>
 								</row>
@@ -189,12 +188,12 @@ export default function() {
 							<alertTemplate>
 								{state === TURN_ON_FAMILY_ACCOUNT && (
 									<title>
-										Are you sure you want to turn on Family Accounts?
+										{i18n('user-turn-on-family-account-title')}
 									</title>
 								)}
 								{state === TURN_OFF_FAMILY_ACCOUNT && (
 									<title>
-										Are you sure you want to turn off Family Accounts?
+										{i18n('user-turn-off-family-account-title')}
 									</title>
 								)}
 								{state === TURN_ON_FAMILY_ACCOUNT && (
@@ -204,7 +203,7 @@ export default function() {
 											.then(TVDML.removeModal);
 									}}>
 										<text>
-											Turn On
+											{i18n('user-turn-on-family-account-action_button')}
 										</text>
 									</button>
 								)}
@@ -215,13 +214,13 @@ export default function() {
 											.then(TVDML.removeModal);
 									}}>
 										<text>
-											Turn Off
+											{i18n('user-turn-off-family-account-action_button')}
 										</text>
 									</button>
 								)}
 								<button onSelect={() => TVDML.removeModal()}>
 									<text>
-										Cancel
+										{i18n('user-switch-family-account-cancel_button')}
 									</text>
 								</button>
 							</alertTemplate>
@@ -253,16 +252,16 @@ export default function() {
 						<document>
 							<alertTemplate>
 								<title>
-									{i18n('settings-logout-caption')}
+									{i18n('user-logout-caption')}
 								</title>
 								<button onSelect={this.onLogout}>
 									<text>
-										{i18n('settings-logout-logout_btn')}
+										{i18n('user-logout-logout_button')}
 									</text>
 								</button>
 								<button onSelect={() => TVDML.removeModal()}>
 									<text>
-										{i18n('settings-logout-cancel_btn')}
+										{i18n('user-logout-cancel_button')}
 									</text>
 								</button>
 							</alertTemplate>
@@ -274,9 +273,9 @@ export default function() {
 			onActivate(account) {
 				if (account.action === ADD_ACCOUNT) {
 					return this.showUserRenamePopover({
-						title: 'Account creation',
-						description: 'Enter name for new account.',
-						button: 'Add',
+						title: i18n('user-add-account-form-title'),
+						description: i18n('user-add-account-form-description'),
+						button: i18n('user-add-account-form-button'),
 						submit: value => {
 							this
 								.addAccount(value)
@@ -289,6 +288,7 @@ export default function() {
 			},
 
 			onAction(account) {
+				const {fid, name} = account;
 				const isActive = this.isActiveAccount(account);
 
 				TVDML
@@ -296,38 +296,44 @@ export default function() {
 						<document>
 							<alertTemplate>
 								<title>
-									What you want to do with "{account.name}"?
+									{i18n('user-action-menu-title', {name})}
 								</title>
 								{!isActive && (
 									<button onSelect={() => {
 										this
-											.selectAccount(account.fid)
+											.selectAccount(fid)
 											.then(TVDML.removeModal);
 									}}>
-										<text>Set as Active</text>
+										<text>
+											{i18n('user-action-set-as-active-button')}
+										</text>
 									</button>
 								)}
 								<button onSelect={() => {
 									this.showUserRenamePopover({
-										title: `Rename account "${account.name}"`,
-										description: 'Enter new name for the account.',
-										button: 'Update',
+										title: i18n('user-rename-account-form-title', {name}),
+										description: i18n('user-rename-account-form-description'),
+										button: i18n('user-rename-account-form-button'),
 										submit: value => {
 											this
-												.renameAccount(account.fid, value)
+												.renameAccount(fid, value)
 												.then(TVDML.removeModal);
 										},
 									});
 								}}>
-									<text>Rename</text>
+									<text>
+										{i18n('user-action-rename-button')}
+									</text>
 								</button>
 								{!isActive && (
 									<button onSelect={() => {
 										this
-											.deleteAccount(account.fid)
+											.deleteAccount(fid)
 											.then(TVDML.removeModal);
 									}}>
-										<text>Delete</text>
+										<text>
+											{i18n('user-action-delete-button')}
+										</text>
 									</button>
 								)}
 							</alertTemplate>
