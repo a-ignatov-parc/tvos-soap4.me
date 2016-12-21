@@ -4,8 +4,9 @@ export default {
 	'menu-my': 'My',
 	'menu-all': 'TV Shows',
 	'menu-search': 'Search',
-	'menu-settings': 'Settings',
+	'menu-genres': 'Genres',
 	'menu-account': 'Account',
+	'menu-settings': 'Settings',
 
 	'user-caption': 'Account',
 

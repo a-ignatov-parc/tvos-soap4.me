@@ -214,7 +214,7 @@ export default function() {
 										isWatched={isWatched}
 										payload={{title, sid}}
 									/>
-								)
+								);
 							})}
 						</section>
 					</grid>

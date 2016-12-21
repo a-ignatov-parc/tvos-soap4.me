@@ -74,3 +74,7 @@ export function removeDocumentFromNavigation(document) {
 		try {navigationDocument.removeDocument(document)} catch(e) {}
 	}
 }
+
+export function genreToId(genre) {
+	return genre.replace(/\s/g, '_');
+}

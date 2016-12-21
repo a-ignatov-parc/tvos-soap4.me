@@ -3,6 +3,7 @@ import * as TVDML from 'tvdml';
 import assign from 'object-assign';
 
 import {getToken} from '../user';
+import {genreToId} from '../utils';
 import * as request from '../request';
 import * as settings from '../settings';
 
@@ -159,12 +160,20 @@ export function getPopularTVShows(count = 10) {
 	});
 }
 
+export function getTVShowsByGenre(genre) {
+	return get(`https://api.soap4.me/v2/soap/genre/${genreToId(genre)}/`);
+}
+
 export function getTVShowDescription(sid) {
 	return get(`https://api.soap4.me/v2/soap/description/${sid}/`);
 }
 
 export function getCountriesList() {
-	return get(`https://api.soap4.me/v2/soap/countrys/`);
+	return get('https://api.soap4.me/v2/soap/countrys/');
+}
+
+export function getGenresList() {
+	return get('https://api.soap4.me/v2/soap/genres/');
 }
 
 export function getTVShowEpisodes(sid) {

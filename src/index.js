@@ -14,6 +14,7 @@ import ActorRoute from './routes/actor';
 import SeasonRoute from './routes/season';
 import TVShowRoute from './routes/tvshow';
 import SearchRoute from './routes/search';
+import GenresRoute from './routes/genres';
 import SettingsRoute from './routes/settings';
 import SpeedTestRoute from './routes/speedtest';
 
@@ -31,7 +32,8 @@ TVDML
 		if (!user.isAuthorized()) return user.set({family: null, selected: null});
 		return getFamilyAccounts().then(({family, selected}) => user.set({family, selected}));
 	})
-	.pipe(() => TVDML.redirect('main'));
+	// .pipe(() => TVDML.redirect('main'));
+	.pipe(() => TVDML.redirect('genres'));
 	// 
 	// Testing routes
 	// .pipe(() => TVDML.redirect('tvshow', {sid: '296', title: 'Arrow'}));
@@ -49,6 +51,8 @@ TVDML
 			active: true,
 		}, {
 			route: 'all',
+		}, {
+			route: 'genres',
 		}, {
 			route: 'settings',
 		},
@@ -89,3 +93,7 @@ TVDML
 TVDML
 	.handleRoute('user')
 	.pipe(UserRoute());
+
+TVDML
+	.handleRoute('genres')
+	.pipe(GenresRoute());
