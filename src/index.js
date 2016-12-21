@@ -4,11 +4,12 @@ import * as TVDML from 'tvdml';
 import * as user from './user';
 
 import {get as i18n} from './localization';
-import {checkSession} from './request/soap';
+import {checkSession, getFamilyAccounts} from './request/soap';
 
 import MyRoute from './routes/my';
 import AllRoute from './routes/all';
 import MenuRoute from './routes/menu';
+import UserRoute from './routes/user';
 import ActorRoute from './routes/actor';
 import SeasonRoute from './routes/season';
 import TVShowRoute from './routes/tvshow';
@@ -26,6 +27,10 @@ TVDML
 	.handleRoute('get-token')
 	.pipe(TVDML.render(<Loader title={i18n('auth-checking')} />))
 	.pipe(() => checkSession().then(({logged, token, till}) => user.set({logged, token, till})))
+	.pipe(() => {
+		if (!user.isAuthorized()) return user.set({family: null, selected: null});
+		return getFamilyAccounts().then(({family, selected}) => user.set({family, selected}));
+	})
 	.pipe(() => TVDML.redirect('main'));
 	// 
 	// Testing routes
@@ -46,7 +51,7 @@ TVDML
 			route: 'all',
 		}, {
 			route: 'settings',
-		}
+		},
 	]));
 
 TVDML
@@ -80,3 +85,7 @@ TVDML
 TVDML
 	.handleRoute('speedtest')
 	.pipe(SpeedTestRoute());
+
+TVDML
+	.handleRoute('user')
+	.pipe(UserRoute());

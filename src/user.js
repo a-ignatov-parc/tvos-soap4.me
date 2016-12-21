@@ -10,21 +10,20 @@ const cache = {
 
 const contract = [
 	'till',
-	'login',
 	'token',
 	'logged',
+	'family',
+	'selected',
 ];
 
 export const subscription = bus.subscription.bind(bus);
 
 export function set(payload) {
-	let prevState = isAuthorized();
-
 	cache.payload = Object
 		.keys(payload)
 		.reduce((result, key) => {
 			if (~contract.indexOf(key)) {
-				if (payload[key] != null) {
+				if (typeof(payload[key]) !== 'undefined') {
 					result[key] = payload[key];
 				}
 			} else {
@@ -34,11 +33,7 @@ export function set(payload) {
 		}, cache.payload);
 
 	localStorage.setItem(STORAGE_KEY, JSON.stringify(cache.payload));
-
-	if (prevState !== isAuthorized()) {
-		bus.broadcast(cache);
-	}
-
+	bus.broadcast(cache.payload);
 	return cache.payload;
 }
 
@@ -49,7 +44,7 @@ export function get() {
 export function clear() {
 	cache.payload = {};
 	localStorage.removeItem(STORAGE_KEY);
-	bus.broadcast(cache);
+	bus.broadcast(cache.payload);
 }
 
 export function getToken() {
@@ -57,7 +52,12 @@ export function getToken() {
 }
 
 export function getLogin() {
-	return get().login;
+	return (get().selected || getMainAccount() || {}).name;
+}
+
+export function getMainAccount() {
+	const [mainAccount] = (get().family || []).slice(0).sort(({main: a}, {main: b}) => b - a);
+	return mainAccount;
 }
 
 export function isExtended() {
@@ -66,4 +66,8 @@ export function isExtended() {
 
 export function isAuthorized() {
 	return get().logged > 0;
+}
+
+export function isFamily() {
+	return get().selected != null;
 }

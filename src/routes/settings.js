@@ -7,9 +7,7 @@ import * as localization from '../localization';
 
 import {link} from '../utils';
 import * as user from '../user';
-import authFactory from '../helpers/auth';
 import {deepEqualShouldUpdate} from '../utils/components';
-import {defaultErrorHandlers} from '../helpers/auth/handlers';
 
 import {logout, version, checkSession} from '../request/soap';
 import {getStartParams} from '../utils';
@@ -70,40 +68,12 @@ export default function() {
 			},
 
 			componentDidMount() {
-				this.userStateChangeStream = user.subscription();
-				this.userStateChangeStream.pipe(() => {
-					this.setState({authorized: user.isAuthorized()});
-				});
-
 				this.languageChangeStream = localization.subscription();
-				this.languageChangeStream.pipe(({language}) => {
-					this.createAuthHelper();
-					this.setState({language});
-				});
-
-				this.createAuthHelper();
-			},
-
-			createAuthHelper() {
-				if (this.authHelper) {
-					this.authHelper.destroy();
-					this.authHelper = null;
-				}
-
-				this.authHelper = authFactory({
-					onError: defaultErrorHandlers,
-					onSuccess({token, till}, login) {
-						user.set({token, till, login, logged: 1});
-						this.dismiss();
-					},
-				});
+				this.languageChangeStream.pipe(({language}) => this.setState({language}));
 			},
 
 			componentWillUnmount() {
-				this.userStateChangeStream.unsubscribe();
 				this.languageChangeStream.unsubscribe();
-				this.authHelper.destroy();
-				this.authHelper = null;
 			},
 
 			shouldComponentUpdate: deepEqualShouldUpdate,
@@ -192,35 +162,6 @@ export default function() {
 										</listItemLockup>
 									))}
 								</section>
-								<section>
-									<header>
-										<title>
-											{i18n('settings-titles-account')}
-										</title>
-									</header>
-									{this.state.authorized ? (
-										<listItemLockup
-											class="item"
-											onSelect={this.onLogoutAttempt}
-										>
-											<title>
-												{i18n('settings-labels-logout')}
-											</title>
-											<decorationLabel>
-												{user.getLogin()}
-											</decorationLabel>
-										</listItemLockup>
-									) : (
-										<listItemLockup
-											class="item"
-											onSelect={this.onLogin}
-										>
-											<title>
-												{i18n('settings-labels-login')}
-											</title>
-										</listItemLockup>
-									)}
-								</section>
 								{this.state.authorized && (
 									<section>
 										<header>
@@ -294,42 +235,6 @@ export default function() {
 				settings.set(key, value);
 				this.setState({settings: settings.getAll()});
 				TVDML.removeModal();
-			},
-
-			onLogin() {
-				this.authHelper.present();
-			},
-
-			onLogout() {
-				logout()
-					.then(user.clear)
-					.then(checkSession)
-					.then(({logged, token, till}) => user.set({logged, token, till}))
-					.then(() => TVDML.removeModal());
-			},
-
-			onLogoutAttempt() {
-				TVDML
-					.renderModal(
-						<document>
-							<alertTemplate>
-								<title>
-									{i18n('settings-logout-caption')}
-								</title>
-								<button onSelect={this.onLogout}>
-									<text>
-										{i18n('settings-logout-logout_btn')}
-									</text>
-								</button>
-								<button onSelect={() => TVDML.removeModal()}>
-									<text>
-										{i18n('settings-logout-cancel_btn')}
-									</text>
-								</button>
-							</alertTemplate>
-						</document>
-					)
-					.sink();
 			},
 		})));
 }

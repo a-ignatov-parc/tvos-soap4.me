@@ -3,25 +3,12 @@
 import {jsx} from 'tvdml';
 
 import {get as i18n} from '../localization';
+import commonStyles from '../common/styles';
 
 export default function Authorize({key, attrs = {}, events = {}}) {
-	let {theme} = attrs;
-	let {onAuthorize} = events;
-	let styles;
-
-	if (theme === 'dark') {
-		styles = (
-			<style content={`
-				.grey_text {
-					color: rgb(84, 82, 80);
-				}
-
-				.grey_description {
-					color: rgb(132, 133, 135);
-				}
-			`} />
-		);
-	}
+	const {theme} = attrs;
+	const {onAuthorize} = events;
+	const styles = theme === 'dark' ? commonStyles : undefined;
 
 	return (
 		<document>

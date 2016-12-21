@@ -5,14 +5,40 @@ export default {
 	'menu-all': 'Сериалы',
 	'menu-search': 'Поиск',
 	'menu-settings': 'Настройки',
+	'menu-account': 'Аккаунт',
+
+	'user-caption': 'Аккаунт',
+
+	'user-account-active': 'Активный',
+	'user-turn-on-family-account-button': 'Включить Семейный Аккаунт',
+	'user-turn-on-family-account-title': 'Ты уверен, что хочешь включить Семейный Аккаунт?',
+	'user-turn-on-family-account-action_button': 'Включить',
+	'user-turn-off-family-account-button': 'Выключить Семейный Аккаунт',
+	'user-turn-off-family-account-title': 'Ты уверен, что хочешь выключить Семейный Аккаунт?',
+	'user-turn-off-family-account-action_button': 'Выключить',
+	'user-switch-family-account-cancel_button': 'Отмена',
+
+	'user-add-account-button': 'Добавить новый аккаунт',
+	'user-add-account-form-title': 'Создание аккаунта',
+	'user-add-account-form-description': 'Введи имя для нового аккаунта.',
+	'user-add-account-form-button': 'Добавить',
+
+	'user-action-menu-title': ({name}) => `Что сделать с аккаунтом "${name}"?`,
+	'user-action-set-as-active-button': 'Сделать активным',
+	'user-action-rename-button': 'Переименовать',
+	'user-action-delete-button': 'Удалить',
+
+	'user-rename-account-form-title': ({name}) => `Переименовать аккаунт "${name}"`,
+	'user-rename-account-form-description': 'Введи новое имя для аккаунта.',
+	'user-rename-account-form-button': 'Обновить',
+
+	'user-logout-button': 'Выйти из аккаунта',
+	'user-logout-caption': 'Точно выйти из аккаунта?',
+	'user-logout-logout_button': 'Выйти',
+	'user-logout-cancel_button': 'Отмена',
 
 	'settings-caption': 'Настройки',
 
-	'settings-logout-caption': 'Точно выйти из аккаунта?',
-	'settings-logout-logout_btn': 'Выйти',
-	'settings-logout-cancel_btn': 'Отмена',
-
-	'settings-titles-account': 'Акканут',
 	'settings-titles-network': 'Сеть',
 	'settings-titles-about': 'О программе',
 
@@ -20,8 +46,6 @@ export default {
 	'settings-labels-translation': 'Перевод серий',
 	'settings-labels-video_playback': 'Воспроизведение видео',
 	'settings-labels-language': 'Язык интерфейса',
-	'settings-labels-login': 'Войти в аккаунт',
-	'settings-labels-logout': 'Выйти из аккаунта',
 	'settings-labels-speedtest': 'Тест скорости',
 	'settings-labels-version': 'Версия',
 
@@ -118,6 +142,10 @@ export default {
 	'my-closed': 'Завершенные',
 	'my-watched': 'Просмотренные',
 	'my-new-episodes': 'С новыми эпизодами',
+
+	'my-empty-list-title': 'У тебя нет никаких подписок',
+	'my-empty-list-description': 'Ты можешь начать с добавления каких-нибудь сериалов из раздела "Сериалы"',
+	'my-empty-list-button': 'Перейти в раздел "Сериалы"',
 
 	'all-caption': 'Сериалы',
 

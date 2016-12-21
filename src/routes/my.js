@@ -9,13 +9,20 @@ import authFactory from '../helpers/auth';
 import {get as i18n} from '../localization';
 import {defaultErrorHandlers} from '../helpers/auth/handlers';
 
-import {getMyTVShows, getMySchedule} from '../request/soap';
-import {isMenuButtonPressNavigatedTo} from '../utils';
+import {
+	getMyTVShows,
+	getMySchedule,
+	getFamilyAccounts,
+} from '../request/soap';
+
+import {link, isMenuButtonPressNavigatedTo} from '../utils';
 import {deepEqualShouldUpdate} from '../utils/components';
 
 import Tile from '../components/tile';
 import Loader from '../components/loader';
 import Authorize from '../components/authorize';
+
+import commonStyles from '../common/styles';
 
 const {Promise} = TVDML;
 
@@ -53,9 +60,12 @@ export default function() {
 
 				this.authHelper = authFactory({
 					onError: defaultErrorHandlers,
-					onSuccess({token, till}, login) {
-						user.set({token, till, login, logged: 1});
-						this.dismiss();
+					onSuccess({token, till}) {
+						user.set({token, till, logged: 1});
+						getFamilyAccounts().then(({family, selected}) => {
+							user.set({family, selected});
+							this.dismiss();
+						});
 					},
 				});
 
@@ -92,6 +102,29 @@ export default function() {
 
 				if (!this.state.authorized) {
 					return <Authorize theme="dark" onAuthorize={this.onLogin} />;
+				}
+
+				if (!this.state.series.length) {
+					return (
+						<document>
+							<head>
+								{commonStyles}
+							</head>
+							<alertTemplate>
+								<title class="grey_text">
+									{i18n('my-empty-list-title')}
+								</title>
+								<description class="grey_description">
+									{i18n('my-empty-list-description')}
+								</description>
+								<button onSelect={link('all')}>
+									<text>
+										{i18n('my-empty-list-button')}
+									</text>
+								</button>
+							</alertTemplate>
+						</document>
+					);
 				}
 
 				let watching = this.state.series.filter(({watching}) => watching > 0);

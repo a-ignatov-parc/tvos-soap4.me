@@ -103,12 +103,40 @@ export function authorize({login, password}) {
 	return post('https://api.soap4.me/v2/auth/', {login, password});
 }
 
+export function getFamilyAccounts() {
+	return get('https://api.soap4.me/v2/family/');
+}
+
+export function migrateToFamilyAccount() {
+	return post('https://api.soap4.me/v2/family/migrate/');
+}
+
+export function turnOffFamilyAccount() {
+	return post('https://api.soap4.me/v2/family/unset/');
+}
+
+export function selectAccount(fid) {
+	return post(`https://api.soap4.me/v2/family/set/${fid}/`, {fid});
+}
+
+export function addAccount(name) {
+	return post('https://api.soap4.me/v2/family/add/', {name});
+}
+
+export function renameAccount(fid, name) {
+	return post(`https://api.soap4.me/v2/family/rename/${fid}/`, {fid, name});
+}
+
+export function deleteAccount(fid) {
+	return post(`https://api.soap4.me/v2/family/remove/${fid}/`, {fid});
+}
+
 export function logout() {
 	return post('https://api.soap4.me/v2/auth/logout/');
 }
 
 export function getMyTVShows() {
-	return get('https://api.soap4.me/v2/soap/my/');
+	return get('https://api.soap4.me/v2/soap/my/').then(...emptyOrErrorsResolvers([]));
 }
 
 export function getAllTVShows() {
