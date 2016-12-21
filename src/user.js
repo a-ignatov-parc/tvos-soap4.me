@@ -52,7 +52,7 @@ export function getToken() {
 }
 
 export function getLogin() {
-	return (get().selected || getMainAccount()).name;
+	return (get().selected || getMainAccount() || {}).name;
 }
 
 export function getMainAccount() {

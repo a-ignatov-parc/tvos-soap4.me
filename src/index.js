@@ -28,9 +28,8 @@ TVDML
 	.pipe(TVDML.render(<Loader title={i18n('auth-checking')} />))
 	.pipe(() => checkSession().then(({logged, token, till}) => user.set({logged, token, till})))
 	.pipe(() => {
-		return getFamilyAccounts()
-			.catch(() => ({family: null, selected: null}))
-			.then(({family, selected}) => user.set({family, selected}));
+		if (!user.isAuthorized()) return user.set({family: null, selected: null});
+		return getFamilyAccounts().then(({family, selected}) => user.set({family, selected}));
 	})
 	.pipe(() => TVDML.redirect('main'));
 	// 
