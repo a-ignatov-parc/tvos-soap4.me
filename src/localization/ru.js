@@ -143,6 +143,10 @@ export default {
 	'my-watched': 'Просмотренные',
 	'my-new-episodes': 'С новыми эпизодами',
 
+	'my-empty-list-title': 'У тебя нет никаких подписок',
+	'my-empty-list-description': 'Ты можешь начать с добавления каких-нибудь сериалов из раздела "Сериалы"',
+	'my-empty-list-button': 'Перейти в раздел "Сериалы"',
+
 	'all-caption': 'Сериалы',
 
 	'all-group-by': 'Группировать по',

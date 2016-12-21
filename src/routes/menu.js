@@ -1,6 +1,7 @@
 /** @jsx TVDML.jsx */
 
 import * as TVDML from 'tvdml';
+import assign from 'object-assign';
 
 import * as user from '../user';
 import * as localization from '../localization';
@@ -12,15 +13,13 @@ export default function(menu) {
 		.pipe(TVDML.render(TVDML.createComponent({
 			getInitialState() {
 				const language = localization.getLanguage();
+				return assign({menu, language}, this.getUserState());
+			},
+
+			getUserState() {
 				const authorized = user.isAuthorized();
 				const nickname = user.getLogin();
-
-				return {
-					menu,
-					nickname,
-					language,
-					authorized,
-				};
+				return {nickname, authorized};
 			},
 
 			componentDidMount() {
@@ -28,11 +27,7 @@ export default function(menu) {
 				this.languageChangeStream.pipe(({language}) => this.setState({language}));
 
 				this.userStateChangeStream = user.subscription();
-				this.userStateChangeStream.pipe(() => {
-					const authorized = user.isAuthorized();
-					const nickname = user.getLogin();
-					this.setState({nickname, authorized});
-				});
+				this.userStateChangeStream.pipe(() => this.setState(this.getUserState()));
 			},
 
 			componentWillUnmount() {

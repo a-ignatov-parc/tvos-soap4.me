@@ -143,6 +143,10 @@ export default {
 	'my-watched': 'Watched',
 	'my-new-episodes': 'New episodes',
 
+	'my-empty-list-title': `You don't have any subscriptions`,
+	'my-empty-list-description': 'You can start from adding some tv series from "TV Shows" sections',
+	'my-empty-list-button': 'Go to "TV Shows"',
+
 	'all-caption': 'TV Shows',
 
 	'all-group-by': 'Group by',

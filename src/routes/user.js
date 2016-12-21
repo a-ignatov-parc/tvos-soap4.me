@@ -34,10 +34,10 @@ export default function() {
 		.createPipeline()
 		.pipe(TVDML.render(TVDML.createComponent({
 			getInitialState() {
-				return this.getStateData();
+				return this.getUserState();
 			},
 
-			getStateData() {
+			getUserState() {
 				const authorized = user.isAuthorized();
 				const {family, selected} = user.get();
 				const isFamilyAccount = user.isFamily();
@@ -241,7 +241,7 @@ export default function() {
 						const family = null;
 						const selected = null;
 						user.set({logged, token, till, family, selected});
-						this.setState(this.getStateData());
+						this.setState(this.getUserState());
 					})
 					.then(() => TVDML.removeModal());
 			},
@@ -424,7 +424,7 @@ export default function() {
 			fetchAccountUpdate() {
 				return getFamilyAccounts().then(({family, selected}) => {
 					user.set({family, selected});
-					this.setState(this.getStateData());
+					this.setState(this.getUserState());
 				});
 			},
 

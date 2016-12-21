@@ -104,14 +104,14 @@ export default function() {
 							</head>
 							<alertTemplate>
 								<title class="grey_text">
-									You don't have any subscriptions
+									{i18n('my-empty-list-title')}
 								</title>
 								<description class="grey_description">
-									You can start from adding some tv series from "TV Shows" sections
+									{i18n('my-empty-list-description')}
 								</description>
 								<button onSelect={link('all')}>
 									<text>
-										Go to TV Shows
+										{i18n('my-empty-list-button')}
 									</text>
 								</button>
 							</alertTemplate>
