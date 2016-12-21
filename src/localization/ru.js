@@ -5,13 +5,39 @@ export default {
 	'menu-all': 'Сериалы',
 	'menu-search': 'Поиск',
 	'menu-settings': 'Настройки',
-	'menu-login': 'Войти',
+	'menu-account': 'Аккаунт',
+
+	'user-caption': 'Аккаунт',
+
+	'user-account-active': 'Активный',
+	'user-turn-on-family-account-button': 'Включить Семейный Аккаунт',
+	'user-turn-on-family-account-title': 'Ты уверен, что хочешь включить Семейный Аккаунт?',
+	'user-turn-on-family-account-action_button': 'Включить',
+	'user-turn-off-family-account-button': 'Выключить Семейный Аккаунт',
+	'user-turn-off-family-account-title': 'Ты уверен, что хочешь выключить Семейный Аккаунт?',
+	'user-turn-off-family-account-action_button': 'Выключить',
+	'user-switch-family-account-cancel_button': 'Отмена',
+
+	'user-add-account-button': 'Добавить новый аккаунт',
+	'user-add-account-form-title': 'Создание аккаунта',
+	'user-add-account-form-description': 'Введи имя для нового аккаунта.',
+	'user-add-account-form-button': 'Добавить',
+
+	'user-action-menu-title': ({name}) => `Что сделать с аккаунтом "${name}"?`,
+	'user-action-set-as-active-button': 'Сделать активным',
+	'user-action-rename-button': 'Переименовать',
+	'user-action-delete-button': 'Удалить',
+
+	'user-rename-account-form-title': ({name}) => `Переименовать аккаунт "${name}"`,
+	'user-rename-account-form-description': 'Введи новое имя для аккаунта.',
+	'user-rename-account-form-button': 'Обновить',
+
+	'user-logout-button': 'Выйти из аккаунта',
+	'user-logout-caption': 'Точно выйти из аккаунта?',
+	'user-logout-logout_button': 'Выйти',
+	'user-logout-cancel_button': 'Отмена',
 
 	'settings-caption': 'Настройки',
-
-	'settings-logout-caption': 'Точно выйти из аккаунта?',
-	'settings-logout-logout_btn': 'Выйти',
-	'settings-logout-cancel_btn': 'Отмена',
 
 	'settings-titles-network': 'Сеть',
 	'settings-titles-about': 'О программе',
