@@ -85,7 +85,7 @@ export default function(options = {}) {
 				})
 				.then(response => {
 					if (response.ok) {
-						onSuccess.call(instance, response, envelope.login);
+						onSuccess.call(instance, response);
 					} else {
 						let error = new Error('Wrong login or password');
 						error.code = 'EBADCREDENTIALS';

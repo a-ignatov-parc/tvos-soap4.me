@@ -9,7 +9,12 @@ import authFactory from '../helpers/auth';
 import {get as i18n} from '../localization';
 import {defaultErrorHandlers} from '../helpers/auth/handlers';
 
-import {getMyTVShows, getMySchedule} from '../request/soap';
+import {
+	getMyTVShows,
+	getMySchedule,
+	getFamilyAccounts,
+} from '../request/soap';
+
 import {link, isMenuButtonPressNavigatedTo} from '../utils';
 import {deepEqualShouldUpdate} from '../utils/components';
 
@@ -57,7 +62,10 @@ export default function() {
 					onError: defaultErrorHandlers,
 					onSuccess({token, till}) {
 						user.set({token, till, logged: 1});
-						this.dismiss();
+						getFamilyAccounts().then(({family, selected}) => {
+							user.set({family, selected});
+							this.dismiss();
+						});
 					},
 				});
 

@@ -24,6 +24,7 @@ import {
 	getEpisodeMedia,
 	getTVShowSeason,
 	getTVShowSchedule,
+	getFamilyAccounts,
 	getTVShowDescription,
 	markSeasonAsWatched,
 	markSeasonAsUnwatched,
@@ -347,11 +348,14 @@ export default function() {
 						onError: defaultErrorHandlers,
 						onSuccess: ({token, till}) => {
 							user.set({token, till, logged: 1});
-							this.loadData().then(payload => {
-								this.setState(payload);
-								authHelper.dismiss();
-								this.onPlayEpisode(episodeNumber);
-							});
+							getFamilyAccounts()
+								.then(({family, selected}) => user.set({family, selected}))
+								.then(this.loadData.bind(this))
+								.then(payload => {
+									this.setState(payload);
+									authHelper.dismiss();
+									this.onPlayEpisode(episodeNumber);
+								});
 						},
 					});
 
