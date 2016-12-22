@@ -4,8 +4,11 @@ export default {
 	'menu-my': 'Мои',
 	'menu-all': 'Сериалы',
 	'menu-search': 'Поиск',
-	'menu-settings': 'Настройки',
+	'menu-genres': 'Жанры',
 	'menu-account': 'Аккаунт',
+	'menu-settings': 'Настройки',
+
+	'genres-caption': 'Жанры',
 
 	'user-caption': 'Аккаунт',
 

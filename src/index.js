@@ -32,8 +32,7 @@ TVDML
 		if (!user.isAuthorized()) return user.set({family: null, selected: null});
 		return getFamilyAccounts().then(({family, selected}) => user.set({family, selected}));
 	})
-	// .pipe(() => TVDML.redirect('main'));
-	.pipe(() => TVDML.redirect('genres'));
+	.pipe(() => TVDML.redirect('main'));
 	// 
 	// Testing routes
 	// .pipe(() => TVDML.redirect('tvshow', {sid: '296', title: 'Arrow'}));

@@ -8,6 +8,8 @@ export default {
 	'menu-account': 'Account',
 	'menu-settings': 'Settings',
 
+	'genres-caption': 'Genres',
+
 	'user-caption': 'Account',
 
 	'user-account-active': 'Active',

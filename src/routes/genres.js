@@ -10,7 +10,12 @@ import {
 	getTVShowsByGenre,
 } from '../request/soap';
 
-import {capitalizeText, genreToId} from '../utils';
+import {
+	genreToId,
+	capitalizeText,
+	isMenuButtonPressNavigatedTo,
+} from '../utils';
+
 import {deepEqualShouldUpdate} from '../utils/components';
 
 import Tile from '../components/tile';
@@ -27,13 +32,30 @@ export default function() {
 					genres: [],
 					active: null,
 					loading: true,
+					updated_genres: [],
 				};
 			},
 
 			componentDidMount() {
+				const currentDocument = this._rootNode.ownerDocument;
+
+				this.menuButtonPressStream = TVDML.subscribe('menu-button-press');
+				this.menuButtonPressStream
+					.pipe(isMenuButtonPressNavigatedTo(currentDocument))
+					.pipe(isNavigated => {
+						if (isNavigated) {
+							this.setState({updated_genres: []});
+							this.onGenreSelect(this.state.active);
+						}
+					});
+
 				this.loadData().then(payload => {
 					this.setState(assign({loading: false}, payload));
 				});
+			},
+
+			componentWillUnmount() {
+				this.menuButtonPressStream.unsubscribe();
 			},
 
 			shouldComponentUpdate: deepEqualShouldUpdate,
@@ -48,8 +70,6 @@ export default function() {
 					loading,
 				} = this.state;
 
-				console.log(111, this.state);
-
 				if (loading) {
 					return <Loader />;
 				}
@@ -58,7 +78,9 @@ export default function() {
 					<document>
 						<catalogTemplate>
 							<banner>
-								<title>Genres</title>
+								<title>
+									{i18n('genres-caption')}
+								</title>
 							</banner>
 							<list>
 								<section>
@@ -121,9 +143,14 @@ export default function() {
 
 			onGenreSelect(genre) {
 				const id = genreToId(genre);
-				this.setState({active: id});
-				if (this.state[id] != null) return;
-				getTVShowsByGenre(genre).then(tvshows => this.setState({[id]: tvshows}));
+				const {updated_genres} = this.state;
+
+				this.setState({active: genre});
+				if (~updated_genres.indexOf(id)) return;
+				getTVShowsByGenre(genre).then(tvshows => this.setState({
+					[id]: tvshows,
+					updated_genres: updated_genres.concat(id),
+				}));
 			},
 		})));
 }
