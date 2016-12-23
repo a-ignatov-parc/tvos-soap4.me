@@ -1,11 +1,15 @@
 /** @jsx TVDML.jsx */
 
 import * as TVDML from 'tvdml';
+
+import moment from 'moment';
 import assign from 'object-assign';
 
 import * as user from '../user';
 import * as localization from '../localization';
 import {deepEqualShouldUpdate} from '../utils/components';
+
+const datePattern = 'DD-MM-YYYY';
 
 export default function(menu) {
 	return TVDML
@@ -17,9 +21,10 @@ export default function(menu) {
 			},
 
 			getUserState() {
+				const isFamilyAccount = user.isFamily();
 				const authorized = user.isAuthorized();
 				const nickname = user.getLogin();
-				return {nickname, authorized};
+				return {nickname, authorized, isFamilyAccount};
 			},
 
 			componentDidMount() {
@@ -42,6 +47,7 @@ export default function(menu) {
 					menu,
 					nickname,
 					authorized,
+					isFamilyAccount,
 				} = this.state;
 
 				return (
@@ -62,7 +68,7 @@ export default function(menu) {
 									route="user"
 								>
 									{authorized ? (
-										<title>👤 {nickname}</title>
+										<title>{isFamilyAccount ? '👪' : this.getUserIcon()} {nickname}</title>
 									) : (
 										<title>{localization.get('menu-account')}</title>
 									)}
@@ -71,6 +77,25 @@ export default function(menu) {
 						</menuBarTemplate>
 					</document>
 				);
+			},
+
+			getUserIcon() {
+				if (moment().isSame(moment('01-01', datePattern).add(256, 'days'))) return '👨‍💻';
+				if (this.currentDateIsBetween('01-01', '07-01')) return '🎅';
+				if (this.currentDateIs('31-10')) return '🎃';
+				if (this.currentDateIs('14-02')) return '❤️';
+				if (this.currentDateIs('01-03')) return '🌹';
+				if (this.currentDateIs('01-06')) return '🌻';
+				if (this.currentDateIs('09-07')) return '🦄';
+				return '👱';
+			},
+
+			currentDateIs(date) {
+				return moment().isSame(moment(date, datePattern));
+			},
+
+			currentDateIsBetween(start, end) {
+				return moment().isBetween(moment(start, datePattern), moment(end, datePattern));
 			},
 		})));
 }
