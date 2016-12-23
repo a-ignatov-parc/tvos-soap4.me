@@ -144,9 +144,9 @@ export default function() {
 								</title>
 							</banner>
 							<collectionList>
-								{this.renderSectionGrid(unwatched, 'my-new-episodes')}
-								{this.renderSectionGrid(watched, 'my-watched', this.state.schedule)}
-								{this.renderSectionGrid(closed, 'my-closed')}
+								{unwatched.length && this.renderSectionGrid(unwatched, 'my-new-episodes')}
+								{watched.length && this.renderSectionGrid(watched, 'my-watched', this.state.schedule)}
+								{closed.length && this.renderSectionGrid(closed, 'my-closed')}
 							</collectionList>
 						</stackTemplate>
 					</document>
