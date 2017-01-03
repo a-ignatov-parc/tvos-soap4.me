@@ -47,6 +47,9 @@ export default function() {
 					.pipe(isMenuButtonPressNavigatedTo(currentDocument))
 					.pipe(isNavigated => isNavigated && this.loadData().then(this.setState.bind(this)));
 
+				this.appResumeStream = TVDML.subscribe(TVDML.event.RESUME);
+				this.appResumeStream.pipe(() => this.loadData().then(this.setState.bind(this)));
+
 				this.userStateChangeStream = user.subscription();
 				this.userStateChangeStream.pipe(() => {
 					this.setState({loading: true});
@@ -77,6 +80,7 @@ export default function() {
 			componentWillUnmount() {
 				this.menuButtonPressStream.unsubscribe();
 				this.userStateChangeStream.unsubscribe();
+				this.appResumeStream.unsubscribe();
 				this.authHelper.destroy();
 				this.authHelper = null;
 			},

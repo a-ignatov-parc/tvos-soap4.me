@@ -21,10 +21,11 @@ export default function(menu) {
 			},
 
 			getUserState() {
-				const isFamilyAccount = user.isFamily();
-				const authorized = user.isAuthorized();
 				const nickname = user.getLogin();
-				return {nickname, authorized, isFamilyAccount};
+				const authorized = user.isAuthorized();
+				const isFamilyAccount = user.isFamily();
+				const avatar = isFamilyAccount ? '👪' : this.getUserIcon();
+				return {nickname, authorized, isFamilyAccount, avatar};
 			},
 
 			componentDidMount() {
@@ -33,9 +34,13 @@ export default function(menu) {
 
 				this.userStateChangeStream = user.subscription();
 				this.userStateChangeStream.pipe(() => this.setState(this.getUserState()));
+
+				this.appResumeStream = TVDML.subscribe(TVDML.event.RESUME);
+				this.appResumeStream.pipe(() => this.setState(this.getUserState()));
 			},
 
 			componentWillUnmount() {
+				this.appResumeStream.unsubscribe();
 				this.languageChangeStream.unsubscribe();
 				this.userStateChangeStream.unsubscribe();
 			},
@@ -45,9 +50,9 @@ export default function(menu) {
 			render() {
 				const {
 					menu,
+					avatar,
 					nickname,
 					authorized,
-					isFamilyAccount,
 				} = this.state;
 
 				return (
@@ -68,7 +73,7 @@ export default function(menu) {
 									route="user"
 								>
 									{authorized ? (
-										<title>{isFamilyAccount ? '👪' : this.getUserIcon()} {nickname}</title>
+										<title>{avatar} {nickname}</title>
 									) : (
 										<title>{localization.get('menu-account')}</title>
 									)}
