@@ -529,10 +529,16 @@ function getEpisodeItem(sid, episode, poster, translation) {
 function getSeasonExtendedData(season, schedule) {
 	if (!season) return null;
 
-	let {episodes: seasonEpisodes, covers: {big: poster}} = season;
-	let {episodes: scheduleEpisodes} = schedule[season.season - 1];
-	let scheduleDiff = scheduleEpisodes.slice(seasonEpisodes.length);
-	let episodes = seasonEpisodes.concat(scheduleDiff);
+	const {episodes: seasonEpisodes, covers: {big: poster}} = season;
+	const {episodes: scheduleEpisodes} = schedule[season.season - 1];
+
+	const seasonEpisodesDictionary = seasonEpisodes.reduce((result, episode) => {
+		result[episode.episode] = episode;
+		return result;
+	}, {});
+
+	const scheduleDiff = scheduleEpisodes.filter(({episode}) => !seasonEpisodesDictionary[episode]);
+	const episodes = seasonEpisodes.concat(scheduleDiff);
 
 	return episodes.reduce((result, {episode, watched}) => {
 		result[`eid-${episode}`] = !!watched;
