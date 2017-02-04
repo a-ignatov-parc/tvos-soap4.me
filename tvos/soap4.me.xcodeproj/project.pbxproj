@@ -241,7 +241,7 @@
 				INFOPLIST_FILE = soap4.me/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_SWIFT_FLAGS = "-DDEBUG";
-				PRODUCT_BUNDLE_IDENTIFIER = "anton.ignatov.soap4-me";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.anton-ignatov.soap4-me";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 3.0;
 			};
@@ -255,7 +255,7 @@
 				INFOPLIST_FILE = soap4.me/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_SWIFT_FLAGS = "-DRELEASE";
-				PRODUCT_BUNDLE_IDENTIFIER = "anton.ignatov.soap4-me";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.anton-ignatov.soap4-me";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 3.0;
 			};
