@@ -47,10 +47,12 @@ export default function() {
 		.pipe(TVDML.passthrough(({navigation: {sid, title}}) => ({sid, title})))
 		.pipe(TVDML.render(TVDML.createComponent({
 			getInitialState() {
-				let authorized = user.isAuthorized();
+				const extended = user.isExtended();
+				const authorized = user.isAuthorized();
 
 				return {
 					likes: 0,
+					extended,
 					authorized,
 					loading: true,
 					watching: false,
@@ -59,8 +61,8 @@ export default function() {
 			},
 
 			componentDidMount() {
-				let {sid} = this.props;
-				let currentDocument = this._rootNode.ownerDocument;
+				const {sid} = this.props;
+				const currentDocument = this._rootNode.ownerDocument;
 
 				this.menuButtonPressStream = TVDML.subscribe('menu-button-press');
 				this.menuButtonPressStream
@@ -73,7 +75,7 @@ export default function() {
 				}));
 
 				// To improuve UX on fast request we are adding rendering timeout.
-				let waitForAnimations = new Promise((resolve) => setTimeout(resolve, 500));
+				const waitForAnimations = new Promise((resolve) => setTimeout(resolve, 500));
 
 				Promise
 					.all([this.loadData(), waitForAnimations])
@@ -88,7 +90,7 @@ export default function() {
 			shouldComponentUpdate: deepEqualShouldUpdate,
 
 			loadData() {
-				let {sid} = this.props;
+				const {sid} = this.props;
 
 				return Promise
 					.all([
@@ -150,7 +152,11 @@ export default function() {
 			},
 
 			renderStatus() {
-				let {status, genres, actors} = this.state.tvshow;
+				const {
+					status,
+					genres,
+					actors,
+				} = this.state.tvshow;
 
 				return (
 					<infoList>
@@ -191,13 +197,14 @@ export default function() {
 			},
 
 			renderInfo() {
-				let {likes} = this.state;
-				let {description} = this.state.tvshow;
-				let title = i18n('tvshow-title', this.state.tvshow);
-				let hasTrailers = !!this.state.trailers.length;
+				const {likes, extended} = this.state;
+				const {description} = this.state.tvshow;
+				const title = i18n('tvshow-title', this.state.tvshow);
+				const hasTrailers = !!this.state.trailers.length;
+
 				let buttons = <row />;
 
-				let continueWatchingBtn = (
+				const continueWatchingBtn = (
 					<buttonLockup
 						onPlay={this.onContinueWatchingAndPlay}
 						onSelect={this.onContinueWatching}
@@ -209,7 +216,7 @@ export default function() {
 					</buttonLockup>
 				);
 
-				let showTrailerBtn = (
+				const showTrailerBtn = (
 					<buttonLockup onSelect={this.onShowTrailer}>
 						<badge src="resource://button-preview" />
 						<title>
@@ -218,7 +225,7 @@ export default function() {
 					</buttonLockup>
 				);
 
-				let startWatchingBtn = (
+				const startWatchingBtn = (
 					<buttonLockup onSelect={this.onAddToSubscriptions}>
 						<badge src="resource://button-add" />
 						<title>
@@ -227,7 +234,7 @@ export default function() {
 					</buttonLockup>
 				);
 
-				let stopWatchingBtn = (
+				const stopWatchingBtn = (
 					<buttonLockup onSelect={this.onRemoveFromSubscription}>
 						<badge src="resource://button-remove" />
 						<title>
@@ -236,7 +243,7 @@ export default function() {
 					</buttonLockup>
 				);
 
-				let moreBtn = (
+				const moreBtn = (
 					<buttonLockup onSelect={this.onMore}>
 						<badge src="resource://button-more" />
 						<title>
@@ -248,7 +255,7 @@ export default function() {
 				if (this.state.watching) {
 					buttons = (
 						<row>
-							{this.state.continueWatching && continueWatchingBtn}
+							{this.state.continueWatching && extended && continueWatchingBtn}
 							{hasTrailers && showTrailerBtn}
 							{this.state.authorized && stopWatchingBtn}
 							{this.state.authorized && moreBtn}

@@ -33,6 +33,11 @@ const titleMapping = {
 	[LANGUAGE]: 'settings-labels-language',
 };
 
+const onlyForExtendedAccounts = [
+	TRANSLATION,
+	VIDEO_PLAYBACK,
+];
+
 const descriptionMapping = {
 	[VIDEO_QUALITY]: 'settings-descriptions-video_quality',
 	[TRANSLATION]: 'settings-descriptions-translation',
@@ -57,8 +62,9 @@ export default function() {
 		.createPipeline()
 		.pipe(TVDML.render(TVDML.createComponent({
 			getInitialState() {
-				let authorized = user.isAuthorized();
-				let language = localization.getLanguage();
+				const extended = user.isExtended();
+				const authorized = user.isAuthorized();
+				const language = localization.getLanguage();
 
 				return {
 					language,
@@ -79,19 +85,26 @@ export default function() {
 			shouldComponentUpdate: deepEqualShouldUpdate,
 
 			render() {
+				const {
+					extended,
+					settings,
+					authorized,
+				} = this.state;
+
 				const {BASEURL} = getStartParams();
 
-				let items = Object
-					.keys(this.state.settings)
+				const items = Object
+					.keys(settings)
+					.filter(key => extended || !~onlyForExtendedAccounts.indexOf(key))
 					.map(key => ({
 						key,
-						value: this.state.settings[key],
+						value: settings[key],
 						title: getTitleForKey(key),
 						description: getDescriptionForKey(key),
-						result: getTitleForValue(this.state.settings[key]),
+						result: getTitleForValue(settings[key]),
 					}));
 
-				let relatedImage = (
+				const relatedImage = (
 					<img src={`${BASEURL}/assets/poster.png`} width="560" height="560"/>
 				);
 
@@ -162,7 +175,7 @@ export default function() {
 										</listItemLockup>
 									))}
 								</section>
-								{this.state.authorized && (
+								{authorized && extended && (
 									<section>
 										<header>
 											<title>
