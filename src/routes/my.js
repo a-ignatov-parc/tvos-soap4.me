@@ -63,8 +63,14 @@ export default function() {
 
 				this.authHelper = authFactory({
 					onError: defaultErrorHandlers,
-					onSuccess({token, till}) {
+					onSuccess({token, till, login}) {
 						user.set({token, till, logged: 1});
+
+						if (!user.isExtended()) {
+							user.set({family: [{name: login, fid: 0}], selected: null});
+							return this.dismiss();
+						}
+
 						getFamilyAccounts().then(({family, selected}) => {
 							user.set({family, selected});
 							this.dismiss();

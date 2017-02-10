@@ -346,9 +346,18 @@ export default function() {
 				if (!authorized) {
 					let authHelper = authFactory({
 						onError: defaultErrorHandlers,
-						onSuccess: ({token, till}) => {
+						onSuccess: ({token, till, login}) => {
 							user.set({token, till, logged: 1});
-							getFamilyAccounts()
+
+							Promise
+								.resolve()
+								.then(() => {
+									if (user.isExtended()) return getFamilyAccounts();
+									return {
+										family: [{name: login, fid: 0}],
+										selected: null,
+									};
+								})
 								.then(({family, selected}) => user.set({family, selected}))
 								.then(this.loadData.bind(this))
 								.then(payload => {

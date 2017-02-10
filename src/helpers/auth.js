@@ -51,7 +51,15 @@ export default function(options = {}) {
 				envelope.login = login;
 				TVDML.navigate(getPasswordRouteName(id));
 			}
-		}));
+		}))
+		.pipe(({document}) => {
+			let target = document.prevRouteDocument;
+
+			while(target && ~routesList.indexOf(target.route)) {
+				removeDocumentFromNavigation(target);
+				target = target.prevRouteDocument;
+			}
+		});
 
 	TVDML
 		.handleRoute(getPasswordRouteName(id))
@@ -76,27 +84,25 @@ export default function(options = {}) {
 		.handleRoute(getAuthorizingRouteName(id))
 		.pipe(TVDML.passthrough(() => state = AUTHORIZING))
 		.pipe(TVDML.render(<Loader title={i18n('login-step3-caption')} />))
-		.pipe(() => {
-			return new Promise((resolve, reject) => {
-					let {login, password} = envelope;
+		.pipe(() => new Promise((resolve, reject) => {
+			const {login, password} = envelope;
 
-					envelope.reject = reject;
-					authorize({login, password}).then(resolve, reject);
-				})
-				.then(response => {
-					if (response.ok) {
-						onSuccess.call(instance, response);
-					} else {
-						let error = new Error('Wrong login or password');
-						error.code = 'EBADCREDENTIALS';
-						onError.call(instance, error);
-					}
-				})
-				.catch(error => {
-					error.code = 'EBADRESPONSE';
-					onError.call(instance, error);
-				});
-		});
+			envelope.reject = reject;
+			authorize({login, password}).then(resolve, reject);
+		})
+		.then(response => {
+			if (response.ok) {
+				onSuccess.call(instance, response);
+			} else {
+				const error = new Error('Wrong login or password');
+				error.code = 'EBADCREDENTIALS';
+				onError.call(instance, error);
+			}
+		})
+		.catch(error => {
+			error.code = 'EBADRESPONSE';
+			onError.call(instance, error);
+		}));
 
 	const instance = {
 		id,
@@ -131,19 +137,7 @@ export default function(options = {}) {
 
 		reset() {
 			if (state !== IDLE) {
-				return TVDML
-					.navigate(getLoginRouteName(id))
-					.then(payload => {
-						let {document} = payload;
-						let target = document.prevRouteDocument;
-
-						while(target && ~routesList.indexOf(target.route)) {
-							removeDocumentFromNavigation(target);
-							target = target.prevRouteDocument;
-						}
-
-						return payload;
-					});
+				return TVDML.navigate(getLoginRouteName(id));
 			} else {
 				throw `Incorrect state: "${state}"`;
 			}

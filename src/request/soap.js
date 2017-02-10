@@ -101,7 +101,12 @@ export function checkSession() {
 }
 
 export function authorize({login, password}) {
-	return post('https://api.soap4.me/v2/auth/', {login, password});
+	return post('https://api.soap4.me/v2/auth/', {login, password}).catch(xhr => {
+		if (xhr.status === 403) {
+			return request.toJSON()(xhr);
+		}
+		return Promise.reject(xhr);
+	});
 }
 
 export function getFamilyAccounts() {

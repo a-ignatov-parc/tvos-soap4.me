@@ -38,6 +38,7 @@ export default function() {
 			},
 
 			getUserState() {
+				const extended = user.isExtended();
 				const authorized = user.isAuthorized();
 				const {family, selected} = user.get();
 				const isFamilyAccount = user.isFamily();
@@ -45,6 +46,7 @@ export default function() {
 
 				return {
 					family,
+					extended,
 					authorized,
 					isFamilyAccount,
 					selected : selected || mainAccount,
@@ -54,13 +56,18 @@ export default function() {
 			shouldComponentUpdate: deepEqualShouldUpdate,
 
 			componentDidMount() {
-				const fetchAccountUpdate = this.fetchAccountUpdate.bind(this);
-
 				this.authHelper = authFactory({
 					onError: defaultErrorHandlers,
-					onSuccess({token, till}) {
+					onSuccess: ({token, till, login}) => {
 						user.set({token, till, logged: 1});
-						fetchAccountUpdate().then(this.dismiss.bind(this));
+
+						if (!user.isExtended()) {
+							user.set({family: [{name: login, fid: 0}], selected: null});
+							this.setState(this.getUserState());
+							return this.authHelper.dismiss();
+						}
+
+						this.fetchAccountUpdate().then(this.authHelper.dismiss.bind(this.authHelper));
 					},
 				});
 			},
@@ -74,6 +81,7 @@ export default function() {
 				const {
 					family,
 					selected,
+					extended,
 					authorized,
 					isFamilyAccount,
 				} = this.state;
@@ -116,6 +124,7 @@ export default function() {
 
 											return (
 												<monogramLockup
+													disabled={!extended}
 													onSelect={this.onActivate.bind(this, account)}
 												>
 													<monogram
@@ -133,21 +142,23 @@ export default function() {
 										})}
 									</section>
 								</shelf>
-								<row style="tv-align: center; margin: 70 0 0">
-									{isFamilyAccount ? (
-										<button onSelect={this.onTurnOffFamilyAccountAttempt}>
-											<text>
-												{i18n('user-turn-off-family-account-button')}
-											</text>
-										</button>
-									) : (
-										<button onSelect={this.onTurnOnFamilyAccountAttempt}>
-											<text>
-												{i18n('user-turn-on-family-account-button')}
-											</text>
-										</button>
-									)}
-								</row>
+								{extended && (
+									<row style="tv-align: center; margin: 70 0 0">
+										{isFamilyAccount ? (
+											<button onSelect={this.onTurnOffFamilyAccountAttempt}>
+												<text>
+													{i18n('user-turn-off-family-account-button')}
+												</text>
+											</button>
+										) : (
+											<button onSelect={this.onTurnOnFamilyAccountAttempt}>
+												<text>
+													{i18n('user-turn-on-family-account-button')}
+												</text>
+											</button>
+										)}
+									</row>
+								)}
 								<row style="tv-align: center; margin: 50 0 0">
 									<button onSelect={this.onLogoutAttempt}>
 										<text>
