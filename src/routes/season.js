@@ -97,7 +97,8 @@ export default function() {
 			shouldComponentUpdate: deepEqualShouldUpdate,
 
 			loadData() {
-				let {sid, id} = this.props;
+				const {sid, id} = this.props;
+				const {translation} = this.state;
 
 				return Promise
 					.all([
@@ -106,11 +107,21 @@ export default function() {
 						getTVShowDescription(sid),
 					])
 					.then(([schedule, season, tvshow]) => ({tvshow, season, schedule}))
-					.then(payload => assign({}, payload, getSeasonExtendedData(payload.season, payload.schedule) || {
-						season: {season: id},
-						poster: payload.tvshow.covers.big,
-						episodes: payload.schedule[id - 1].episodes,
-					}))
+					.then(payload => {
+						const {
+							tvshow,
+							season,
+							schedule,
+						} = payload;
+
+						return assign({}, payload, getSeasonData({
+							id,
+							tvshow,
+							season,
+							schedule,
+							translation,
+						}));
+					})
 					.then(payload => assign({}, payload, {
 						episodesHasSubtitles: someEpisodesHasSubtitles(payload.episodes),
 					}));
@@ -121,7 +132,7 @@ export default function() {
 					return <Loader title={this.props.title} />
 				}
 
-				let {
+				const {
 					episodes,
 					translation,
 					episodesHasSubtitles,
@@ -129,11 +140,12 @@ export default function() {
 				} = this.state;
 
 				let highlighted = false;
-				let settingsTranslation = settings.get(TRANSLATION);
-				let title = i18n('tvshow-title', this.state.tvshow);
-				let seasonTitle = i18n('tvshow-season', {seasonNumber});
 
-				let poster = (
+				const settingsTranslation = settings.get(TRANSLATION);
+				const title = i18n('tvshow-title', this.state.tvshow);
+				const seasonTitle = i18n('tvshow-season', {seasonNumber});
+
+				const poster = (
 					<img
 						width="400"
 						height="400"
@@ -217,22 +229,23 @@ export default function() {
 														{episode.title}
 													</title>
 													<decorationLabel>
-														{dateTitle}
+														<text>{dateTitle}</text>
 													</decorationLabel>
 												</listItemLockup>
 											);
 										}
 
-										let file = getEpisodeMedia(episode, translation);
-										let mediaQualityCode = file && mediaQualities[file.quality];
-										let mediaTranslationCode = file && mediaLocalizations[file.translate];
+										const file = getEpisodeMedia(episode, translation);
+										const mediaQualityCode = file && mediaQualities[file.quality];
+										const mediaTranslationCode = file && mediaLocalizations[file.translate];
 
-										let hasHD = file && mediaQualityCode !== SD;
-										let hasSubtitles = !!~subtitlesList.indexOf(mediaTranslationCode);
+										const hasHD = file && mediaQualityCode !== SD;
+										const hasSubtitles = !!~subtitlesList.indexOf(mediaTranslationCode);
 
 										let highlight = false;
-										let title = processEntitiesInString(i18n('tvshow-episode-title', episode));
-										let description = processEntitiesInString(spoiler);
+
+										const title = processEntitiesInString(i18n('tvshow-episode-title', episode));
+										const description = processEntitiesInString(spoiler);
 
 										if (this.props.episodeNumber) {
 											highlight = episodeNumber === this.props.episodeNumber;
@@ -241,7 +254,7 @@ export default function() {
 											highlighted = true;
 										}
 
-										let badges = [
+										const badges = [
 											this.state[`eid-${episodeNumber}`] && (
 												<badge src="resource://button-checkmark" />
 											),
@@ -326,7 +339,20 @@ export default function() {
 			},
 
 			switchLocalTranslation(translation) {
-				this.setState({translation});
+				const {id} = this.props;
+				const {
+					tvshow,
+					season,
+					schedule,
+				} = this.state;
+
+				this.setState(assign({translation}, getSeasonData({
+					id,
+					tvshow,
+					season,
+					schedule,
+					translation,
+				})));
 			},
 
 			onHighlightedItemRender(episode, node) {
@@ -535,19 +561,39 @@ function getEpisodeItem(sid, episode, poster, translation) {
 	}));
 }
 
-function getSeasonExtendedData(season, schedule) {
+function getSeasonData(payload) {
+	const {
+		id,
+		tvshow,
+		season,
+		schedule,
+		translation,
+	} = payload;
+
+	return getSeasonExtendedData(season, schedule, translation) || {
+		season: {season: id},
+		poster: tvshow.covers.big,
+		episodes: schedule[id - 1].episodes,
+	};
+}
+
+function getSeasonExtendedData(season, schedule, translation) {
 	if (!season) return null;
 
 	const {episodes: seasonEpisodes, covers: {big: poster}} = season;
 	const {episodes: scheduleEpisodes} = schedule[season.season - 1];
 
-	const seasonEpisodesDictionary = seasonEpisodes.reduce((result, episode) => {
+	const filteredSeasonEpisodes = seasonEpisodes.filter(episode => {
+		return translation !== LOCALIZATION || episodeHasTranslation(episode);
+	});
+
+	const seasonEpisodesDictionary = filteredSeasonEpisodes.reduce((result, episode) => {
 		result[episode.episode] = episode;
 		return result;
 	}, {});
 
 	const scheduleDiff = scheduleEpisodes.filter(({episode}) => !seasonEpisodesDictionary[episode]);
-	const episodes = seasonEpisodes.concat(scheduleDiff);
+	const episodes = filteredSeasonEpisodes.concat(scheduleDiff);
 
 	return episodes.reduce((result, {episode, watched}) => {
 		result[`eid-${episode}`] = !!watched;
@@ -558,6 +604,14 @@ function getSeasonExtendedData(season, schedule) {
 	});
 }
 
+function episodeHasTranslation({files = []}) {
+	return files.some(({translate}) => mediaLocalizations[translate] === localization.LOCALIZATION);
+}
+
+function episodeHasSubtitles({files = []}) {
+	return files.some(({translate}) => mediaLocalizations[translate] !== localization.LOCALIZATION);
+}
+
 function someEpisodesHasSubtitles(episodes) {
-	return episodes.some(({files = []}) => files.some(({translate}) => mediaLocalizations[translate] !== localization.LOCALIZATION));
+	return episodes.some(episodeHasSubtitles);
 }

@@ -68,6 +68,7 @@ export default function() {
 
 				return {
 					language,
+					extended,
 					authorized,
 					settings: settings.getAll(),
 				};
