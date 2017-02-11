@@ -261,13 +261,13 @@ export function getActorInfo(id) {
 }
 
 export function getEpisodeMedia({files = []}, translation) {
-	let qualitySettings = settings.get(VIDEO_QUALITY);
-	let translationSettings = translation || settings.get(TRANSLATION);
+	const qualitySettings = settings.get(VIDEO_QUALITY);
+	const translationSettings = translation || settings.get(TRANSLATION);
 
-	let qualityRanking = mediaQualityRanking.slice(mediaQualityRanking.indexOf(qualitySettings));
-	let localizationRanking = mediaLocalizationRanking[translationSettings];
+	const qualityRanking = mediaQualityRanking.slice(mediaQualityRanking.indexOf(qualitySettings));
+	const localizationRanking = mediaLocalizationRanking[translationSettings];
 
-	let [rankedFile] = files
+	const [rankedFile] = files
 		.slice(0)
 		.sort(({
 			quality: qualityA,
@@ -276,10 +276,10 @@ export function getEpisodeMedia({files = []}, translation) {
 			quality: qualityB,
 			translate: translateB,
 		}) => {
-			let qualityIndexA = resolveCodeToIndex(mediaQualities[qualityA], qualityRanking);
-			let qualityIndexB = resolveCodeToIndex(mediaQualities[qualityB], qualityRanking);
-			let localizationIndexA = resolveCodeToIndex(mediaLocalizations[translateA], localizationRanking);
-			let localizationIndexB = resolveCodeToIndex(mediaLocalizations[translateB], localizationRanking);
+			const qualityIndexA = resolveCodeToIndex(mediaQualities[qualityA], qualityRanking);
+			const qualityIndexB = resolveCodeToIndex(mediaQualities[qualityB], qualityRanking);
+			const localizationIndexA = resolveCodeToIndex(mediaLocalizations[translateA], localizationRanking);
+			const localizationIndexB = resolveCodeToIndex(mediaLocalizations[translateB], localizationRanking);
 			return (qualityIndexA - qualityIndexB) + (localizationIndexA - localizationIndexB);
 		});
 
