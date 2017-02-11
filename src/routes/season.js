@@ -229,7 +229,7 @@ export default function() {
 														{episode.title}
 													</title>
 													<decorationLabel>
-														{dateTitle}
+														<text>{dateTitle}</text>
 													</decorationLabel>
 												</listItemLockup>
 											);
