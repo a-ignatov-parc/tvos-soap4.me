@@ -162,6 +162,20 @@ export default function() {
 
 				return (
 					<document>
+						<head>
+							<style content={`
+								.dropdown-badge {
+									tv-tint-color: rgb(84, 82, 80);
+									margin: 0 0 5 0;
+								}
+
+								@media tv-template and (tv-theme:dark) {
+									.dropdown-badge {
+										tv-tint-color: rgb(132, 133, 135);
+									}
+								}
+							`} />
+						</head>
 						<stackTemplate>
 							<banner>
 								<title>
@@ -177,8 +191,8 @@ export default function() {
 											<badge
 												width="31"
 												height="14"
+												class="dropdown-badge"
 												src="resource://button-dropdown"
-												style="tv-tint-color: rgb(0, 0, 0); margin: 0 0 5 0"
 											/>
 										</text>
 									</button>

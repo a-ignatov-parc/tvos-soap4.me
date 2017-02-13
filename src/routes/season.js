@@ -180,9 +180,15 @@ export default function() {
 								.title {
 									tv-text-highlight-style: marquee-on-highlight;
 								}
+
+								@media tv-template and (tv-theme:dark) {
+									.badge {
+										tv-tint-color: rgb(255, 255, 255);
+									}
+								}
 							`} />
 						</head>
-						<compilationTemplate theme="light">
+						<compilationTemplate>
 							<background>
 								<heroImg src={this.state.poster} />
 							</background>
@@ -256,13 +262,13 @@ export default function() {
 
 										const badges = [
 											this.state[`eid-${episodeNumber}`] && (
-												<badge src="resource://button-checkmark" />
+												<badge class="badge" src="resource://button-checkmark" />
 											),
 											hasSubtitles && (
-												<badge src="resource://cc" />
+												<badge class="badge" src="resource://cc" />
 											),
 											hasHD && (
-												<badge src="resource://hd" />
+												<badge class="badge" src="resource://hd" />
 											),
 										];
 

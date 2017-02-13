@@ -111,7 +111,7 @@ export default function() {
 				}
 
 				if (!this.state.authorized) {
-					return <Authorize theme="dark" onAuthorize={this.onLogin} />;
+					return <Authorize onAuthorize={this.onLogin} />;
 				}
 
 				if (!this.state.series.length) {

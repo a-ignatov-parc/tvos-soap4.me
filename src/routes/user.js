@@ -87,7 +87,7 @@ export default function() {
 				} = this.state;
 
 				if (!authorized) {
-					return <Authorize theme="dark" onAuthorize={this.onLogin} />;
+					return <Authorize onAuthorize={this.onLogin} />;
 				}
 
 				const currentFid = `${selected.fid}`;

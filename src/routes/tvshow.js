@@ -135,7 +135,7 @@ export default function() {
 
 				return (
 					<document>
-						<productTemplate theme="light">
+						<productTemplate>
 							<banner>
 								{this.renderStatus()}
 								{this.renderInfo()}
