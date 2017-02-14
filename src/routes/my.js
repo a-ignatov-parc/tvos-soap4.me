@@ -222,7 +222,7 @@ export default function() {
 										poster={poster}
 										counter={unwatched || dateTitle}
 										isWatched={isWatched}
-										payload={{title, sid}}
+										payload={{title, sid, poster}}
 									/>
 								);
 							})}

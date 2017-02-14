@@ -94,7 +94,7 @@ export default function() {
 										title={title}
 										route="tvshow"
 										poster={poster}
-										payload={{title, sid}}
+										payload={{title, sid, poster}}
 									/>
 								);
 							})}
@@ -127,7 +127,7 @@ export default function() {
 										title={title}
 										route="tvshow"
 										poster={poster}
-										payload={{title, sid}}
+										payload={{title, sid, poster}}
 									/>
 								);
 							})}
@@ -159,7 +159,7 @@ export default function() {
 								return (
 									<monogramLockup
 										key={id}
-										onSelect={link('actor', {id, actor: name_en})}
+										onSelect={link('actor', {id, actor: name_en, poster: image_original})}
 									>
 										<monogram 
 											style="tv-placeholder: monogram"
@@ -203,7 +203,7 @@ export default function() {
 										title={title}
 										route="tvshow"
 										poster={poster}
-										payload={{title, sid}}
+										payload={{title, sid, poster}}
 									/>
 								);
 							})}
@@ -235,7 +235,7 @@ export default function() {
 										title={episodeTitle}
 										route="season"
 										poster={poster}
-										payload={{sid, id: seasonNumber, episodeNumber, title: `${title} — ${seasonTitle}`}}
+										payload={{sid, id: seasonNumber, episodeNumber, title: `${title} — ${seasonTitle}`, poster}}
 										subtitle={prettifyEpisodeNum(seasonNumber, episodeNumber)}
 									/>
 								);

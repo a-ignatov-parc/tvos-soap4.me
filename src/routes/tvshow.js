@@ -44,7 +44,7 @@ const {Promise} = TVDML;
 export default function() {
 	return TVDML
 		.createPipeline()
-		.pipe(TVDML.passthrough(({navigation: {sid, title}}) => ({sid, title})))
+		.pipe(TVDML.passthrough(({navigation: {sid, title, poster}}) => ({sid, title, poster})))
 		.pipe(TVDML.render(TVDML.createComponent({
 			getInitialState() {
 				const extended = user.isExtended();
@@ -130,7 +130,12 @@ export default function() {
 
 			render() {
 				if (this.state.loading) {
-					return <Loader title={this.props.title} />
+					return (
+						<Loader
+							title={this.props.title}
+							heroImg={this.props.poster}
+						/>
+					);
 				}
 
 				return (
@@ -368,7 +373,7 @@ export default function() {
 										poster={poster}
 										counter={unwatched || dateTitle}
 										isWatched={isWatched}
-										payload={{sid, id: seasonNumber, title: `${title} — ${seasonTitle}`}}
+										payload={{sid, id: seasonNumber, title: `${title} — ${seasonTitle}`, poster}}
 									/>
 								);
 							})}
@@ -402,7 +407,7 @@ export default function() {
 										title={title}
 										poster={poster}
 										route="tvshow"
-										payload={{sid, title}}
+										payload={{sid, title, poster}}
 									/>
 								);
 							})}
@@ -499,7 +504,7 @@ export default function() {
 								return (
 									<monogramLockup
 										key={person_id}
-										onSelect={link('actor', {id: person_id, actor: person_en})}
+										onSelect={link('actor', {id: person_id, actor: person_en, poster: person_image_original})}
 									>
 										<monogram 
 											style="tv-placeholder: monogram"
@@ -604,14 +609,15 @@ export default function() {
 			},
 
 			onContinueWatching(event, shouldPlayImmediately) {
-				let uncompletedSeason = this.getSeasonToWatch(this.state.seasons);
-				let {season: seasonNumber} = uncompletedSeason;
-				let seasonTitle = i18n('tvshow-season', {seasonNumber});
-				let title = i18n('tvshow-title', this.state.tvshow);
-				let {sid} = this.state.tvshow;
+				const uncompletedSeason = this.getSeasonToWatch(this.state.seasons);
+				const {season: seasonNumber, covers: {big: poster}} = uncompletedSeason;
+				const seasonTitle = i18n('tvshow-season', {seasonNumber});
+				const title = i18n('tvshow-title', this.state.tvshow);
+				const {sid} = this.state.tvshow;
 
 				TVDML.navigate('season', {
 					sid,
+					poster,
 					id: seasonNumber,
 					title: `${title} — ${seasonTitle}`,
 					shouldPlayImmediately,

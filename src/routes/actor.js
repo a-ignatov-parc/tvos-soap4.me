@@ -11,9 +11,9 @@ import Loader from '../components/loader';
 export default function(title) {
 	return TVDML
 		.createPipeline()
-		.pipe(TVDML.passthrough(({navigation: {id, actor}}) => ({id, actor})))
-		.pipe(TVDML.render(({actor}) => {
-			return <Loader title={actor} />;
+		.pipe(TVDML.passthrough(({navigation: {id, actor, poster}}) => ({id, actor, poster})))
+		.pipe(TVDML.render(({actor, poster}) => {
+			return <Loader title={actor} heroImg={poster} />;
 		}))
 		.pipe(TVDML.passthrough(({id}) => {
 			return getActorInfo(id).then(({bio, soap: tvshows}) => ({bio, tvshows}));
@@ -69,7 +69,7 @@ export default function(title) {
 												title={title}
 												poster={poster}
 												route="tvshow"
-												payload={{sid, title}}
+												payload={{sid, title, poster}}
 											/>
 										);
 									})}

@@ -59,9 +59,10 @@ export default function() {
 			id,
 			sid,
 			title,
+			poster,
 			episodeNumber,
 			shouldPlayImmediately
-		}}) => ({sid, id, title, episodeNumber, shouldPlayImmediately})))
+		}}) => ({sid, id, title, poster, episodeNumber, shouldPlayImmediately})))
 		.pipe(TVDML.render(TVDML.createComponent({
 			getInitialState() {
 				const authorized = user.isAuthorized();
@@ -129,7 +130,12 @@ export default function() {
 
 			render() {
 				if (this.state.loading) {
-					return <Loader title={this.props.title} />
+					return (
+						<Loader 
+							title={this.props.title}
+							heroImg={this.props.poster}
+						/>
+					);
 				}
 
 				const {
