@@ -349,8 +349,10 @@ export function saveSpeedTestResults(results) {
 }
 
 function headers() {
-	let token = getToken();
-	let userAgent = `ATV: soap4.me ${version}`;
+	const token = getToken();
+	const isQello = ~Device.appIdentifier.toLowerCase().indexOf('qello');
+	const name = `soap4.me${isQello ? '-qello' : ''}`;
+	const userAgent = `ATV: ${name} ${version}`;
 
 	return {
 		'X-Api-Token': token,
