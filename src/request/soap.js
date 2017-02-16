@@ -3,9 +3,9 @@ import * as TVDML from 'tvdml';
 import assign from 'object-assign';
 
 import {getToken} from '../user';
-import {genreToId} from '../utils';
 import * as request from '../request';
 import * as settings from '../settings';
+import {genreToId, isQello} from '../utils';
 
 const {Promise} = TVDML;
 
@@ -350,8 +350,7 @@ export function saveSpeedTestResults(results) {
 
 function headers() {
 	const token = getToken();
-	const isQello = ~Device.appIdentifier.toLowerCase().indexOf('qello');
-	const name = `soap4.me${isQello ? '-qello' : ''}`;
+	const name = `soap4.me${isQello() ? '-qello' : ''}`;
 	const userAgent = `ATV: ${name} ${version}`;
 
 	return {

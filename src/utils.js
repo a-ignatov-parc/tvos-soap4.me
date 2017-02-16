@@ -27,11 +27,15 @@ export function getStartParams() {
 	let params = JSON.parse(sessionStorage.getItem('startParams') || '{}');
 
 	// Ad-hoc fix for assets urls
-	if (~Device.appIdentifier.toLowerCase().indexOf('qello')) {
+	if (isQello()) {
 		params.BASEURL = 'https://a-ignatov-parc.github.io/tvos-soap4.me-releases/quello/tvml/';
 	}
 
 	return params;
+}
+
+export function isQello() {
+	return !!~Device.appIdentifier.toLowerCase().indexOf('qello');
 }
 
 export function noop() {
