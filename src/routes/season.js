@@ -121,11 +121,10 @@ export default function() {
 							season,
 							schedule,
 							translation,
-						}));
-					})
-					.then(payload => assign({}, payload, {
-						episodesHasSubtitles: someEpisodesHasSubtitles(payload.episodes),
-					}));
+						}), {
+							episodesHasSubtitles: someEpisodesHasSubtitles(season.episodes),
+						});
+					});
 			},
 
 			render() {
