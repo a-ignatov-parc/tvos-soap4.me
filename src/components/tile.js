@@ -4,7 +4,7 @@ import {jsx} from 'tvdml';
 import {link} from '../utils';
 
 export default function Tile({key, attrs = {}, events = {}}) {
-	let {
+	const {
 		route,
 		title,
 		poster,
@@ -15,7 +15,7 @@ export default function Tile({key, attrs = {}, events = {}}) {
 		autoHighlight,
 	} = attrs;
 
-	let {
+	const {
 		onPlay,
 		onSelect,
 		onHighlight,
@@ -35,13 +35,17 @@ export default function Tile({key, attrs = {}, events = {}}) {
 				src={poster}
 				width="250"
 				height="250"
+				class="tile-img"
 				style={`
 					tv-placeholder: tv; 
 					tv-tint-color: linear-gradient(top, 0.4, transparent, rgba(0, 0, 0, 0.5));
 				`}
 			/>
-			<title style="tv-text-highlight-style: marquee-on-highlight">{title}</title>
-			<subtitle>{subtitle}</subtitle>
+			<title
+				class="tile-title"
+				style="tv-text-highlight-style: marquee-on-highlight"
+			>{title}</title>
+			<subtitle class="tile-subtitle">{subtitle}</subtitle>
 			<overlay style="margin: 0; padding: 0;">
 				{!isWatched && counter && (
 					<textBadge

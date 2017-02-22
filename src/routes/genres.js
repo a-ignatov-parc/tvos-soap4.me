@@ -76,6 +76,15 @@ export default function() {
 
 				return (
 					<document>
+						<head>
+							<style content={`
+								@media tv-template and (tv-theme:dark) {
+									.tile-title {
+										color: rgb(152, 151, 152);
+									}
+								}
+							`} />
+						</head>
 						<catalogTemplate>
 							<banner>
 								<title>
