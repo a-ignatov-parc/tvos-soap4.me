@@ -84,7 +84,7 @@ export default {
 	'episode-mark-as-watched': 'Отметить просмотренным',
 	'episode-mark-as-unwatched': 'Отметить непросмотренным',
 	'episode-speedtest': 'Тест скорости',
-	'episode-rate': 'Rate episode',
+	'episode-rate': 'Оценить эпизод',
 
 	'season-title-more': 'Еще',
 	'season-mark-as-watched': 'Отметить сезон как просмотренный',
@@ -133,7 +133,7 @@ export default {
 	'tvshow-control-show-trailer': 'Посмотреть Трейлер',
 	'tvshow-control-start-watching': 'Начать Просмотр',
 	'tvshow-control-stop-watching': 'Закончить Просмотр',
-	'tvshow-control-rate': 'Rate TV Show',
+	'tvshow-control-rate': 'Оценить Сериал',
 	'tvshow-control-more': 'Еще',
 
 	'new-episode-soon': 'Скоро',

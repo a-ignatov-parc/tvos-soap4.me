@@ -128,13 +128,24 @@ export default function() {
 					});
 			},
 
-			renderPoster(src) {
+			renderPoster(src, wide) {
+				let size = {
+					width: 400,
+					height: 400,
+				};
+
+				if (wide) {
+					size = {
+						width: 710,
+						height: 400,
+					};
+				}
+
 				return (
 					<img
 						src={src}
-						width="400"
-						height="400"
 						style="tv-placeholder: tv"
+						{...size}
 					/>
 				);
 			},
@@ -303,7 +314,7 @@ export default function() {
 												</decorationLabel>
 												<relatedContent>
 													<lockup>
-														{this.renderPoster(episodePoster)}
+														{this.renderPoster(episodePoster, true)}
 														<row class="controls_container">
 															{this.state.authorized && (this.state[`eid-${episodeNumber}`] ? (
 																<buttonLockup
