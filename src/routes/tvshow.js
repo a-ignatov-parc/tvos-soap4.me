@@ -76,6 +76,7 @@ export default function() {
 
 				this.userStateChangeStream = user.subscription();
 				this.userStateChangeStream.pipe(() => this.setState({
+					extended: user.isExtended(),
 					authorized: user.isAuthorized(),
 				}));
 
