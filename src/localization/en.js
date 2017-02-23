@@ -84,6 +84,7 @@ export default {
 	'episode-mark-as-watched': 'Mark as Watched',
 	'episode-mark-as-unwatched': 'Mark as Unwatched',
 	'episode-speedtest': 'Speed test',
+	'episode-rate': 'Rate episode',
 
 	'season-title-more': 'More',
 	'season-mark-as-watched': 'Mark Season as Watched',
@@ -118,6 +119,7 @@ export default {
 
 	'tvshow-average-imdb': ({amount}) => `Average of ${amount} IMDB user ratings.`,
 	'tvshow-average-kinopoisk': ({amount}) => `Average of ${amount} Kinopoisk user ratings.`,
+	'tvshow-average-soap': ({amount}) => `Average of ${amount} soap4.me user ratings.`,
 
 	'tvshow-liked-by': 'Liked by',
 	'tvshow-liked-by-people': ({likes}) => `${likes} people`,
@@ -131,6 +133,7 @@ export default {
 	'tvshow-control-show-trailer': 'Show\nTrailer',
 	'tvshow-control-start-watching': 'Start Watching',
 	'tvshow-control-stop-watching': 'Stop Watching',
+	'tvshow-control-rate': 'Rate TV Show',
 	'tvshow-control-more': 'More',
 
 	'new-episode-soon': 'Soon',

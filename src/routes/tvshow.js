@@ -38,6 +38,7 @@ import {
 	markReviewAsDisliked,
 	addToMyTVShows,
 	removeFromMyTVShows,
+	rateTVShow,
 } from '../request/soap';
 
 import Tile from '../components/tile';
@@ -209,7 +210,7 @@ export default function() {
 
 			renderInfo() {
 				const {likes, extended} = this.state;
-				const {description} = this.state.tvshow;
+				const {description, soap_rating} = this.state.tvshow;
 				const title = i18n('tvshow-title', this.state.tvshow);
 				const hasTrailers = !!this.state.trailers.length;
 
@@ -263,12 +264,22 @@ export default function() {
 					</buttonLockup>
 				);
 
+				const rateBtn = (
+					<buttonLockup onSelect={this.onRate}>
+						<badge src="resource://button-rate" />
+						<title>
+							{i18n('tvshow-control-rate')}
+						</title>
+					</buttonLockup>
+				);
+
 				if (this.state.watching) {
 					buttons = (
 						<row>
 							{this.state.continueWatching && extended && continueWatchingBtn}
 							{hasTrailers && showTrailerBtn}
 							{this.state.authorized && stopWatchingBtn}
+							{this.state.authorized && rateBtn}
 							{this.state.authorized && moreBtn}
 						</row>
 					);
@@ -277,6 +288,7 @@ export default function() {
 						<row>
 							{hasTrailers && showTrailerBtn}
 							{startWatchingBtn}
+							{this.state.authorized && rateBtn}
 							{this.state.authorized && moreBtn}
 						</row>
 					);
@@ -286,6 +298,7 @@ export default function() {
 					<stack>
 						<title>{title}</title>
 						<row>
+							<ratingBadge value={soap_rating / 10} />
 							<text>
 								{i18n('tvshow-liked-by')}
 								{' '}
@@ -423,7 +436,9 @@ export default function() {
 			},
 
 			renderRatings() {
-				let {
+				const {
+					soap_votes,
+					soap_rating,
 					imdb_votes,
 					imdb_rating,
 					kinopoisk_votes,
@@ -453,6 +468,15 @@ export default function() {
 									<ratingBadge value={kinopoisk_rating / 10} />
 									<description>
 										{i18n('tvshow-average-kinopoisk', {amount: formatNumber(+kinopoisk_votes, {fractionDigits: 0})})}
+									</description>
+								</ratingCard>
+							)}
+							{!!+soap_rating && (
+								<ratingCard>
+									<title>{(`${soap_rating}`).slice(0, 3)} / 10</title>
+									<ratingBadge value={soap_rating / 10} />
+									<description>
+										{i18n('tvshow-average-soap', {amount: formatNumber(+soap_votes, {fractionDigits: 0})})}
 									</description>
 								</ratingCard>
 							)}
@@ -755,9 +779,37 @@ export default function() {
 					.then(TVDML.removeModal);
 			},
 
+			onRate() {
+				const {title} = this.props;
+
+				TVDML
+					.renderModal(
+						<document>
+							<ratingTemplate>
+								<title>{title}</title>
+								<ratingBadge onChange={this.onRateChange} />
+							</ratingTemplate>
+						</document>
+					)
+					.sink();
+			},
+
+			onRateChange(event) {
+				return this.onRateTVShow(event.value * 10);
+			},
+
+			onRateTVShow(rating) {
+				const {sid} = this.props;
+
+				return rateTVShow(sid, rating)
+					.then(({votes: soap_votes, rating: soap_rating}) => ({soap_votes, soap_rating}))
+					.then(rating => this.setState({tvshow: assign({}, this.state.tvshow, rating)}))
+					.then(TVDML.removeModal);
+			},
+
 			onMore() {
-				let hasWatchedEpisodes = this.state.seasons.some(({unwatched}) => !unwatched);
-				let hasUnwatchedEpisodes = this.state.seasons.some(({unwatched}) => !!unwatched);
+				const hasWatchedEpisodes = this.state.seasons.some(({unwatched}) => !unwatched);
+				const hasUnwatchedEpisodes = this.state.seasons.some(({unwatched}) => !!unwatched);
 
 				TVDML
 					.renderModal(
@@ -787,7 +839,7 @@ export default function() {
 			},
 
 			onMarkTVShowAsWatched() {
-				let {sid} = this.props;
+				const {sid} = this.props;
 
 				return markTVShowAsWatched(sid)
 					.then(this.loadData.bind(this))
@@ -796,7 +848,7 @@ export default function() {
 			},
 
 			onMarkTVShowAsUnwatched() {
-				let {sid} = this.props;
+				const {sid} = this.props;
 
 				return markTVShowAsUnwatched(sid)
 					.then(this.loadData.bind(this))
