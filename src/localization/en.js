@@ -83,6 +83,7 @@ export default {
 	'episode-more': 'More',
 	'episode-mark-as-watched': 'Mark as Watched',
 	'episode-mark-as-unwatched': 'Mark as Unwatched',
+	'episode-speedtest': 'Speed test',
 
 	'season-title-more': 'More',
 	'season-mark-as-watched': 'Mark Season as Watched',

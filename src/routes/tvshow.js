@@ -6,6 +6,9 @@ import assign from 'object-assign';
 import formatNumber from 'simple-format-number';
 
 import * as user from '../user';
+import authFactory from '../helpers/auth';
+import {defaultErrorHandlers} from '../helpers/auth/handlers';
+
 import {get as i18n} from '../localization';
 import {processEntitiesInString} from '../utils/parser';
 import {deepEqualShouldUpdate} from '../utils/components';
@@ -26,6 +29,7 @@ import {
 	getTVShowReviews,
 	getTVShowTrailers,
 	getTVShowSchedule,
+	getFamilyAccounts,
 	getTVShowDescription,
 	getTVShowRecommendations,
 	markTVShowAsWatched,
@@ -38,6 +42,7 @@ import {
 
 import Tile from '../components/tile';
 import Loader from '../components/loader';
+import Authorize from '../components/authorize';
 
 const {Promise} = TVDML;
 
@@ -270,7 +275,7 @@ export default function() {
 					buttons = (
 						<row>
 							{hasTrailers && showTrailerBtn}
-							{this.state.authorized && startWatchingBtn}
+							{startWatchingBtn}
 							{this.state.authorized && moreBtn}
 						</row>
 					);
@@ -642,26 +647,63 @@ export default function() {
 			},
 
 			onAddToSubscriptions() {
-				let {sid} = this.state.tvshow;
+				const {
+					authorized,
+					tvshow: {sid},
+				} = this.state;
+
+				if (!authorized) {
+					const authHelper = authFactory({
+						onError: defaultErrorHandlers,
+						onSuccess: ({token, till, login}) => {
+							user.set({token, till, logged: 1});
+
+							Promise
+								.resolve()
+								.then(() => {
+									if (user.isExtended()) return getFamilyAccounts();
+									return {
+										family: [{name: login, fid: 0}],
+										selected: null,
+									};
+								})
+								.then(({family, selected}) => user.set({family, selected}))
+								.then(this.loadData.bind(this))
+								.then(payload => {
+									this.setState(payload);
+									authHelper.dismiss();
+									this.onAddToSubscriptions();
+								});
+						},
+					});
+
+					return TVDML
+						.renderModal(<Authorize onAuthorize={() => authHelper.present()} />)
+						.sink();
+				}
+
 				this.setState({
 					watching: true,
 					likes: this.state.likes + 1,
 				});
+
 				return addToMyTVShows(sid);
 			},
 
 			onRemoveFromSubscription() {
-				let {sid} = this.state.tvshow;
+				const {sid} = this.state.tvshow;
+
 				this.setState({
 					watching: false,
 					likes: this.state.likes - 1,
 				});
+
 				return removeFromMyTVShows(sid);
 			},
 
 			onShowFullDescription() {
-				let title = i18n('tvshow-title', this.state.tvshow);
-				let {description} = this.state.tvshow;
+				const title = i18n('tvshow-title', this.state.tvshow);
+				const {description} = this.state.tvshow;
 
 				TVDML
 					.renderModal(

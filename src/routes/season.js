@@ -320,17 +320,39 @@ export default function() {
 																	</title>
 																</buttonLockup>
 															))}
-															{this.state.authorized && (
-																<buttonLockup 
-																	class="control"
-																	onSelect={this.onMore}
-																>
-																	<badge src="resource://button-more" />
-																	<title>
-																		{i18n('episode-more')}
-																	</title>
-																</buttonLockup>
-															)}
+															{this.state.authorized && [
+																(
+																	<buttonLockup
+																		class="control"
+																		onSelect={link('speedtest')}
+																	>
+																		<badge src="resource://button-rate" />
+																		<title>
+																			{i18n('episode-speedtest')}
+																		</title>
+																	</buttonLockup>
+																), (
+																	<buttonLockup
+																		class="control"
+																		onSelect={link('speedtest')}
+																	>
+																		<badge src="resource://button-cloud" />
+																		<title>
+																			{i18n('episode-speedtest')}
+																		</title>
+																	</buttonLockup>
+																), (
+																	<buttonLockup 
+																		class="control"
+																		onSelect={this.onMore}
+																	>
+																		<badge src="resource://button-more" />
+																		<title>
+																			{i18n('episode-more')}
+																		</title>
+																	</buttonLockup>
+																)
+															]}
 														</row>
 														<description
 															handlesOverflow="true"
@@ -376,12 +398,12 @@ export default function() {
 			},
 
 			onPlayEpisode(episodeNumber) {
-				let {sid, id} = this.props;
-				let {episodes, poster, authorized, translation} = this.state;
-				let markAsWatched = this.onMarkAsWatched.bind(this);
+				const {sid, id} = this.props;
+				const {episodes, poster, authorized, translation} = this.state;
+				const markAsWatched = this.onMarkAsWatched.bind(this);
 
 				if (!authorized) {
-					let authHelper = authFactory({
+					const authHelper = authFactory({
 						onError: defaultErrorHandlers,
 						onSuccess: ({token, till, login}) => {
 							user.set({token, till, logged: 1});
@@ -410,17 +432,17 @@ export default function() {
 						.sink();
 				}
 
-				let resolvers = {
+				const resolvers = {
 					initial() {
 						return episodeNumber;
 					},
 
 					next({id}) {
 						if (settings.get(VIDEO_PLAYBACK) === BY_EPISODE) return null;
-						let [sid, season, episodeNumber] = id.split('-');
-						let episode = getEpisode(episodeNumber, episodes);
-						let index = episodes.indexOf(episode);
-						let nextEpisode = ~index ? episodes[index + 1] : {};
+						const [sid, season, episodeNumber] = id.split('-');
+						const episode = getEpisode(episodeNumber, episodes);
+						const index = episodes.indexOf(episode);
+						const nextEpisode = ~index ? episodes[index + 1] : {};
 						return nextEpisode.episode || null;
 					},
 				};
@@ -428,24 +450,24 @@ export default function() {
 				TVDML
 					.createPlayer({
 						items(item, request) {
-							let episodeNumber = resolvers[request] && resolvers[request](item);
-							let episode = getEpisode(episodeNumber, episodes);
+							const episodeNumber = resolvers[request] && resolvers[request](item);
+							const episode = getEpisode(episodeNumber, episodes);
 							return getEpisodeItem(sid, episode, poster, translation);
 						},
 
 						markAsStopped(item, elapsedTime) {
-							let {id} = item;
-							let [sid, season, episodeNumber] = id.split('-');
-							let episode = getEpisode(episodeNumber, episodes);
-							let {eid} = getEpisodeMedia(episode, translation);
+							const {id} = item;
+							const [sid, season, episodeNumber] = id.split('-');
+							const episode = getEpisode(episodeNumber, episodes);
+							const {eid} = getEpisodeMedia(episode, translation);
 							return saveElapsedTime(eid, elapsedTime);
 						},
 
 						markAsWatched(item) {
-							let {id} = item;
+							const {id} = item;
 
 							if (!getActiveDocument()) {
-								let [sid, season, episodeNumber] = id.split('-');
+								const [sid, season, episodeNumber] = id.split('-');
 								return markAsWatched(episodeNumber);
 							}
 						},
