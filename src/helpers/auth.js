@@ -167,7 +167,7 @@ export default function(options = {}) {
 }
 
 function createForm(params = {}) {
-	let {
+	const {
 		onSubmit = noop(),
 		validate: customValidate = defaultValidate,
 	} = params;

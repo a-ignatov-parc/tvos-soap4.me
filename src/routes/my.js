@@ -31,7 +31,7 @@ export default function() {
 		.createPipeline()
 		.pipe(TVDML.render(TVDML.createComponent({
 			getInitialState() {
-				let authorized = user.isAuthorized();
+				const authorized = user.isAuthorized();
 
 				return {
 					authorized,
@@ -40,7 +40,7 @@ export default function() {
 			},
 
 			componentDidMount() {
-				let currentDocument = this._rootNode.ownerDocument;
+				const currentDocument = this._rootNode.ownerDocument;
 
 				this.menuButtonPressStream = TVDML.subscribe('menu-button-press');
 				this.menuButtonPressStream

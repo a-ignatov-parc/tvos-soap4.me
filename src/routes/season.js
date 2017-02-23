@@ -30,6 +30,7 @@ import {
 	markSeasonAsUnwatched,
 	markEpisodeAsWatched,
 	markEpisodeAsUnwatched,
+	rateEpisode,
 } from '../request/soap';
 
 import Loader from '../components/loader';
@@ -127,6 +128,28 @@ export default function() {
 					});
 			},
 
+			renderPoster(src, wide) {
+				let size = {
+					width: 400,
+					height: 400,
+				};
+
+				if (wide) {
+					size = {
+						width: 710,
+						height: 400,
+					};
+				}
+
+				return (
+					<img
+						src={src}
+						style="tv-placeholder: tv"
+						{...size}
+					/>
+				);
+			},
+
 			render() {
 				if (this.state.loading) {
 					return (
@@ -149,15 +172,6 @@ export default function() {
 				const settingsTranslation = settings.get(TRANSLATION);
 				const title = i18n('tvshow-title', this.state.tvshow);
 				const seasonTitle = i18n('tvshow-season', {seasonNumber});
-
-				const poster = (
-					<img
-						width="400"
-						height="400"
-						src={this.state.poster}
-						style="tv-placeholder: tv"
-					/>
-				);
 
 				return (
 					<document>
@@ -200,7 +214,7 @@ export default function() {
 							<list>
 								<relatedContent>
 									<lockup>
-										{poster}
+										{this.renderPoster(this.state.poster)}
 									</lockup>
 								</relatedContent>
 								<segmentBarHeader>
@@ -222,7 +236,8 @@ export default function() {
 								</segmentBarHeader>
 								<section>
 									{episodes.map((episode, i) => {
-										let {
+										const {
+											rating,
 											spoiler,
 											watched,
 											date: begins,
@@ -230,8 +245,8 @@ export default function() {
 										} = episode;
 
 										if (begins) {
-											let date = moment(begins, 'DD.MM.YYYY');
-											let dateTitle = date.isValid() ? `Airdate ${date.format('ll')}` : '';
+											const date = moment(begins, 'DD.MM.YYYY');
+											const dateTitle = date.isValid() ? `Airdate ${date.format('ll')}` : '';
 
 											return (
 												<listItemLockup class="item item--disabled">
@@ -245,6 +260,8 @@ export default function() {
 												</listItemLockup>
 											);
 										}
+
+										const episodePoster = (episode.screenshots || {}).big || this.state.poster;
 
 										const file = getEpisodeMedia(episode, translation);
 										const mediaQualityCode = file && mediaQualities[file.quality];
@@ -297,7 +314,7 @@ export default function() {
 												</decorationLabel>
 												<relatedContent>
 													<lockup>
-														{poster}
+														{this.renderPoster(episodePoster, true)}
 														<row class="controls_container">
 															{this.state.authorized && (this.state[`eid-${episodeNumber}`] ? (
 																<buttonLockup
@@ -320,17 +337,45 @@ export default function() {
 																	</title>
 																</buttonLockup>
 															))}
-															{this.state.authorized && (
-																<buttonLockup 
-																	class="control"
-																	onSelect={this.onMore}
-																>
-																	<badge src="resource://button-more" />
-																	<title>
-																		{i18n('episode-more')}
-																	</title>
-																</buttonLockup>
-															)}
+															{this.state.authorized && [
+																(
+																	<buttonLockup
+																		class="control"
+																		onSelect={this.onRate.bind(this, episode)}
+																	>
+																		<badge src="resource://button-rate" />
+																		<title>
+																			{i18n('episode-rate')}
+																		</title>
+																	</buttonLockup>
+																), (
+																	<buttonLockup
+																		class="control"
+																		onSelect={link('speedtest')}
+																	>
+																		<badge src="resource://button-cloud" />
+																		<title>
+																			{i18n('episode-speedtest')}
+																		</title>
+																	</buttonLockup>
+																), (
+																	<buttonLockup 
+																		class="control"
+																		onSelect={this.onMore}
+																	>
+																		<badge src="resource://button-more" />
+																		<title>
+																			{i18n('episode-more')}
+																		</title>
+																	</buttonLockup>
+																)
+															]}
+														</row>
+														<row class="controls_container">
+															<ratingBadge
+																style="tv-rating-style: star-l"
+																value={rating / 10}
+															/>
 														</row>
 														<description
 															handlesOverflow="true"
@@ -376,12 +421,12 @@ export default function() {
 			},
 
 			onPlayEpisode(episodeNumber) {
-				let {sid, id} = this.props;
-				let {episodes, poster, authorized, translation} = this.state;
-				let markAsWatched = this.onMarkAsWatched.bind(this);
+				const {sid, id} = this.props;
+				const {episodes, poster, authorized, translation} = this.state;
+				const markAsWatched = this.onMarkAsWatched.bind(this);
 
 				if (!authorized) {
-					let authHelper = authFactory({
+					const authHelper = authFactory({
 						onError: defaultErrorHandlers,
 						onSuccess: ({token, till, login}) => {
 							user.set({token, till, logged: 1});
@@ -410,17 +455,17 @@ export default function() {
 						.sink();
 				}
 
-				let resolvers = {
+				const resolvers = {
 					initial() {
 						return episodeNumber;
 					},
 
 					next({id}) {
 						if (settings.get(VIDEO_PLAYBACK) === BY_EPISODE) return null;
-						let [sid, season, episodeNumber] = id.split('-');
-						let episode = getEpisode(episodeNumber, episodes);
-						let index = episodes.indexOf(episode);
-						let nextEpisode = ~index ? episodes[index + 1] : {};
+						const [sid, season, episodeNumber] = id.split('-');
+						const episode = getEpisode(episodeNumber, episodes);
+						const index = episodes.indexOf(episode);
+						const nextEpisode = ~index ? episodes[index + 1] : {};
 						return nextEpisode.episode || null;
 					},
 				};
@@ -428,24 +473,24 @@ export default function() {
 				TVDML
 					.createPlayer({
 						items(item, request) {
-							let episodeNumber = resolvers[request] && resolvers[request](item);
-							let episode = getEpisode(episodeNumber, episodes);
+							const episodeNumber = resolvers[request] && resolvers[request](item);
+							const episode = getEpisode(episodeNumber, episodes);
 							return getEpisodeItem(sid, episode, poster, translation);
 						},
 
 						markAsStopped(item, elapsedTime) {
-							let {id} = item;
-							let [sid, season, episodeNumber] = id.split('-');
-							let episode = getEpisode(episodeNumber, episodes);
-							let {eid} = getEpisodeMedia(episode, translation);
+							const {id} = item;
+							const [sid, season, episodeNumber] = id.split('-');
+							const episode = getEpisode(episodeNumber, episodes);
+							const {eid} = getEpisodeMedia(episode, translation);
 							return saveElapsedTime(eid, elapsedTime);
 						},
 
 						markAsWatched(item) {
-							let {id} = item;
+							const {id} = item;
 
 							if (!getActiveDocument()) {
-								let [sid, season, episodeNumber] = id.split('-');
+								const [sid, season, episodeNumber] = id.split('-');
 								return markAsWatched(episodeNumber);
 							}
 						},
@@ -489,9 +534,50 @@ export default function() {
 					.sink();
 			},
 
+			onRate(episode) {
+				const title = processEntitiesInString(i18n('tvshow-episode-title', episode));
+
+				TVDML
+					.renderModal(
+						<document>
+							<ratingTemplate>
+								<title>{title}</title>
+								<ratingBadge onChange={this.onRateChange.bind(this, episode)} />
+							</ratingTemplate>
+						</document>
+					)
+					.sink();
+			},
+
+			onRateChange(episode, event) {
+				return this.onRateTVShow(episode, event.value * 10);
+			},
+
+			onRateTVShow(episode, rating) {
+				const {sid} = this.props;
+				const {
+					season,
+					episode: episodeNumber,
+				} = episode;
+
+				return rateEpisode(sid, season, episodeNumber, rating)
+					.then(({rating}) => ({rating}))
+					.then(rating => {
+						const episodes = this.state.episodes.map(episode => {
+							if (episode.season === season && episode.episode === episodeNumber) {
+								return assign({}, episode, rating);
+							}
+							return episode;
+						});
+
+						this.setState({episodes});
+					})
+					.then(TVDML.removeModal);
+			},
+
 			onMore() {
-				let hasWatchedEpisodes = this.state.episodes.some(({watched}) => watched > 0);
-				let hasUnwatchedEpisodes = this.state.episodes.some(({watched}) => watched < 1);
+				const hasWatchedEpisodes = this.state.episodes.some(({watched}) => watched > 0);
+				const hasUnwatchedEpisodes = this.state.episodes.some(({watched}) => watched < 1);
 
 				TVDML
 					.renderModal(
@@ -521,7 +607,7 @@ export default function() {
 			},
 
 			onMarkSeasonAsWatched() {
-				let {sid, id} = this.props;
+				const {sid, id} = this.props;
 
 				return markSeasonAsWatched(sid, id)
 					.then(this.loadData.bind(this))
@@ -530,7 +616,7 @@ export default function() {
 			},
 
 			onMarkSeasonAsUnwatched() {
-				let {sid, id} = this.props;
+				const {sid, id} = this.props;
 
 				return markSeasonAsUnwatched(sid, id)
 					.then(this.loadData.bind(this))

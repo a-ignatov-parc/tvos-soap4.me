@@ -201,6 +201,14 @@ export function markReviewAsDisliked(rid) {
 	return post(`https://api.soap4.me/v2/rate/review/${rid}/dislike/`);
 }
 
+export function rateTVShow(sid, rating) {
+	return post(`https://api.soap4.me/v2/rate/soap/${sid}/${rating}/`, {sid, rating});
+}
+
+export function rateEpisode(sid, season, episode, rating) {
+	return post(`https://api.soap4.me/v2/rate/episode/${sid}/${season}/${episode}/rating/${rating}/`, {sid, season, episode, rating});
+}
+
 export function getTVShowTrailers(sid) {
 	return get(`https://api.soap4.me/v2/trailers/${sid}/`).then(...emptyOrErrorsResolvers([]));
 }

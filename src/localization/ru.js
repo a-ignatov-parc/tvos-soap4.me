@@ -83,6 +83,8 @@ export default {
 	'episode-more': 'Еще',
 	'episode-mark-as-watched': 'Отметить просмотренным',
 	'episode-mark-as-unwatched': 'Отметить непросмотренным',
+	'episode-speedtest': 'Тест скорости',
+	'episode-rate': 'Оценить эпизод',
 
 	'season-title-more': 'Еще',
 	'season-mark-as-watched': 'Отметить сезон как просмотренный',
@@ -117,6 +119,7 @@ export default {
 
 	'tvshow-average-imdb': ({amount}) => `На основе рейтинга ${amount} пользователей IMDB.`,
 	'tvshow-average-kinopoisk': ({amount}) => `На основе рейтинга ${amount} пользователей Кинопоиска.`,
+	'tvshow-average-soap': ({amount}) => `На основе рейтинга ${amount} пользователей soap4.me.`,
 
 	'tvshow-liked-by': 'Нравится',
 	'tvshow-liked-by-people': ({likes}) => `пользователям: ${likes}`,
@@ -130,6 +133,7 @@ export default {
 	'tvshow-control-show-trailer': 'Посмотреть Трейлер',
 	'tvshow-control-start-watching': 'Начать Просмотр',
 	'tvshow-control-stop-watching': 'Закончить Просмотр',
+	'tvshow-control-rate': 'Оценить Сериал',
 	'tvshow-control-more': 'Еще',
 
 	'new-episode-soon': 'Скоро',
