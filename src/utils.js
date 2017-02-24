@@ -28,7 +28,7 @@ export function getStartParams() {
 
 	// Ad-hoc fix for assets urls
 	if (isQello()) {
-		params.BASEURL = 'https://a-ignatov-parc.github.io/tvos-soap4.me-releases/quello/tvml/';
+		params.BASEURL = 'https://a-ignatov-parc.github.io/tvos-soap4.me-releases/qello/tvml/';
 	}
 
 	return params;

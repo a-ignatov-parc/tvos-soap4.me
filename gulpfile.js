@@ -27,7 +27,7 @@ const PORT = 9001;
 const SOURCE = './src';
 const CACHE = './build.json';
 const ASSETS = SOURCE + '/assets';
-const DEST = QELLO ? './quello/tvml' : './out';
+const DEST = QELLO ? './qello/tvml' : './out';
 
 function pass() {
 	return new stream.Transform({
