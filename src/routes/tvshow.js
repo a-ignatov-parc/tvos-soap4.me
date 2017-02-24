@@ -6,6 +6,8 @@ import assign from 'object-assign';
 import formatNumber from 'simple-format-number';
 
 import * as user from '../user';
+import {processFamilyAccount} from '../user/utils';
+
 import authFactory from '../helpers/auth';
 import {defaultErrorHandlers} from '../helpers/auth/handlers';
 
@@ -29,7 +31,6 @@ import {
 	getTVShowReviews,
 	getTVShowTrailers,
 	getTVShowSchedule,
-	getFamilyAccounts,
 	getTVShowDescription,
 	getTVShowRecommendations,
 	markTVShowAsWatched,
@@ -682,17 +683,7 @@ export default function() {
 						onError: defaultErrorHandlers,
 						onSuccess: ({token, till, login}) => {
 							user.set({token, till, logged: 1});
-
-							Promise
-								.resolve()
-								.then(() => {
-									if (user.isExtended()) return getFamilyAccounts();
-									return {
-										family: [{name: login, fid: 0}],
-										selected: null,
-									};
-								})
-								.then(({family, selected}) => user.set({family, selected}))
+							processFamilyAccount(login)
 								.then(this.loadData.bind(this))
 								.then(payload => {
 									this.setState(payload);

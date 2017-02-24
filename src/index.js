@@ -2,6 +2,7 @@
 
 import * as TVDML from 'tvdml';
 import * as user from './user';
+import {processFamilyAccount} from './user/utils';
 
 import {get as i18n} from './localization';
 import {checkSession, getFamilyAccounts} from './request/soap';
@@ -33,11 +34,7 @@ TVDML
 		user.set({logged, token, till});
 		return payload;
 	})
-	.pipe(({login}) => {
-		if (!user.isAuthorized()) return user.set({family: null, selected: null});
-		if (!user.isExtended()) return user.set({family: [{name: login, fid: 0}], selected: null});
-		return getFamilyAccounts().then(({family, selected}) => user.set({family, selected}));
-	})
+	.pipe(({login}) => processFamilyAccount(login))
 	.pipe(() => TVDML.redirect('main'));
 	// 
 	// Testing routes

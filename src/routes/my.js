@@ -5,6 +5,8 @@ import * as TVDML from 'tvdml';
 import assign from 'object-assign';
 
 import * as user from '../user';
+import {processFamilyAccount} from '../user/utils';
+
 import authFactory from '../helpers/auth';
 import {get as i18n} from '../localization';
 import {defaultErrorHandlers} from '../helpers/auth/handlers';
@@ -12,7 +14,6 @@ import {defaultErrorHandlers} from '../helpers/auth/handlers';
 import {
 	getMyTVShows,
 	getMySchedule,
-	getFamilyAccounts,
 } from '../request/soap';
 
 import {link, isMenuButtonPressNavigatedTo} from '../utils';
@@ -65,16 +66,7 @@ export default function() {
 					onError: defaultErrorHandlers,
 					onSuccess({token, till, login}) {
 						user.set({token, till, logged: 1});
-
-						if (!user.isExtended()) {
-							user.set({family: [{name: login, fid: 0}], selected: null});
-							return this.dismiss();
-						}
-
-						getFamilyAccounts().then(({family, selected}) => {
-							user.set({family, selected});
-							this.dismiss();
-						});
+						processFamilyAccount(login).then(this.dismiss.bind(this));
 					},
 				});
 
