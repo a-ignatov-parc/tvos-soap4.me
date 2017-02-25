@@ -25,6 +25,8 @@ Now you can build Xcode project and run it in simulator or on Apple TV.
 
 ## Screenshots
 
-![Main Screen](screenshots/tvshows.png)
-![TV Show Screen](screenshots/tvshow.png)
-![Season Screen](screenshots/season.png)
+![My TV Shows Screen](screenshots/screenshot1.png)
+![TV Show Screen](screenshots/screenshot2.png)
+![Season Screen](screenshots/screenshot3.png)
+![All TV Shows Screen](screenshots/screenshot4.png)
+![Genres Screen](screenshots/screenshot5.png)
