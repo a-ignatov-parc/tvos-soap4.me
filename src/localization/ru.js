@@ -11,6 +11,7 @@ export default {
 	'genres-caption': 'Жанры',
 
 	'user-caption': 'Аккаунт',
+	'user-description': ({till}) => `Расширенный аккаунт истекает ${till}`,
 
 	'user-account-active': 'Активный',
 	'user-turn-on-family-account-button': 'Включить Семейный Аккаунт',
@@ -93,6 +94,7 @@ export default {
 	'tvshow-title': ({title_ru}) => title_ru,
 	'tvshow-title-from-episode': ({soap_ru}) => soap_ru,
 	'tvshow-episode-title': ({title_ru}) => title_ru,
+	'tvshow-episode-airdate': ({airdate}) => `Выходит ${airdate}`,
 	'tvshow-season': ({seasonNumber}) => `Сезон ${seasonNumber}`,
 
 	'tvshow-status': 'Статус',

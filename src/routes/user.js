@@ -1,5 +1,6 @@
 /** @jsx TVDML.jsx */
 
+import moment from 'moment';
 import * as TVDML from 'tvdml';
 
 import * as user from '../user';
@@ -107,6 +108,11 @@ export default function() {
 				// пересчет геометрии.
 				const shelfStyles = `tv-interitem-spacing: 100; margin: 247 ${accountsList.length} 0`;
 
+				const timestamp = +user.get().till;
+				const date = moment.unix(timestamp);
+				const till = date.fromNow();
+				const accountInfo = extended ? i18n('user-description', {till}) : ' ';
+
 				return (
 					<document>
 						<stackTemplate>
@@ -114,6 +120,9 @@ export default function() {
 								<title>
 									{i18n('user-caption')}
 								</title>
+								<description style="margin: 35 0 -70">
+									{accountInfo}
+								</description>
 							</banner>
 							<collectionList>
 								<shelf centered="true" style={shelfStyles}>

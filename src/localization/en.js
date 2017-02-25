@@ -11,6 +11,7 @@ export default {
 	'genres-caption': 'Genres',
 
 	'user-caption': 'Account',
+	'user-description': ({till}) => `Extended account expires ${till}`,
 
 	'user-account-active': 'Active',
 	'user-turn-on-family-account-button': 'Turn On Family Account',
@@ -93,6 +94,7 @@ export default {
 	'tvshow-title': ({title}) => title,
 	'tvshow-title-from-episode': ({soap_en}) => soap_en,
 	'tvshow-episode-title': ({title_en}) => title_en,
+	'tvshow-episode-airdate': ({airdate}) => `Airdate ${airdate}`,
 	'tvshow-season': ({seasonNumber}) => `Season ${seasonNumber}`,
 
 	'tvshow-status': 'Status',

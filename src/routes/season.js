@@ -247,7 +247,8 @@ export default function() {
 
 										if (begins) {
 											const date = moment(begins, 'DD.MM.YYYY');
-											const dateTitle = date.isValid() ? `Airdate ${date.format('ll')}` : '';
+											const airdate = date.format('ll');
+											const dateTitle = date.isValid() ? i18n('tvshow-episode-airdate', {airdate}) : '';
 
 											return (
 												<listItemLockup class="item item--disabled">
