@@ -394,7 +394,7 @@ export default function() {
 														</row>
 														<description
 															handlesOverflow="true"
-															style="margin: 40 0 0; tv-text-max-lines: 2"
+															style="margin: 40 0 0; tv-text-max-lines: 1"
 															onSelect={this.onShowDescription.bind(this, {title, description})}
 														>{description}</description>
 													</lockup>
