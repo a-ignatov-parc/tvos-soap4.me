@@ -67,11 +67,13 @@ export default function() {
 		}}) => ({sid, id, title, poster, episodeNumber, shouldPlayImmediately})))
 		.pipe(TVDML.render(TVDML.createComponent({
 			getInitialState() {
+				const extended = user.isExtended();
 				const authorized = user.isAuthorized();
 				const {shouldPlayImmediately} = this.props;
 				const translation = settings.get(TRANSLATION);
 
 				return {
+					extended,
 					authorized,
 					translation,
 					loading: true,
@@ -82,6 +84,7 @@ export default function() {
 			componentDidMount() {
 				this.userStateChangeStream = user.subscription();
 				this.userStateChangeStream.pipe(() => this.setState({
+					extended: user.isExtended(),
 					authorized: user.isAuthorized(),
 				}));
 
@@ -101,7 +104,10 @@ export default function() {
 
 			loadData() {
 				const {sid, id} = this.props;
-				const {translation} = this.state;
+				const {
+					extended,
+					translation,
+				} = this.state;
 
 				return Promise
 					.all([
@@ -123,7 +129,7 @@ export default function() {
 							season,
 							schedule,
 							translation,
-						}), {
+						}, !extended), {
 							episodesHasSubtitles: someEpisodesHasSubtitles(season.episodes),
 						});
 					});
@@ -162,6 +168,7 @@ export default function() {
 				}
 
 				const {
+					extended,
 					episodes,
 					translation,
 					episodesHasSubtitles,
@@ -350,7 +357,7 @@ export default function() {
 																			{i18n('episode-rate')}
 																		</title>
 																	</buttonLockup>
-																), (
+																), extended && (
 																	<buttonLockup
 																		class="control"
 																		onSelect={link('speedtest')}
@@ -402,6 +409,7 @@ export default function() {
 					tvshow,
 					season,
 					schedule,
+					extended,
 				} = this.state;
 
 				this.setState(assign({translation}, getSeasonData({
@@ -410,7 +418,7 @@ export default function() {
 					season,
 					schedule,
 					translation,
-				})));
+				}, !extended)));
 			},
 
 			onHighlightedItemRender(episode, node) {
@@ -650,7 +658,7 @@ function getEpisodeItem(sid, episode, poster, translation) {
 	}));
 }
 
-function getSeasonData(payload) {
+function getSeasonData(payload, isDemo) {
 	const {
 		id,
 		tvshow,
@@ -659,21 +667,21 @@ function getSeasonData(payload) {
 		translation,
 	} = payload;
 
-	return getSeasonExtendedData(season, schedule, translation) || {
+	return getSeasonExtendedData(season, schedule, translation, isDemo) || {
 		season: {season: id},
 		poster: tvshow.covers.big,
 		episodes: schedule[id - 1].episodes,
 	};
 }
 
-function getSeasonExtendedData(season, schedule, translation) {
+function getSeasonExtendedData(season, schedule, translation, isDemo) {
 	if (!season) return null;
 
 	const {episodes: seasonEpisodes, covers: {big: poster}} = season;
 	const {episodes: scheduleEpisodes} = schedule[season.season - 1];
 
 	const filteredSeasonEpisodes = seasonEpisodes.filter(episode => {
-		return translation !== LOCALIZATION || episodeHasTranslation(episode);
+		return isDemo || translation !== LOCALIZATION || episodeHasTranslation(episode);
 	});
 
 	const seasonEpisodesDictionary = filteredSeasonEpisodes.reduce((result, episode) => {
