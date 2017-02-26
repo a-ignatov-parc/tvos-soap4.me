@@ -204,6 +204,12 @@ export default function() {
 									color: rgba(0, 0, 0, 0.3);
 								}
 
+								@media tv-template and (tv-theme:dark) {
+									.item--disabled {
+										color: rgba(255, 255, 255, 0.3);
+									}
+								}
+
 								.title {
 									tv-text-highlight-style: marquee-on-highlight;
 								}
