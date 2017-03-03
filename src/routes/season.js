@@ -307,7 +307,7 @@ export default function() {
 										];
 
 										const onSelectDescription = this.onShowDescription.bind(this, {title, description});
-										const onSelectEpisode = authorized
+										const onSelectEpisode = extended
 											? this.onPlayEpisode.bind(this, episodeNumber)
 											: onSelectDescription;
 

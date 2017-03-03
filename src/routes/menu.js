@@ -19,7 +19,12 @@ export default function(menu) {
 		.pipe(TVDML.render(TVDML.createComponent({
 			getInitialState() {
 				const language = localization.getLanguage();
-				return assign({menu, language}, this.getUserState());
+
+				return assign({
+					menu,
+					language,
+					rendered: false,
+				}, this.getUserState());
 			},
 
 			getUserState() {
@@ -39,6 +44,8 @@ export default function(menu) {
 
 				this.appResumeStream = TVDML.subscribe(TVDML.event.RESUME);
 				this.appResumeStream.pipe(() => this.setState(this.getUserState()));
+
+				this.setState({rendered: true});
 			},
 
 			componentWillUnmount() {
@@ -54,6 +61,7 @@ export default function(menu) {
 					menu,
 					avatar,
 					nickname,
+					rendered,
 					authorized,
 				} = this.state;
 
@@ -70,7 +78,7 @@ export default function(menu) {
 										<menuItem
 											key={route}
 											route={route}
-											autoHighlight={isActive || undefined}
+											autoHighlight={!rendered && isActive || undefined}
 										>
 											<title>{localization.get(`menu-${route}`)}</title>
 										</menuItem>
