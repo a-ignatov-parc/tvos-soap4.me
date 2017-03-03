@@ -6,7 +6,7 @@ import {get as i18n} from '../localization';
 import styles from '../common/styles';
 
 export default function Authorize({key, attrs = {}, events = {}}) {
-	const {theme} = attrs;
+	const {description} = attrs;
 	const {onAuthorize} = events;
 
 	return (
@@ -19,7 +19,7 @@ export default function Authorize({key, attrs = {}, events = {}}) {
 					{i18n('authorize-caption')}
 				</title>
 				<description class="grey_description">
-					{i18n('authorize-description')}
+					{description || i18n('authorize-description')}
 				</description>
 				<button onSelect={onAuthorize}>
 					<text>

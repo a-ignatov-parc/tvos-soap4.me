@@ -19,6 +19,8 @@ import GenresRoute from './routes/genres';
 import SettingsRoute from './routes/settings';
 import SpeedTestRoute from './routes/speedtest';
 
+import {AUTH, GUEST} from './routes/menu/constants';
+
 import Loader from './components/loader';
 
 TVDML
@@ -50,9 +52,11 @@ TVDML
 			route: 'search',
 		}, {
 			route: 'my',
-			active: true,
+			active: AUTH,
+			hidden: GUEST,
 		}, {
 			route: 'all',
+			active: GUEST,
 		}, {
 			route: 'genres',
 		}, {

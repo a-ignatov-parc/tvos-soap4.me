@@ -13,9 +13,6 @@ import {deepEqualShouldUpdate} from '../utils/components';
 import * as user from '../user';
 import {processFamilyAccount} from '../user/utils';
 
-import authFactory from '../helpers/auth';
-import {defaultErrorHandlers} from '../helpers/auth/handlers';
-
 import {
 	localization,
 	mediaQualities,
@@ -35,7 +32,6 @@ import {
 } from '../request/soap';
 
 import Loader from '../components/loader';
-import Authorize from '../components/authorize';
 
 const {Promise} = TVDML;
 
@@ -170,6 +166,7 @@ export default function() {
 				const {
 					extended,
 					episodes,
+					authorized,
 					translation,
 					episodesHasSubtitles,
 					season: {season: seasonNumber},
@@ -309,12 +306,17 @@ export default function() {
 											),
 										];
 
+										const onSelectDescription = this.onShowDescription.bind(this, {title, description});
+										const onSelectEpisode = authorized
+											? this.onPlayEpisode.bind(this, episodeNumber)
+											: onSelectDescription;
+
 										return (
 											<listItemLockup
 												class="item"
 												autoHighlight={highlight ? 'true' : undefined}
-												onSelect={this.onPlayEpisode.bind(this, episodeNumber)}
 												ref={highlight ? this.onHighlightedItemRender.bind(this, episode) : undefined}
+												onSelect={onSelectEpisode}
 											>
 												<ordinal minLength="3">{episodeNumber}</ordinal>
 												<title class="title">
@@ -331,7 +333,7 @@ export default function() {
 													<lockup>
 														{this.renderPoster(episodePoster, true)}
 														<row class="controls_container">
-															{this.state.authorized && (this.state[`eid-${episodeNumber}`] ? (
+															{authorized && (this.state[`eid-${episodeNumber}`] ? (
 																<buttonLockup
 																	class="control"
 																	onSelect={this.onMarkAsNew.bind(this, episodeNumber)}
@@ -352,7 +354,7 @@ export default function() {
 																	</title>
 																</buttonLockup>
 															))}
-															{this.state.authorized && [
+															{authorized && [
 																(
 																	<buttonLockup
 																		class="control"
@@ -395,7 +397,7 @@ export default function() {
 														<description
 															handlesOverflow="true"
 															style="margin: 40 0 0; tv-text-max-lines: 1"
-															onSelect={this.onShowDescription.bind(this, {title, description})}
+															onSelect={onSelectDescription}
 														>{description}</description>
 													</lockup>
 												</relatedContent>
@@ -438,28 +440,8 @@ export default function() {
 
 			onPlayEpisode(episodeNumber) {
 				const {sid, id} = this.props;
-				const {episodes, poster, authorized, translation} = this.state;
+				const {episodes, poster, translation} = this.state;
 				const markAsWatched = this.onMarkAsWatched.bind(this);
-
-				if (!authorized) {
-					const authHelper = authFactory({
-						onError: defaultErrorHandlers,
-						onSuccess: ({token, till, login}) => {
-							user.set({token, till, logged: 1});
-							processFamilyAccount(login)
-								.then(this.loadData.bind(this))
-								.then(payload => {
-									this.setState(payload);
-									authHelper.dismiss();
-									this.onPlayEpisode(episodeNumber);
-								});
-						},
-					});
-
-					return TVDML
-						.renderModal(<Authorize onAuthorize={() => authHelper.present()} />)
-						.sink();
-				}
 
 				const resolvers = {
 					initial() {

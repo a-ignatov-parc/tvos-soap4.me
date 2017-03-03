@@ -88,7 +88,12 @@ export default function() {
 				} = this.state;
 
 				if (!authorized) {
-					return <Authorize onAuthorize={this.onLogin} />;
+					return (
+						<Authorize
+							description={i18n('authorize-user-description')}
+							onAuthorize={this.onLogin}
+						/>
+					);
 				}
 
 				const currentFid = `${selected.fid}`;

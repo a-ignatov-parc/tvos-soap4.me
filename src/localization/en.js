@@ -187,6 +187,8 @@ export default {
 
 	'authorize-caption': 'Authorization',
 	'authorize-description': 'You need to be authorized in order to see your subscriptions or watch content',
+	'authorize-user-description': 'If you want your tv to be in sync with your online account at soap4.me you need to be authorized.\n\nAuthorization is also required to manage your subscriptions and rate tv shows with episodes from tv.',
+	'authorize-tvshow-description': 'If you would like to track your subscriptions and sync them with your online account at soap4.me you need to be authorized',
 	'authorize-control-trigger': 'Authorize',
 
 	'login-step1-caption': 'Enter user login (not e-mail)',

@@ -694,7 +694,12 @@ export default function() {
 					});
 
 					return TVDML
-						.renderModal(<Authorize onAuthorize={() => authHelper.present()} />)
+						.renderModal(
+							<Authorize
+								description={i18n('authorize-tvshow-description')}
+								onAuthorize={() => authHelper.present()}
+							/>
+						)
 						.sink();
 				}
 

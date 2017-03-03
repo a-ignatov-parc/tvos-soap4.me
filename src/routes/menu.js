@@ -9,6 +9,8 @@ import * as user from '../user';
 import * as localization from '../localization';
 import {deepEqualShouldUpdate} from '../utils/components';
 
+import {AUTH, GUEST} from './menu/constants';
+
 const datePattern = 'DD-MM-YYYY';
 
 export default function(menu) {
@@ -55,19 +57,25 @@ export default function(menu) {
 					authorized,
 				} = this.state;
 
+				const menuItems = menu.filter(({hidden}) => !this.resolveToken(hidden));
+
 				return (
 					<document>
 						<menuBarTemplate>
 							<menuBar>
-								{menu.map(({route, active}) => (
-									<menuItem
-										key={route}
-										route={route}
-										autoHighlight={active ? true : undefined}
-									>
-										<title>{localization.get(`menu-${route}`)}</title>
-									</menuItem>
-								))}
+								{menuItems.map(({route, active}) => {
+									const isActive = this.resolveToken(active);
+
+									return (
+										<menuItem
+											key={route}
+											route={route}
+											autoHighlight={isActive || undefined}
+										>
+											<title>{localization.get(`menu-${route}`)}</title>
+										</menuItem>
+									);
+								})}
 								<menuItem
 									key="nickname"
 									route="user"
@@ -82,6 +90,14 @@ export default function(menu) {
 						</menuBarTemplate>
 					</document>
 				);
+			},
+
+			resolveToken(token) {
+				return typeof(token) === 'boolean'
+					? token
+					: this.state.authorized
+						? token === AUTH
+						: token === GUEST;
 			},
 
 			getUserIcon() {
