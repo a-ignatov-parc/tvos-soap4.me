@@ -6,7 +6,6 @@ const gulp = require('gulp');
 const utils = require('gulp-util');
 
 const rm = require('gulp-rm');
-const watch = require('gulp-watch');
 const uglify = require('gulp-uglify');
 const connect = require('gulp-connect');
 const sourcemaps = require('gulp-sourcemaps');
@@ -109,12 +108,16 @@ gulp.task('assets', function() {
 gulp.task('watch', ['clear-cache'], function() {
 	gulp.start('build', 'assets');
 
-	watch([SOURCE + '/**/*.js'], function() {
+	gulp.watch([SOURCE + '/**/*.js'], function() {
 		gulp.start('build');
 	});
 
-	watch([ASSETS + '/**/*'], function() {
+	gulp.watch([ASSETS + '/**/*'], function() {
 		gulp.start('assets');
+	});
+
+	gulp.watch(['./node_modules/tvdml/dist/*.js'], function() {
+		gulp.start('build');
 	});
 });
 

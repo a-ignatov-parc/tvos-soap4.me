@@ -36,6 +36,7 @@ export default function() {
 
 				return {
 					authorized,
+					pendingUpdate: false,
 					loading: !!authorized,
 				};
 			},
@@ -73,6 +74,18 @@ export default function() {
 				this.loadData().then(payload => {
 					this.setState(assign({loading: false}, payload));
 				});
+			},
+
+			componentWillReceiveProps(nextProps) {
+				this.setState({pendingUpdate: true});
+			},
+
+			componentDidUpdate(prevProps, prevState) {
+				if (this.state.pendingUpdate) {
+					this.loadData().then(payload => {
+						this.setState(assign({pendingUpdate: false}, payload));
+					});
+				}
 			},
 
 			componentWillUnmount() {
