@@ -16,7 +16,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TVApplicationControllerDe
     var appController: TVApplicationController?
     
     #if RELEASE
-        static let tvBaseURL = "https://a-ignatov-parc.github.io/tvos-soap4.me-releases/1.0.0/"
+        static let tvBaseURL = "https://a-ignatov-parc.github.io/tvos-soap4.me-releases/1.1.0/"
     #else
         static let tvBaseURL = "http://localhost:9001/"
     #endif

@@ -77,10 +77,17 @@ export default function() {
 			componentDidMount() {
 				this.languageChangeStream = localization.subscription();
 				this.languageChangeStream.pipe(({language}) => this.setState({language}));
+
+				this.userStateChangeStream = user.subscription();
+				this.userStateChangeStream.pipe(() => this.setState({
+					extended: user.isExtended(),
+					authorized: user.isAuthorized(),
+				}));
 			},
 
 			componentWillUnmount() {
 				this.languageChangeStream.unsubscribe();
+				this.userStateChangeStream.unsubscribe();
 			},
 
 			shouldComponentUpdate: deepEqualShouldUpdate,
@@ -176,23 +183,22 @@ export default function() {
 										</listItemLockup>
 									))}
 								</section>
-								{authorized && extended && (
-									<section>
-										<header>
-											<title>
-												{i18n('settings-titles-network')}
-											</title>
-										</header>
-										<listItemLockup
-											class="item"
-											onSelect={link('speedtest')}
-										>
-											<title>
-												{i18n('settings-labels-speedtest')}
-											</title>
-										</listItemLockup>
-									</section>
-								)}
+								<section>
+									<header>
+										<title>
+											{i18n('settings-titles-network')}
+										</title>
+									</header>
+									<listItemLockup
+										class="item"
+										onSelect={link('speedtest')}
+										disabled={!(authorized && extended)}
+									>
+										<title>
+											{i18n('settings-labels-speedtest')}
+										</title>
+									</listItemLockup>
+								</section>
 								<section>
 									<header>
 										<title>

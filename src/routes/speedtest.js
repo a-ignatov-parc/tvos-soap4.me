@@ -34,7 +34,7 @@ export default function() {
 
 			componentDidMount() {
 				// To improuve UX on fast request we are adding rendering timeout.
-				let waitForAnimations = new Promise((resolve) => setTimeout(resolve, 500));
+				const waitForAnimations = new Promise((resolve) => setTimeout(resolve, 500));
 
 				Promise
 					.all([getSpeedTestServers(), waitForAnimations])
@@ -44,7 +44,7 @@ export default function() {
 			render() {
 				const {BASEURL} = getStartParams();
 
-				let {
+				const {
 					running,
 					results,
 					skipped,
@@ -57,7 +57,7 @@ export default function() {
 					return <Loader title={i18n('speedtest-loading')} />
 				}
 
-				let serversList = Object
+				const serversList = Object
 					.keys(servers)
 					.map(id => ({id, file: servers[id]}));
 
@@ -70,7 +70,7 @@ export default function() {
 								</title>
 							</banner>
 							<collectionList>
-								<shelf centered="true" style="tv-interitem-spacing: 150; margin: 228 0 0">
+								<shelf centered="true" style="tv-interitem-spacing: 60; margin: 228 0 0">
 									<section>
 										{serversList.map(({id, file}) => {
 											let result = '...';

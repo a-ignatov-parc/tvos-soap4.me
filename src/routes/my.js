@@ -5,11 +5,8 @@ import * as TVDML from 'tvdml';
 import assign from 'object-assign';
 
 import * as user from '../user';
-import {processFamilyAccount} from '../user/utils';
 
-import authFactory from '../helpers/auth';
 import {get as i18n} from '../localization';
-import {defaultErrorHandlers} from '../helpers/auth/handlers';
 
 import {
 	getMyTVShows,
@@ -21,7 +18,6 @@ import {deepEqualShouldUpdate} from '../utils/components';
 
 import Tile from '../components/tile';
 import Loader from '../components/loader';
-import Authorize from '../components/authorize';
 
 import commonStyles from '../common/styles';
 
@@ -52,25 +48,6 @@ export default function() {
 				this.appResumeStream = TVDML.subscribe(TVDML.event.RESUME);
 				this.appResumeStream.pipe(() => this.loadData().then(this.setState.bind(this)));
 
-				this.userStateChangeStream = user.subscription();
-				this.userStateChangeStream.pipe(() => {
-					this.setState({loading: true});
-					this.loadData().then(payload => {
-						this.setState(assign({
-							loading: false,
-							authorized: user.isAuthorized(),
-						}, payload));
-					});
-				});
-
-				this.authHelper = authFactory({
-					onError: defaultErrorHandlers,
-					onSuccess({token, till, login}) {
-						user.set({token, till, logged: 1});
-						processFamilyAccount(login).then(this.dismiss.bind(this));
-					},
-				});
-
 				this.loadData().then(payload => {
 					this.setState(assign({loading: false}, payload));
 				});
@@ -90,10 +67,7 @@ export default function() {
 
 			componentWillUnmount() {
 				this.menuButtonPressStream.unsubscribe();
-				this.userStateChangeStream.unsubscribe();
 				this.appResumeStream.unsubscribe();
-				this.authHelper.destroy();
-				this.authHelper = null;
 			},
 
 			shouldComponentUpdate: deepEqualShouldUpdate,
@@ -102,6 +76,7 @@ export default function() {
 				if (!user.isAuthorized()) {
 					return Promise.resolve({});
 				}
+
 				return Promise
 					.all([
 						getMyTVShows(),
@@ -113,10 +88,6 @@ export default function() {
 			render() {
 				if (this.state.loading) {
 					return <Loader />;
-				}
-
-				if (!this.state.authorized) {
-					return <Authorize onAuthorize={this.onLogin} />;
 				}
 
 				if (!this.state.series.length) {
@@ -234,10 +205,6 @@ export default function() {
 						</section>
 					</grid>
 				);
-			},
-
-			onLogin() {
-				this.authHelper.present();
 			},
 		})));
 }
