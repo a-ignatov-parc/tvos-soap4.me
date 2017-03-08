@@ -5,7 +5,6 @@ import * as TVDML from 'tvdml';
 import assign from 'object-assign';
 
 import * as user from '../user';
-
 import {get as i18n} from '../localization';
 
 import {
@@ -28,11 +27,13 @@ export default function() {
 		.createPipeline()
 		.pipe(TVDML.render(TVDML.createComponent({
 			getInitialState() {
+				const token = user.getToken();
 				const authorized = user.isAuthorized();
 
 				return {
+					token,
 					authorized,
-					pendingUpdate: false,
+					updating: false,
 					loading: !!authorized,
 				};
 			},
@@ -45,6 +46,15 @@ export default function() {
 					.pipe(isMenuButtonPressNavigatedTo(currentDocument))
 					.pipe(isNavigated => isNavigated && this.loadData().then(this.setState.bind(this)));
 
+				this.userStateChangeStream = user.subscription();
+				this.userStateChangeStream.pipe(() => {
+					const token = user.getToken();
+
+					if (token !== this.state.token) {
+						this.setState({updating: true, token});
+					}
+				});
+
 				this.appResumeStream = TVDML.subscribe(TVDML.event.RESUME);
 				this.appResumeStream.pipe(() => this.loadData().then(this.setState.bind(this)));
 
@@ -54,19 +64,20 @@ export default function() {
 			},
 
 			componentWillReceiveProps(nextProps) {
-				this.setState({pendingUpdate: true});
+				this.setState({updating: true});
 			},
 
 			componentDidUpdate(prevProps, prevState) {
-				if (this.state.pendingUpdate) {
+				if (this.state.updating && prevState.updating !== this.state.updating) {
 					this.loadData().then(payload => {
-						this.setState(assign({pendingUpdate: false}, payload));
+						this.setState(assign({updating: false}, payload));
 					});
 				}
 			},
 
 			componentWillUnmount() {
 				this.menuButtonPressStream.unsubscribe();
+				this.userStateChangeStream.unsubscribe();
 				this.appResumeStream.unsubscribe();
 			},
 

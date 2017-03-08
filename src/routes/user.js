@@ -4,6 +4,7 @@ import moment from 'moment';
 import * as TVDML from 'tvdml';
 
 import * as user from '../user';
+import {promisedTimeout} from '../utils';
 import authFactory from '../helpers/auth';
 import {get as i18n} from '../localization';
 import {deepEqualShouldUpdate} from '../utils/components';
@@ -27,6 +28,8 @@ import Authorize from '../components/authorize';
 const ADD_ACCOUNT = 'add_account';
 const TURN_ON_FAMILY_ACCOUNT = 'turn_on_family_account';
 const TURN_OFF_FAMILY_ACCOUNT = 'turn_off_family_account';
+
+const RENDERING_DELAY = 500;
 
 const nameRegex = /^[a-zа-я0-9_ ]{1,50}$/i;
 
@@ -60,15 +63,19 @@ export default function() {
 				this.authHelper = authFactory({
 					onError: defaultErrorHandlers,
 					onSuccess: ({token, till, login}) => {
+						const dismiss = this.authHelper.dismiss.bind(this.authHelper);
+
 						user.set({token, till, logged: 1});
 
 						if (!user.isExtended()) {
 							user.set({family: [{name: login, fid: 0}], selected: null});
 							this.setState(this.getUserState());
-							return this.authHelper.dismiss();
+							return promisedTimeout(RENDERING_DELAY).then(dismiss);
 						}
 
-						this.fetchAccountUpdate().then(this.authHelper.dismiss.bind(this.authHelper));
+						this.fetchAccountUpdate()
+							.then(promisedTimeout(RENDERING_DELAY))
+							.then(dismiss);
 					},
 				});
 			},
@@ -225,6 +232,7 @@ export default function() {
 									<button onSelect={() => {
 										this
 											.onTurnOnFamilyAccount()
+											.then(promisedTimeout(RENDERING_DELAY))
 											.then(TVDML.removeModal);
 									}}>
 										<text>
@@ -236,6 +244,7 @@ export default function() {
 									<button onSelect={() => {
 										this
 											.onTurnOffFamilyAccount()
+											.then(promisedTimeout(RENDERING_DELAY))
 											.then(TVDML.removeModal);
 									}}>
 										<text>
@@ -268,7 +277,8 @@ export default function() {
 						user.set({logged, token, till, family, selected});
 						this.setState(this.getUserState());
 					})
-					.then(() => TVDML.removeModal());
+					.then(promisedTimeout(RENDERING_DELAY))
+					.then(TVDML.removeModal);
 			},
 
 			onLogoutAttempt() {
@@ -304,6 +314,7 @@ export default function() {
 						submit: value => {
 							this
 								.addAccount(value)
+								.then(promisedTimeout(RENDERING_DELAY))
 								.then(TVDML.removeModal);
 						},
 					});
@@ -327,6 +338,7 @@ export default function() {
 									<button onSelect={() => {
 										this
 											.selectAccount(fid)
+											.then(promisedTimeout(RENDERING_DELAY))
 											.then(TVDML.removeModal);
 									}}>
 										<text>
@@ -342,6 +354,7 @@ export default function() {
 										submit: value => {
 											this
 												.renameAccount(fid, value)
+												.then(promisedTimeout(RENDERING_DELAY))
 												.then(TVDML.removeModal);
 										},
 									});
@@ -354,6 +367,7 @@ export default function() {
 									<button onSelect={() => {
 										this
 											.deleteAccount(fid)
+											.then(promisedTimeout(RENDERING_DELAY))
 											.then(TVDML.removeModal);
 									}}>
 										<text>

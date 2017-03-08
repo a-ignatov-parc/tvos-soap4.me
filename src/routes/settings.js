@@ -62,11 +62,13 @@ export default function() {
 		.createPipeline()
 		.pipe(TVDML.render(TVDML.createComponent({
 			getInitialState() {
+				const token = user.getToken();
 				const extended = user.isExtended();
 				const authorized = user.isAuthorized();
 				const language = localization.getLanguage();
 
 				return {
+					token,
 					language,
 					extended,
 					authorized,
@@ -79,10 +81,17 @@ export default function() {
 				this.languageChangeStream.pipe(({language}) => this.setState({language}));
 
 				this.userStateChangeStream = user.subscription();
-				this.userStateChangeStream.pipe(() => this.setState({
-					extended: user.isExtended(),
-					authorized: user.isAuthorized(),
-				}));
+				this.userStateChangeStream.pipe(() => {
+					const token = user.getToken();
+
+					if (token !== this.state.token) {
+						this.setState({
+							token,
+							extended: user.isExtended(),
+							authorized: user.isAuthorized(),
+						});
+					}
+				});
 			},
 
 			componentWillUnmount() {

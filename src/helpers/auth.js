@@ -64,6 +64,7 @@ export default function(options = {}) {
 	TVDML
 		.handleRoute(getPasswordRouteName(id))
 		.pipe(TVDML.passthrough(() => state = PASSWORD))
+		.pipe(TVDML.render(<Loader />))
 		.pipe(createForm({
 			description: i18n('login-step2-caption'),
 			placeholder: i18n('login-step2-placeholder'),

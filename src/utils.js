@@ -1,4 +1,8 @@
-import {navigate} from 'tvdml';
+import {Promise, navigate} from 'tvdml';
+
+export function promisedTimeout(timeout) {
+	return () => new Promise(resolve => setTimeout(resolve, timeout));
+}
 
 export function isMenuButtonPressNavigatedTo(targetDocument) {
 	return ({to: {document}}) => {
