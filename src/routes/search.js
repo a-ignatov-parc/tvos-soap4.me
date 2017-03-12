@@ -26,6 +26,7 @@ export default function() {
 				return {
 					value: '',
 					loading: false,
+					updating: false,
 					latest: [],
 					series: [],
 					popular: [],
@@ -246,16 +247,34 @@ export default function() {
 			},
 
 			componentDidMount() {
-				let keyboard = this.searchField.getFeature('Keyboard');
+				const keyboard = this.searchField.getFeature('Keyboard');
+
 				keyboard.onTextChange = () => this.search(keyboard.text);
-				Promise
+
+				this.loadData().then(payload => {
+					this.setState(assign({loading: false}, payload));
+				});
+			},
+
+			componentWillReceiveProps(nextProps) {
+				this.setState({updating: true});
+			},
+
+			componentDidUpdate(prevProps, prevState) {
+				if (this.state.updating && prevState.updating !== this.state.updating) {
+					this.loadData().then(payload => {
+						this.setState(assign({updating: false}, payload));
+					});
+				}
+			},
+
+			loadData() {
+				return Promise
 					.all([
 						getLatestTVShows(),
 						getPopularTVShows(),
 					])
-					.then(([latest, popular]) => {
-						this.setState({latest, popular})
-					});
+					.then(([latest, popular]) => ({latest, popular}));
 			},
 
 			search(query) {
