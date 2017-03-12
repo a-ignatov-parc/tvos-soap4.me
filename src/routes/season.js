@@ -410,13 +410,27 @@ export default function() {
 					extended,
 				} = this.state;
 
-				this.setState(assign({translation}, getSeasonData({
-					id,
-					tvshow,
-					season,
-					schedule,
-					translation,
-				}, !extended)));
+				const currentWatchedMarks = Object
+					.keys(this.state)
+					.filter(key => !key.indexOf('eid-'))
+					.reduce((result, key) => {
+						result[key] = this.state[key];
+						return result;
+					}, {});
+
+				const assignQueue = [
+					{translation},
+					getSeasonData({
+						id,
+						tvshow,
+						season,
+						schedule,
+						translation,
+					}, !extended),
+					currentWatchedMarks,
+				];
+
+				this.setState(assign(...assignQueue));
 			},
 
 			onHighlightedItemRender(episode, node) {
