@@ -78,12 +78,19 @@ export default function() {
 			},
 
 			componentDidMount() {
+				this.appResumeStream = TVDML.subscribe(TVDML.event.RESUME);
+				this.appResumeStream.pipe(() => this.loadData().then(this.setState.bind(this)));
+
 				// To improuve UX on fast request we are adding rendering timeout.
 				const waitForAnimations = new Promise((resolve) => setTimeout(resolve, 500));
 
 				Promise
 					.all([this.loadData(), waitForAnimations])
 					.then(([payload]) => this.setState(assign({loading: false}, payload)));
+			},
+
+			componentWillUnmount() {
+				this.appResumeStream.unsubscribe();
 			},
 
 			shouldComponentUpdate: deepEqualShouldUpdate,

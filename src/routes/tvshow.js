@@ -82,6 +82,9 @@ export default function() {
 					authorized: user.isAuthorized(),
 				}));
 
+				this.appResumeStream = TVDML.subscribe(TVDML.event.RESUME);
+				this.appResumeStream.pipe(() => this.loadData().then(this.setState.bind(this)));
+
 				// To improuve UX on fast request we are adding rendering timeout.
 				const waitForAnimations = new Promise((resolve) => setTimeout(resolve, 500));
 
@@ -93,6 +96,7 @@ export default function() {
 			componentWillUnmount() {
 				this.menuButtonPressStream.unsubscribe();
 				this.userStateChangeStream.unsubscribe();
+				this.appResumeStream.unsubscribe();
 			},
 
 			shouldComponentUpdate: deepEqualShouldUpdate,
