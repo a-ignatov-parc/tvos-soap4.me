@@ -123,7 +123,7 @@ export default function() {
 							schedule,
 							translation,
 						}, !extended), {
-							episodesHasSubtitles: someEpisodesHasSubtitles(season.episodes),
+							episodesHasSubtitles: someEpisodesHasSubtitles(season ? season.episodes : []),
 						});
 					});
 			},
