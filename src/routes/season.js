@@ -662,7 +662,7 @@ function getSeasonData(payload, isDemo) {
 	return getSeasonExtendedData(season, schedule, translation, isDemo) || {
 		season: {season: id},
 		poster: tvshow.covers.big,
-		episodes: schedule[id - 1].episodes,
+		episodes: getScheduleEpisodesForSeason(schedule, id),
 	};
 }
 
@@ -670,7 +670,7 @@ function getSeasonExtendedData(season, schedule, translation, isDemo) {
 	if (!season) return null;
 
 	const {episodes: seasonEpisodes, covers: {big: poster}} = season;
-	const {episodes: scheduleEpisodes} = schedule[season.season - 1];
+	const scheduleEpisodes = getScheduleEpisodesForSeason(schedule, season.season);
 
 	const filteredSeasonEpisodes = seasonEpisodes.filter(episode => {
 		return isDemo || translation !== LOCALIZATION || episodeHasTranslation(episode);
@@ -691,6 +691,11 @@ function getSeasonExtendedData(season, schedule, translation, isDemo) {
 		poster,
 		episodes,
 	});
+}
+
+function getScheduleEpisodesForSeason(schedule, season) {
+	const [seasonSchedule] = (schedule || []).filter(seasonSchedule => seasonSchedule.season == season);
+	return (seasonSchedule || {}).episodes || [];
 }
 
 function episodeHasTranslation({files = []}) {
