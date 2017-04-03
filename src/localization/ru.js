@@ -148,6 +148,7 @@ export default {
 
 	'tvshow-control-continue-watching': 'Продолжить Просмотр',
 	'tvshow-control-show-trailer': 'Посмотреть Трейлер',
+	'tvshow-control-show-trailers': 'Посмотреть Трейлеры',
 	'tvshow-control-start-watching': 'Начать Просмотр',
 	'tvshow-control-stop-watching': 'Закончить Просмотр',
 	'tvshow-control-rate': 'Оценить Сериал',

@@ -218,6 +218,7 @@ export default function() {
 				const {description, soap_rating} = this.state.tvshow;
 				const title = i18n('tvshow-title', this.state.tvshow);
 				const hasTrailers = !!this.state.trailers.length;
+				const hasMultipleTrailers = this.state.trailers.length > 1;
 
 				let buttons = <row />;
 
@@ -234,10 +235,13 @@ export default function() {
 				);
 
 				const showTrailerBtn = (
-					<buttonLockup onSelect={this.onShowTrailer}>
+					<buttonLockup
+						onPlay={this.onShowFirstTrailer}
+						onSelect={this.onShowTrailer}
+					>
 						<badge src="resource://button-preview" />
 						<title>
-							{i18n('tvshow-control-show-trailer')}
+							{i18n(hasMultipleTrailers ? 'tvshow-control-show-trailers' : 'tvshow-control-show-trailer')}
 						</title>
 					</buttonLockup>
 				);
@@ -660,8 +664,38 @@ export default function() {
 			},
 
 			onShowTrailer() {
-				let [trailer] = this.state.trailers;
+				const {trailers} = this.state;
 
+				if (trailers.length < 2) {
+					return this.onShowFirstTrailer();
+				}
+
+				const title = i18n('tvshow-title', this.state.tvshow);
+
+				TVDML
+					.renderModal(
+						<document>
+							<alertTemplate>
+								<title>
+									{title}
+								</title>
+								{trailers.map(trailer => (
+									<button onSelect={this.playTrailer.bind(this, trailer)}>
+										<text>{trailer.name}</text>
+									</button>
+								))}
+							</alertTemplate>
+						</document>
+					)
+					.sink();
+			},
+
+			onShowFirstTrailer() {
+				const [trailer] = this.state.trailers;
+				this.playTrailer(trailer);
+			},
+
+			playTrailer(trailer) {
 				TVDML
 					.createPlayer({
 						items(item, request) {

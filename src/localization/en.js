@@ -148,6 +148,7 @@ export default {
 
 	'tvshow-control-continue-watching': 'Continue Watching',
 	'tvshow-control-show-trailer': 'Show\nTrailer',
+	'tvshow-control-show-trailers': 'Show\nTrailers',
 	'tvshow-control-start-watching': 'Start Watching',
 	'tvshow-control-stop-watching': 'Stop Watching',
 	'tvshow-control-rate': 'Rate TV Show',
