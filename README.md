@@ -23,7 +23,13 @@ gulp serve
 
 Now you can build Xcode project and run it in simulator or on Apple TV.
 
-## Screenshots
+## Application
+
+![App Icon](app-icon.jpg)
+
+This application is available as [`soap4atv`](https://itunes.apple.com/ru/app/id1204973085) in the Apple's App Store.
+
+### Screenshots
 
 ![My TV Shows Screen](screenshots/screenshot1.png)
 ![TV Show Screen](screenshots/screenshot2.png)
