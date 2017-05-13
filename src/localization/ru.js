@@ -189,6 +189,8 @@ export default {
 
 	'all-group-title-rating': 'Рейтингу',
 
+	'all-group-title-country': 'Стране',
+
 	'all-group-title-completeness': 'Завершенности',
 	'all-group-completeness-title': 'Завершенные',
 

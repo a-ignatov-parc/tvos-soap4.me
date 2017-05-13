@@ -189,6 +189,8 @@ export default {
 
 	'all-group-title-rating': 'Rating',
 
+	'all-group-title-country': 'Country',
+
 	'all-group-title-completeness': 'Completeness',
 	'all-group-completeness-title': 'Completed',
 
