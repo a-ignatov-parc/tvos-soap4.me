@@ -35,6 +35,8 @@ import {
 	getTVShowRecommendations,
 	markTVShowAsWatched,
 	markTVShowAsUnwatched,
+	markSeasonAsWatched,
+	markSeasonAsUnwatched,
 	markReviewAsLiked,
 	markReviewAsDisliked,
 	addToMyTVShows,
@@ -393,6 +395,13 @@ export default function() {
 									isWatched = false;
 								}
 
+								const payload = {
+									sid,
+									poster,
+									id: seasonNumber,
+									title: `${title} — ${seasonTitle}`,
+								};
+
 								return (
 									<Tile
 										key={seasonNumber}
@@ -401,13 +410,59 @@ export default function() {
 										poster={poster}
 										counter={unwatched || dateTitle}
 										isWatched={isWatched}
-										payload={{sid, id: seasonNumber, title: `${title} — ${seasonTitle}`, poster}}
+										payload={payload}
+										onHoldselect={this.onSeasonOptions.bind(this, payload.id, payload.title, isWatched)}
 									/>
 								);
 							})}
 						</section>
 					</shelf>
 				);
+			},
+
+			onSeasonOptions(id, title, isWatched) {
+				TVDML
+					.renderModal(
+						<document>
+							<alertTemplate>
+								<title>
+									{title}
+								</title>
+								{isWatched ? (
+									<button onSelect={this.onMarkSeasonAsUnwatched.bind(this, id)}>
+										<text>
+											{i18n('season-mark-as-unwatched')}
+										</text>
+									</button>
+								) : (
+									<button onSelect={this.onMarkSeasonAsWatched.bind(this, id)}>
+										<text>
+											{i18n('season-mark-as-watched')}
+										</text>
+									</button>
+								)}
+							</alertTemplate>
+						</document>
+					)
+					.sink();
+			},
+
+			onMarkSeasonAsWatched(id) {
+				const {sid} = this.state.tvshow;
+
+				return markSeasonAsWatched(sid, id)
+					.then(this.loadData.bind(this))
+					.then(this.setState.bind(this))
+					.then(TVDML.removeModal);
+			},
+
+			onMarkSeasonAsUnwatched(id) {
+				const {sid} = this.state.tvshow;
+
+				return markSeasonAsUnwatched(sid, id)
+					.then(this.loadData.bind(this))
+					.then(this.setState.bind(this))
+					.then(TVDML.removeModal);
 			},
 
 			renderRecomendations() {
