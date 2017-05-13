@@ -6,7 +6,11 @@ import assign from 'object-assign';
 import * as user from '../user';
 import {get as i18n} from '../localization';
 
-import {getAllTVShows} from '../request/soap';
+import {
+	getAllTVShows, 
+	getCountriesList,
+} from '../request/soap';
+
 import {isMenuButtonPressNavigatedTo} from '../utils';
 import {deepEqualShouldUpdate} from '../utils/components';
 
@@ -17,6 +21,7 @@ const NAME = 'name';
 const DATE = 'date';
 const LIKES = 'likes';
 const RATING = 'rating';
+const COUNTRY = 'country';
 const COMPLETENESS = 'completeness';
 
 const sections = {
@@ -91,7 +96,7 @@ const sections = {
 	[RATING]: {
 		title: 'all-group-title-rating',
 		reducer(list) {
-			let collection = list.reduce((result, item) => {
+			const collection = list.reduce((result, item) => {
 				if (!result[item.imdb_rating]) result[item.imdb_rating] = [];
 				result[item.imdb_rating].push(item);
 				return result;
@@ -104,6 +109,22 @@ const sections = {
 					title: rating,
 					items: collection[rating],
 				}));
+		},
+	},
+
+	[COUNTRY]: {
+		title: 'all-group-title-country',
+		reducer(list, {contries}) {
+			const collection = list.reduce((result, item) => {
+				if (!result[item.country]) result[item.country] = [];
+				result[item.country].push(item);
+				return result;
+			}, {});
+
+			return contries.map(country => ({
+				title: country.full,
+				items: collection[country.short],
+			}));
 		},
 	},
 
@@ -134,7 +155,7 @@ export default function() {
 			},
 
 			componentDidMount() {
-				let currentDocument = this._rootNode.ownerDocument;
+				const currentDocument = this._rootNode.ownerDocument;
 
 				this.menuButtonPressStream = TVDML.subscribe('menu-button-press');
 				this.menuButtonPressStream
@@ -175,7 +196,12 @@ export default function() {
 			shouldComponentUpdate: deepEqualShouldUpdate,
 
 			loadData() {
-				return getAllTVShows().then(series => ({series}));
+				return Promise
+					.all([
+						getAllTVShows(),
+						getCountriesList(),
+					])
+					.then(([series, contries]) => ({series, contries}));
 			},
 
 			render() {
@@ -183,9 +209,15 @@ export default function() {
 					return <Loader />;
 				}
 
-				let {title: titleCode, reducer} = sections[this.state.groupId];
-				let groups = reducer(this.state.series);
-				let title = i18n(titleCode);
+				const {
+					series,
+					groupId,
+					contries,
+				} = this.state;
+
+				const {title: titleCode, reducer} = sections[groupId];
+				const groups = reducer(series, {contries});
+				const title = i18n(titleCode);
 
 				return (
 					<document>
@@ -231,14 +263,14 @@ export default function() {
 										</header>
 										<section>
 											{items.map(tvshow => {
-												let {
+												const {
 													sid,
 													watching,
 													unwatched,
 													covers: {big: poster},
 												} = tvshow;
 
-												let title = i18n('tvshow-title', tvshow);
+												const title = i18n('tvshow-title', tvshow);
 
 												return (
 													<Tile
