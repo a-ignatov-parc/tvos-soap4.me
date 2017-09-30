@@ -1,5 +1,4 @@
 import * as TVDML from 'tvdml';
-import assign from 'object-assign';
 
 import {request} from '../request';
 import {get as i18n} from '../localization';
@@ -36,7 +35,7 @@ export default function() {
 
 				Promise
 					.all([getSpeedTestServers(), waitForAnimations])
-					.then(([servers]) => this.setState(assign({loading: false}, {servers})));
+					.then(([servers]) => this.setState({loading: false, servers}));
 			},
 
 			render() {
@@ -152,12 +151,23 @@ export default function() {
 							return createLoader(id, this.state.servers[id], (xhr) => request = xhr)
 								.then(result => {
 									clearInterval(timer);
-									return assign({}, results, result);
+									return {
+										...results,
+										...result,
+									};
 								})
 								.catch(() => {
 									clearInterval(timer);
-									this.setState({skipped: assign({[id]: true}, this.state.skipped)});
-									return assign({[id]: (1).toFixed(2)}, results);
+									this.setState({
+										skipped: {
+											[id]: true,
+											...this.state.skipped,
+										},
+									});
+									return {
+										[id]: (1).toFixed(2),
+										...results,
+									};
 								});
 						});
 					});

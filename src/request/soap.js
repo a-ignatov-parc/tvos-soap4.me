@@ -1,6 +1,5 @@
 import md5 from 'blueimp-md5';
 import * as TVDML from 'tvdml';
-import assign from 'object-assign';
 
 import {getToken} from '../user';
 import * as request from '../request';
@@ -235,7 +234,10 @@ export function getTVShowSeasons(sid) {
 				.keys(seasonsCollection)
 				.sort((a, b) => a - b)
 				.map(seasonNumber => seasonsCollection[seasonNumber])
-				.map(season => assign({}, season, {episodes: season.episodes.slice(0).sort((a, b) => a.episode - b.episode)}));
+				.map(season => ({
+					...season,
+					episodes: season.episodes.slice(0).sort((a, b) => a.episode - b.episode),
+				}));
 		});
 }
 

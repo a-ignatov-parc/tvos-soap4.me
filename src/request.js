@@ -1,15 +1,21 @@
 import {Promise} from 'tvdml';
-import assign from 'object-assign';
 
 const GET = 'GET';
 const POST = 'POST';
 
 export function get(url, params = {}) {
-	return request(url, assign({method: GET}, params));
+	return request(url, {
+		method: GET,
+		...params,
+	});
 }
 
 export function post(url, data, params = {}) {
-	return request(url, assign({method: POST, data}, params));
+	return request(url, {
+		method: POST, 
+		data,
+		...params,
+	});
 }
 
 export function toString() {

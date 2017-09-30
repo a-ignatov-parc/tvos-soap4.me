@@ -1,6 +1,5 @@
 import moment from 'moment';
 import * as TVDML from 'tvdml';
-import assign from 'object-assign';
 import formatNumber from 'simple-format-number';
 
 import * as user from '../user';
@@ -90,7 +89,7 @@ export default function() {
 
 				Promise
 					.all([this.loadData(), waitForAnimations])
-					.then(([payload]) => this.setState(assign({loading: false}, payload)));
+					.then(([payload]) => this.setState({loading: false, ...payload}));
 			},
 
 			componentWillUnmount() {
@@ -133,11 +132,12 @@ export default function() {
 							recomendations,
 						}))
 					)
-					.then(payload => assign({
+					.then(payload => ({
 						likes: +payload.tvshow.likes,
 						watching: payload.tvshow.watching > 0,
 						continueWatching: !!this.getSeasonToWatch(payload.seasons),
-					}, payload));
+						...payload,
+					}));
 			},
 
 			render() {
@@ -329,7 +329,11 @@ export default function() {
 
 				let scheduleDiff = this.state.schedule
 					.slice(this.state.seasons.length)
-					.map(season => assign({covers, begins: season.episodes[0].date}, season));
+					.map(season => ({
+						covers, 
+						begins: season.episodes[0].date,
+						...season,
+					}));
 
 				let seasons = this.state.seasons.concat(scheduleDiff);
 
@@ -890,7 +894,12 @@ export default function() {
 
 				return rateTVShow(sid, rating)
 					.then(({votes: soap_votes, rating: soap_rating}) => ({soap_votes, soap_rating}))
-					.then(rating => this.setState({tvshow: assign({}, this.state.tvshow, rating)}))
+					.then(rating => this.setState({
+						tvshow: {
+							...this.state.tvshow,
+							...rating,
+						},
+					}))
 					.then(TVDML.removeModal);
 			},
 

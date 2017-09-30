@@ -1,6 +1,5 @@
 import moment from 'moment';
 import * as TVDML from 'tvdml';
-import assign from 'object-assign';
 
 import * as user from '../user';
 import {get as i18n} from '../localization';
@@ -57,7 +56,7 @@ export default function() {
 				this.appResumeStream.pipe(() => this.loadData().then(this.setState.bind(this)));
 
 				this.loadData().then(payload => {
-					this.setState(assign({loading: false}, payload));
+					this.setState({loading: false, ...payload});
 				});
 			},
 
@@ -68,7 +67,7 @@ export default function() {
 			componentDidUpdate(prevProps, prevState) {
 				if (this.state.updating && prevState.updating !== this.state.updating) {
 					this.loadData().then(payload => {
-						this.setState(assign({updating: false}, payload));
+						this.setState({updating: false, ...payload});
 					});
 				}
 			},

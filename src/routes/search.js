@@ -1,5 +1,4 @@
 import * as TVDML from 'tvdml';
-import assign from 'object-assign';
 
 import {get as i18n} from '../localization';
 import {link, prettifyEpisodeNum} from '../utils';
@@ -250,7 +249,7 @@ export default function() {
 				keyboard.onTextChange = () => this.search(keyboard.text);
 
 				this.loadData().then(payload => {
-					this.setState(assign({loading: false}, payload));
+					this.setState({loading: false, ...payload});
 				});
 			},
 
@@ -261,7 +260,7 @@ export default function() {
 			componentDidUpdate(prevProps, prevState) {
 				if (this.state.updating && prevState.updating !== this.state.updating) {
 					this.loadData().then(payload => {
-						this.setState(assign({updating: false}, payload));
+						this.setState({updating: false, ...payload});
 					});
 				}
 			},
@@ -285,7 +284,7 @@ export default function() {
 				this.setState({loading: true});
 				return getSearchResults(query)
 					.catch(() => ({}))
-					.then(result => this.setState(assign({loading: false}, result)));
+					.then(result => this.setState({loading: false, ...result}));
 			},
 		})));
 }

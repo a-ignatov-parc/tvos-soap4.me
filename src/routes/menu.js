@@ -1,7 +1,6 @@
 import * as TVDML from 'tvdml';
 
 import moment from 'moment';
-import assign from 'object-assign';
 
 import * as user from '../user';
 import * as localization from '../localization';
@@ -18,11 +17,12 @@ export default function(menu) {
 			getInitialState() {
 				const language = localization.getLanguage();
 
-				return assign({
+				return {
 					menu,
 					language,
 					rendered: false,
-				}, this.getUserState());
+					...this.getUserState(),
+				};
 			},
 
 			getUserState() {

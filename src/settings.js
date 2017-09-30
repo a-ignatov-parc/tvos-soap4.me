@@ -1,4 +1,3 @@
-import assign from 'object-assign';
 import EventBus from './event-bus';
 
 const bus = new EventBus();
@@ -71,7 +70,7 @@ export function get(key) {
 }
 
 export function getAll() {
-	return assign({}, settings);
+	return {...settings};
 }
 
 function getSettingsFromStorage(defaults = {}) {
@@ -86,7 +85,10 @@ function getSettingsFromStorage(defaults = {}) {
 			return result;
 		}, {});
 
-	return assign({}, defaults, validatedSettings);
+	return {
+		...defaults,
+		...validatedSettings,
+	};
 }
 
 function checkKeyValidity(key) {

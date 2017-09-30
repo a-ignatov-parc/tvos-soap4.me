@@ -1,5 +1,4 @@
 import * as TVDML from 'tvdml';
-import assign from 'object-assign';
 
 import {authorize} from '../request/soap';
 import {get as i18n} from '../localization';
@@ -173,12 +172,13 @@ function createForm(params = {}) {
 
 	return TVDML.render(TVDML.createComponent({
 		getInitialState() {
-			return assign({
+			return {
 				value: '',
 				placeholder: '',
 				valid: false,
 				button: 'Submit',
-			}, params);
+				...params,
+			};
 		},
 
 		componentDidMount() {

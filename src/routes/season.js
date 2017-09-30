@@ -1,6 +1,5 @@
 import moment from 'moment';
 import * as TVDML from 'tvdml';
-import assign from 'object-assign';
 
 import {link} from '../utils';
 import * as settings from '../settings';
@@ -84,7 +83,7 @@ export default function() {
 
 				Promise
 					.all([this.loadData(), waitForAnimations])
-					.then(([payload]) => this.setState(assign({loading: false}, payload)));
+					.then(([payload]) => this.setState({loading: false, ...payload}));
 			},
 
 			componentWillUnmount() {
@@ -114,15 +113,17 @@ export default function() {
 							schedule,
 						} = payload;
 
-						return assign({}, payload, getSeasonData({
-							id,
-							tvshow,
-							season,
-							schedule,
-							translation,
-						}, !extended), {
+						return {
+							...payload,
+							...getSeasonData({
+								id,
+								tvshow,
+								season,
+								schedule,
+								translation,
+							}, !extended),
 							episodesHasSubtitles: someEpisodesHasSubtitles(season ? season.episodes : []),
-						});
+						};
 					});
 			},
 
@@ -423,19 +424,17 @@ export default function() {
 						return result;
 					}, {});
 
-				const assignQueue = [
-					{translation},
-					getSeasonData({
+				this.setState({
+					translation,
+					...getSeasonData({
 						id,
 						tvshow,
 						season,
 						schedule,
 						translation,
 					}, !extended),
-					currentWatchedMarks,
-				];
-
-				this.setState(assign(...assignQueue));
+					...currentWatchedMarks,
+				});
 			},
 
 			onHighlightedItemRender(episode, node) {
@@ -562,7 +561,10 @@ export default function() {
 					.then(rating => {
 						const episodes = this.state.episodes.map(episode => {
 							if (episode.season === season && episode.episode === episodeNumber) {
-								return assign({}, episode, rating);
+								return {
+									...episode, 
+									...rating,
+								};
 							}
 							return episode;
 						});
