@@ -13,6 +13,7 @@
     "serve": "webpack-dev-server",
     "dist": "NODE_ENV=production webpack --progress",
     "install-deps": "npm i -g yarn@$npm_package_engines_yarn && yarn",
+    "lint": "eslint src",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -48,5 +49,12 @@
     "tvdml": "^2.0.0",
     "webpack": "^3.6.0",
     "webpack-dev-server": "^2.9.1"
+  },
+  "devDependencies": {
+    "eslint": "^4.8.0",
+    "eslint-config-airbnb": "^15.1.0",
+    "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-jsx-a11y": "^5.1.1",
+    "eslint-plugin-react": "^7.4.0"
   }
 }

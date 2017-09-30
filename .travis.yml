@@ -2,7 +2,7 @@ language: node_js
 install:
   - npm run install-deps
 script: 
-  - gulp
+  - npm run lint
 cache:
   directories:
     - node_modules
