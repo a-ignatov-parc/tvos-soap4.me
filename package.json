@@ -5,12 +5,14 @@
   "main": "src",
   "engine-strict": true,
   "engines": {
-    "yarn": "^0.27.0",
-    "node": "^6.0.0"
+    "node": "^6.0.0",
+    "yarn": "^0.27.5"
   },
   "scripts": {
     "build": "webpack --progress",
     "serve": "webpack-dev-server",
+    "dist": "NODE_ENV=production webpack --progress",
+    "install-deps": "npm i -g yarn@$npm_package_engines_yarn && yarn",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
