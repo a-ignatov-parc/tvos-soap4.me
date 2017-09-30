@@ -78,10 +78,8 @@ module.exports = {
 	},
 	output: {
 		filename: '[name].js',
-		libraryTarget: 'commonjs2',
 		path: resolveFromRoot('./dist'),
 	},
-	target: 'node',
 	devtool: isProd ? 'source-map' : 'eval-source-map',
 	module: { rules },
 	plugins,
@@ -89,6 +87,7 @@ module.exports = {
 	devServer: {
 		contentBase: resolveFromRoot('./dist'),
 		compress: true,
+		inline: false,
 		port: 9001,
 		stats,
 	},
