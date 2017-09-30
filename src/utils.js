@@ -1,88 +1,88 @@
 import {Promise, navigate} from 'tvdml';
 
 export function promisedTimeout(timeout) {
-	return () => new Promise(resolve => setTimeout(resolve, timeout));
+  return () => new Promise(resolve => setTimeout(resolve, timeout));
 }
 
 export function isMenuButtonPressNavigatedTo(targetDocument) {
-	return ({to: {document}}) => {
-		let {menuBarDocument} = document;
+  return ({to: {document}}) => {
+    let {menuBarDocument} = document;
 
-		if (menuBarDocument) {
-			document = menuBarDocument.getDocument(menuBarDocument.getSelectedItem());
-		}
+    if (menuBarDocument) {
+      document = menuBarDocument.getDocument(menuBarDocument.getSelectedItem());
+    }
 
-		return targetDocument === document;
-	}
+    return targetDocument === document;
+  }
 }
 
 export function log(message = '') {
-	return (payload) => {
-		console.log(message, payload);
-		return payload;
-	}
+  return (payload) => {
+    console.log(message, payload);
+    return payload;
+  }
 }
 
 export function link(route, params) {
-	return event => navigate(route, params);
+  return event => navigate(route, params);
 }
 
 export function getStartParams() {
-	let params = JSON.parse(sessionStorage.getItem('startParams') || '{}');
+  let params = JSON.parse(sessionStorage.getItem('startParams') || '{}');
 
-	// Ad-hoc fix for assets urls
-	if (isQello()) {
-		params.BASEURL = 'https://a-ignatov-parc.github.io/tvos-soap4.me-releases/qello/tvml/';
-	}
+  // Ad-hoc fix for assets urls
+  if (isQello()) {
+    params.BASEURL = 'https://a-ignatov-parc.github.io/tvos-soap4.me-releases/qello/tvml/';
+  }
 
-	return params;
+  return params;
 }
 
 export function isQello() {
-	return !!~Device.appIdentifier.toLowerCase().indexOf('qello');
+  return !!~Device.appIdentifier.toLowerCase().indexOf('qello');
 }
 
 export function noop() {
-	return () => {};
+  return () => {};
 }
 
 export function capitalize(word) {
-	word = `${word}`;
-	return word.charAt(0).toUpperCase() + word.slice(1);
+  word = `${word}`;
+  return word.charAt(0).toUpperCase() + word.slice(1);
 }
 
 export function capitalizeText(text) {
-	return `${text}`.split(' ').map(capitalize).join(' ');
+  return `${text}`.split(' ').map(capitalize).join(' ');
 }
 
 export function seconds(amount) {
-	return amount * 1000;
+  return amount * 1000;
 }
 
 export function minutes(amount) {
-	return seconds(amount) * 60;
+  return seconds(amount) * 60;
 }
 
 export function hours(amount) {
-	return minutes(amount) * 60;
+  return minutes(amount) * 60;
 }
 
 export function prettifyEpisodeNum(season = 0, episode = 0) {
-	return `s${prettifyNum(season)}e${prettifyNum(episode)}`;
+  return `s${prettifyNum(season)}e${prettifyNum(episode)}`;
 }
 
 export function prettifyNum(num, ordinal = 2) {
-	return `${Math.pow(10, ordinal)}${num}`.slice(-ordinal);
+  return `${Math.pow(10, ordinal)}${num}`.slice(-ordinal);
 }
 
 export function removeDocumentFromNavigation(document) {
-	// Workaround for strange tvOS issue when after deleting document 
-	// from `navigationDocument.documents` it still remains there.
-	while(~navigationDocument.documents.indexOf(document)) {
-		try {navigationDocument.removeDocument(document)} catch(e) {}
-	}
+  // Workaround for strange tvOS issue when after deleting document
+  // from `navigationDocument.documents` it still remains there.
+  while(~navigationDocument.documents.indexOf(document)) {
+    try {navigationDocument.removeDocument(document)} catch(e) {}
+  }
 }
 
 export function genreToId(genre) {
-	return genre.replace(/\s/g, '_');
+  return genre.replace(/\s/g, '_');
 }

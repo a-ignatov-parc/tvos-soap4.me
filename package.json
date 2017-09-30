@@ -13,7 +13,7 @@
     "serve": "webpack-dev-server",
     "dist": "NODE_ENV=production webpack --progress",
     "install-deps": "npm i -g yarn@$npm_package_engines_yarn && yarn",
-    "lint": "eslint src",
+    "lint": "eslint webpack.config.js src",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

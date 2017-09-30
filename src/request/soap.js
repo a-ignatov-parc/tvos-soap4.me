@@ -17,392 +17,392 @@ const {LOCALIZATION, SUBTITLES} = settings.values[TRANSLATION];
 export const version = `v${config.version}`;
 
 export const tvshow = {
-	ENDED: 'ended',
-	CLOSED: 'closed',
-	RUNNING: 'running',
+  ENDED: 'ended',
+  CLOSED: 'closed',
+  RUNNING: 'running',
 };
 
 export const localization = {
-	ORIGINAL: 'original',
-	ORIGINAL_SUBTITLES: 'original_subtitles',
-	LOCALIZATION: 'localization',
-	LOCALIZATION_SUBTITLES: 'localization_subtitles',
+  ORIGINAL: 'original',
+  ORIGINAL_SUBTITLES: 'original_subtitles',
+  LOCALIZATION: 'localization',
+  LOCALIZATION_SUBTITLES: 'localization_subtitles',
 };
 
 export const mediaQualities = {
-	1: SD,
-	2: HD,
-	3: FULLHD,
+  1: SD,
+  2: HD,
+  3: FULLHD,
 };
 
 export const mediaQualityRanking = [
-	FULLHD,
-	HD,
-	SD,
+  FULLHD,
+  HD,
+  SD,
 ];
 
 export const mediaLocalizationRanking = {
-	[LOCALIZATION]: [
-		localization.LOCALIZATION,
-		localization.LOCALIZATION_SUBTITLES,
-		localization.ORIGINAL_SUBTITLES,
-		localization.ORIGINAL,
-	],
+  [LOCALIZATION]: [
+    localization.LOCALIZATION,
+    localization.LOCALIZATION_SUBTITLES,
+    localization.ORIGINAL_SUBTITLES,
+    localization.ORIGINAL,
+  ],
 
-	[SUBTITLES]: [
-		localization.ORIGINAL_SUBTITLES,
-		localization.LOCALIZATION_SUBTITLES,
-		localization.LOCALIZATION,
-		localization.ORIGINAL,
-	],
+  [SUBTITLES]: [
+    localization.ORIGINAL_SUBTITLES,
+    localization.LOCALIZATION_SUBTITLES,
+    localization.LOCALIZATION,
+    localization.ORIGINAL,
+  ],
 };
 
 export const mediaLocalizations = {
-	1: localization.ORIGINAL,
-	2: localization.ORIGINAL_SUBTITLES,
-	3: localization.LOCALIZATION_SUBTITLES,
-	4: localization.LOCALIZATION,
+  1: localization.ORIGINAL,
+  2: localization.ORIGINAL_SUBTITLES,
+  3: localization.LOCALIZATION_SUBTITLES,
+  4: localization.LOCALIZATION,
 };
 
 export const mediaLocalizationStrings = {
-	[localization.ORIGINAL]: 'Original',
-	[localization.ORIGINAL_SUBTITLES]: 'Original with subtitles',
-	[localization.LOCALIZATION]: 'Localization',
-	[localization.LOCALIZATION_SUBTITLES]: 'Localization with subtitles',
+  [localization.ORIGINAL]: 'Original',
+  [localization.ORIGINAL_SUBTITLES]: 'Original with subtitles',
+  [localization.LOCALIZATION]: 'Localization',
+  [localization.LOCALIZATION_SUBTITLES]: 'Localization with subtitles',
 };
 
 export const TVShowStatuses = {
-	0: tvshow.RUNNING,
-	1: tvshow.ENDED,
-	2: tvshow.CLOSED,
+  0: tvshow.RUNNING,
+  1: tvshow.ENDED,
+  2: tvshow.CLOSED,
 };
 
 export const TVShowStatusStrings = {
-	[tvshow.ENDED]: 'tvshow-status-ended',
-	[tvshow.CLOSED]: 'tvshow-status-closed',
-	[tvshow.RUNNING]: 'tvshow-status-running',
+  [tvshow.ENDED]: 'tvshow-status-ended',
+  [tvshow.CLOSED]: 'tvshow-status-closed',
+  [tvshow.RUNNING]: 'tvshow-status-running',
 };
 
 export function get(url) {
-	return request
-		.get(url, {prepare: addHeaders(headers())})
-		.then(request.toJSON())
-		.then(...requestLogger('GET', url));
+  return request
+    .get(url, {prepare: addHeaders(headers())})
+    .then(request.toJSON())
+    .then(...requestLogger('GET', url));
 }
 
 export function post(url, parameters) {
-	return request
-		.post(url, parameters, {prepare: addHeaders(headers())})
-		.then(request.toJSON())
-		.then(...requestLogger('POST', url, parameters));
+  return request
+    .post(url, parameters, {prepare: addHeaders(headers())})
+    .then(request.toJSON())
+    .then(...requestLogger('POST', url, parameters));
 }
 
 export function checkSession() {
-	return get('https://api.soap4.me/v2/auth/check/');
+  return get('https://api.soap4.me/v2/auth/check/');
 }
 
 export function authorize({login, password}) {
-	return post('https://api.soap4.me/v2/auth/', {login, password}).catch(xhr => {
-		if (xhr.status === 403) {
-			return request.toJSON()(xhr);
-		}
-		return Promise.reject(xhr);
-	});
+  return post('https://api.soap4.me/v2/auth/', {login, password}).catch(xhr => {
+    if (xhr.status === 403) {
+      return request.toJSON()(xhr);
+    }
+    return Promise.reject(xhr);
+  });
 }
 
 export function getFamilyAccounts() {
-	return get('https://api.soap4.me/v2/family/');
+  return get('https://api.soap4.me/v2/family/');
 }
 
 export function migrateToFamilyAccount() {
-	return post('https://api.soap4.me/v2/family/migrate/');
+  return post('https://api.soap4.me/v2/family/migrate/');
 }
 
 export function turnOffFamilyAccount() {
-	return post('https://api.soap4.me/v2/family/unset/');
+  return post('https://api.soap4.me/v2/family/unset/');
 }
 
 export function selectAccount(fid) {
-	return post(`https://api.soap4.me/v2/family/set/${fid}/`, {fid});
+  return post(`https://api.soap4.me/v2/family/set/${fid}/`, {fid});
 }
 
 export function addAccount(name) {
-	return post('https://api.soap4.me/v2/family/add/', {name});
+  return post('https://api.soap4.me/v2/family/add/', {name});
 }
 
 export function renameAccount(fid, name) {
-	return post(`https://api.soap4.me/v2/family/rename/${fid}/`, {fid, name});
+  return post(`https://api.soap4.me/v2/family/rename/${fid}/`, {fid, name});
 }
 
 export function deleteAccount(fid) {
-	return post(`https://api.soap4.me/v2/family/remove/${fid}/`, {fid});
+  return post(`https://api.soap4.me/v2/family/remove/${fid}/`, {fid});
 }
 
 export function logout() {
-	return post('https://api.soap4.me/v2/auth/logout/');
+  return post('https://api.soap4.me/v2/auth/logout/');
 }
 
 export function getMyTVShows() {
-	return get('https://api.soap4.me/v2/soap/my/').then(...emptyOrErrorsResolvers([]));
+  return get('https://api.soap4.me/v2/soap/my/').then(...emptyOrErrorsResolvers([]));
 }
 
 export function getAllTVShows() {
-	return get('https://api.soap4.me/v2/soap/');
+  return get('https://api.soap4.me/v2/soap/');
 }
 
 export function getLatestTVShows(count = 10) {
-	return getAllTVShows().then(tvshows => {
-		return tvshows
-			.sort(({sid: a}, {sid: b}) => b - a)
-			.slice(0, count);
-	});
+  return getAllTVShows().then(tvshows => {
+    return tvshows
+      .sort(({sid: a}, {sid: b}) => b - a)
+      .slice(0, count);
+  });
 }
 
 export function getPopularTVShows(count = 10) {
-	return getAllTVShows().then(tvshows => {
-		return tvshows
-			.sort(({likes: a}, {likes: b}) => b - a)
-			.slice(0, count);
-	});
+  return getAllTVShows().then(tvshows => {
+    return tvshows
+      .sort(({likes: a}, {likes: b}) => b - a)
+      .slice(0, count);
+  });
 }
 
 export function getTVShowsByGenre(genre) {
-	return get(`https://api.soap4.me/v2/soap/genre/${genreToId(genre)}/`);
+  return get(`https://api.soap4.me/v2/soap/genre/${genreToId(genre)}/`);
 }
 
 export function getTVShowDescription(sid) {
-	return get(`https://api.soap4.me/v2/soap/description/${sid}/`);
+  return get(`https://api.soap4.me/v2/soap/description/${sid}/`);
 }
 
 export function getCountriesList() {
-	return get('https://api.soap4.me/v2/soap/countrys/');
+  return get('https://api.soap4.me/v2/soap/countrys/');
 }
 
 export function getGenresList() {
-	return get('https://api.soap4.me/v2/soap/genres/');
+  return get('https://api.soap4.me/v2/soap/genres/');
 }
 
 export function getTVShowEpisodes(sid) {
-	return get(`https://api.soap4.me/v2/episodes/${sid}/`);
+  return get(`https://api.soap4.me/v2/episodes/${sid}/`);
 }
 
 export function getTVShowRecommendations(sid) {
-	return get(`https://api.soap4.me/v2/soap/recommendations/${sid}/`).then(...emptyOrErrorsResolvers([]));
+  return get(`https://api.soap4.me/v2/soap/recommendations/${sid}/`).then(...emptyOrErrorsResolvers([]));
 }
 
 export function getTVShowReviews(sid) {
-	return get(`https://api.soap4.me/v2/reviews/${sid}/`).then(...emptyOrErrorsResolvers([]));
+  return get(`https://api.soap4.me/v2/reviews/${sid}/`).then(...emptyOrErrorsResolvers([]));
 }
 
 export function markReviewAsLiked(rid) {
-	return post(`https://api.soap4.me/v2/rate/review/${rid}/like/`);
+  return post(`https://api.soap4.me/v2/rate/review/${rid}/like/`);
 }
 
 export function markReviewAsDisliked(rid) {
-	return post(`https://api.soap4.me/v2/rate/review/${rid}/dislike/`);
+  return post(`https://api.soap4.me/v2/rate/review/${rid}/dislike/`);
 }
 
 export function rateTVShow(sid, rating) {
-	return post(`https://api.soap4.me/v2/rate/soap/${sid}/${rating}/`, {sid, rating});
+  return post(`https://api.soap4.me/v2/rate/soap/${sid}/${rating}/`, {sid, rating});
 }
 
 export function rateEpisode(sid, season, episode, rating) {
-	return post(`https://api.soap4.me/v2/rate/episode/${sid}/${season}/${episode}/rating/${rating}/`, {sid, season, episode, rating});
+  return post(`https://api.soap4.me/v2/rate/episode/${sid}/${season}/${episode}/rating/${rating}/`, {sid, season, episode, rating});
 }
 
 export function getTVShowTrailers(sid) {
-	return get(`https://api.soap4.me/v2/trailers/${sid}/`).then(...emptyOrErrorsResolvers([]));
+  return get(`https://api.soap4.me/v2/trailers/${sid}/`).then(...emptyOrErrorsResolvers([]));
 }
 
 export function getTVShowSeasons(sid) {
-	return getTVShowEpisodes(sid)
-		.then(({covers, episodes}) => {
-			return (episodes || []).reduce((result, episode) => {
-				if (!result[episode.season]) {
-					result[episode.season] = {
-						episodes: [],
-						unwatched: 0,
-						season: episode.season,
-						covers: covers.filter(({season}) => season === episode.season)[0],
-					};
-				}
-				result[episode.season].episodes.push(episode);
-				episode.watched || result[episode.season].unwatched++;
-				return result;
-			}, {});
-		})
-		.then(seasonsCollection => {
-			return Object
-				.keys(seasonsCollection)
-				.sort((a, b) => a - b)
-				.map(seasonNumber => seasonsCollection[seasonNumber])
-				.map(season => ({
-					...season,
-					episodes: season.episodes.slice(0).sort((a, b) => a.episode - b.episode),
-				}));
-		});
+  return getTVShowEpisodes(sid)
+    .then(({covers, episodes}) => {
+      return (episodes || []).reduce((result, episode) => {
+        if (!result[episode.season]) {
+          result[episode.season] = {
+            episodes: [],
+            unwatched: 0,
+            season: episode.season,
+            covers: covers.filter(({season}) => season === episode.season)[0],
+          };
+        }
+        result[episode.season].episodes.push(episode);
+        episode.watched || result[episode.season].unwatched++;
+        return result;
+      }, {});
+    })
+    .then(seasonsCollection => {
+      return Object
+        .keys(seasonsCollection)
+        .sort((a, b) => a - b)
+        .map(seasonNumber => seasonsCollection[seasonNumber])
+        .map(season => ({
+          ...season,
+          episodes: season.episodes.slice(0).sort((a, b) => a.episode - b.episode),
+        }));
+    });
 }
 
 export function getTVShowSeason(sid, id) {
-	return getTVShowSeasons(sid).then(seasons => seasons.filter(season => season.season === id)[0]);
+  return getTVShowSeasons(sid).then(seasons => seasons.filter(season => season.season === id)[0]);
 }
 
 export function getTVShowSchedule(sid) {
-	return get(`https://api.soap4.me/v2/shedule/${sid}/`)
-		.then(schedule => {
-			return schedule.reduce((result, item) => {
-				if (!result[item.season - 1]) {
-					result[item.season - 1] = {
-						episodes: [],
-						season: `${item.season}`,
-					};
-				}
-				result[item.season - 1].episodes.unshift(item);
-				return result;
-			}, []);
-		})
-		.catch(() => []);
+  return get(`https://api.soap4.me/v2/shedule/${sid}/`)
+    .then(schedule => {
+      return schedule.reduce((result, item) => {
+        if (!result[item.season - 1]) {
+          result[item.season - 1] = {
+            episodes: [],
+            season: `${item.season}`,
+          };
+        }
+        result[item.season - 1].episodes.unshift(item);
+        return result;
+      }, []);
+    })
+    .catch(() => []);
 }
 
 export function getMySchedule() {
-	return get(`https://api.soap4.me/v2/shedule/my/`).catch(() => []);
+  return get(`https://api.soap4.me/v2/shedule/my/`).catch(() => []);
 }
 
 export function getActorInfo(id) {
-	return get(`https://api.soap4.me/v2/soap/person/${id}/`);
+  return get(`https://api.soap4.me/v2/soap/person/${id}/`);
 }
 
 export function getEpisodeMedia({files = []}, translation) {
-	const qualitySettings = settings.get(VIDEO_QUALITY);
-	const translationSettings = translation || settings.get(TRANSLATION);
+  const qualitySettings = settings.get(VIDEO_QUALITY);
+  const translationSettings = translation || settings.get(TRANSLATION);
 
-	const qualityRanking = mediaQualityRanking.slice(mediaQualityRanking.indexOf(qualitySettings));
-	const localizationRanking = mediaLocalizationRanking[translationSettings];
+  const qualityRanking = mediaQualityRanking.slice(mediaQualityRanking.indexOf(qualitySettings));
+  const localizationRanking = mediaLocalizationRanking[translationSettings];
 
-	const [rankedFile] = files
-		.slice(0)
-		.sort(({
-			quality: qualityA,
-			translate: translateA,
-		}, {
-			quality: qualityB,
-			translate: translateB,
-		}) => {
-			const qualityIndexA = resolveCodeToIndex(mediaQualities[qualityA], qualityRanking);
-			const qualityIndexB = resolveCodeToIndex(mediaQualities[qualityB], qualityRanking);
-			const localizationIndexA = resolveCodeToIndex(mediaLocalizations[translateA], localizationRanking);
-			const localizationIndexB = resolveCodeToIndex(mediaLocalizations[translateB], localizationRanking);
-			return (qualityIndexA - qualityIndexB) + (localizationIndexA - localizationIndexB);
-		});
+  const [rankedFile] = files
+    .slice(0)
+    .sort(({
+      quality: qualityA,
+      translate: translateA,
+    }, {
+      quality: qualityB,
+      translate: translateB,
+    }) => {
+      const qualityIndexA = resolveCodeToIndex(mediaQualities[qualityA], qualityRanking);
+      const qualityIndexB = resolveCodeToIndex(mediaQualities[qualityB], qualityRanking);
+      const localizationIndexA = resolveCodeToIndex(mediaLocalizations[translateA], localizationRanking);
+      const localizationIndexB = resolveCodeToIndex(mediaLocalizations[translateB], localizationRanking);
+      return (qualityIndexA - qualityIndexB) + (localizationIndexA - localizationIndexB);
+    });
 
-	return rankedFile;
+  return rankedFile;
 }
 
 export function markTVShowAsWatched(sid) {
-	return post(`https://api.soap4.me/v2/episodes/watch/full/${sid}/`);
+  return post(`https://api.soap4.me/v2/episodes/watch/full/${sid}/`);
 }
 
 export function markTVShowAsUnwatched(sid) {
-	return post(`https://api.soap4.me/v2/episodes/unwatch/full/${sid}/`);
+  return post(`https://api.soap4.me/v2/episodes/unwatch/full/${sid}/`);
 }
 
 export function markSeasonAsWatched(sid, season) {
-	return post(`https://api.soap4.me/v2/episodes/watch/full/${sid}/${season}/`);
+  return post(`https://api.soap4.me/v2/episodes/watch/full/${sid}/${season}/`);
 }
 
 export function markSeasonAsUnwatched(sid, season) {
-	return post(`https://api.soap4.me/v2/episodes/unwatch/full/${sid}/${season}/`);
+  return post(`https://api.soap4.me/v2/episodes/unwatch/full/${sid}/${season}/`);
 }
 
 export function markEpisodeAsWatched(sid, season, episodeNumber) {
-	return post(`https://api.soap4.me/v2/episodes/watch/${sid}/${season}/${episodeNumber}/`);
+  return post(`https://api.soap4.me/v2/episodes/watch/${sid}/${season}/${episodeNumber}/`);
 }
 
 export function markEpisodeAsUnwatched(sid, season, episodeNumber) {
-	return post(`https://api.soap4.me/v2/episodes/unwatch/${sid}/${season}/${episodeNumber}/`);
+  return post(`https://api.soap4.me/v2/episodes/unwatch/${sid}/${season}/${episodeNumber}/`);
 }
 
 export function getMediaStream(media) {
-	let {sid, file} = media;
-	let {eid, hash: episodeHash} = file;
+  let {sid, file} = media;
+  let {eid, hash: episodeHash} = file;
 
-	let token = getToken();
-	let hash = md5(token + eid + sid + episodeHash);
+  let token = getToken();
+  let hash = md5(token + eid + sid + episodeHash);
 
-	return post(`https://api.soap4.me/v2/play/episode/${eid}/`, {eid, hash});
+  return post(`https://api.soap4.me/v2/play/episode/${eid}/`, {eid, hash});
 }
 
 export function getTrailerStream(tid) {
-	return post(`https://api.soap4.me/v2/play/trailer/${tid}/`);
+  return post(`https://api.soap4.me/v2/play/trailer/${tid}/`);
 }
 
 export function addToMyTVShows(sid) {
-	return post(`https://api.soap4.me/v2/soap/watch/${sid}/`);
+  return post(`https://api.soap4.me/v2/soap/watch/${sid}/`);
 }
 
 export function removeFromMyTVShows(sid) {
-	return post(`https://api.soap4.me/v2/soap/unwatch/${sid}/`);
+  return post(`https://api.soap4.me/v2/soap/unwatch/${sid}/`);
 }
 
 export function getSearchResults(query) {
-	return get(`https://api.soap4.me/v2/search/?q=${encodeURIComponent(query)}`);
+  return get(`https://api.soap4.me/v2/search/?q=${encodeURIComponent(query)}`);
 }
 
 export function saveElapsedTime(eid, time) {
-	return post(`https://api.soap4.me/v2/play/episode/${eid}/savets/`, {eid, time});
+  return post(`https://api.soap4.me/v2/play/episode/${eid}/savets/`, {eid, time});
 }
 
 export function getSpeedTestServers() {
-	return get('https://api.soap4.me/v2/speedtest/servers/');
+  return get('https://api.soap4.me/v2/speedtest/servers/');
 }
 
 export function saveSpeedTestResults(results) {
-	return post('https://api.soap4.me/v2/speedtest/save/', results);
+  return post('https://api.soap4.me/v2/speedtest/save/', results);
 }
 
 function headers() {
-	const token = getToken();
-	const name = `soap4.me${isQello() ? '-qello' : ''}`;
-	const userAgent = `ATV: ${name} ${version}`;
+  const token = getToken();
+  const name = `soap4.me${isQello() ? '-qello' : ''}`;
+  const userAgent = `ATV: ${name} ${version}`;
 
-	return {
-		'X-Api-Token': token,
-		'X-User-Agent': userAgent,
-		'User-Agent': userAgent,
-	};
+  return {
+    'X-Api-Token': token,
+    'X-User-Agent': userAgent,
+    'User-Agent': userAgent,
+  };
 }
 
 function addHeaders(headers) {
-	return (XHR) => {
-		Object
-			.keys(headers)
-			.forEach(key => XHR.setRequestHeader(key, headers[key]));
-		return XHR;
-	}
+  return (XHR) => {
+    Object
+      .keys(headers)
+      .forEach(key => XHR.setRequestHeader(key, headers[key]));
+    return XHR;
+  }
 }
 
 function requestLogger(...params) {
-	return [
-		response => {
-			console.info(...params, response);
-			return response;
-		},
+  return [
+    response => {
+      console.info(...params, response);
+      return response;
+    },
 
-		xhr => {
-			console.error(...params, xhr.status, xhr);
-			return Promise.reject(xhr);
-		},
-	];
+    xhr => {
+      console.error(...params, xhr.status, xhr);
+      return Promise.reject(xhr);
+    },
+  ];
 }
 
 function emptyOrErrorsResolvers(defaults) {
-	return [
-		response => response != null ? response : defaults,
-		xhr => defaults,
-	];
+  return [
+    response => response != null ? response : defaults,
+    xhr => defaults,
+  ];
 }
 
 function resolveCodeToIndex(code, collection = []) {
-	let index = collection.indexOf(code);
-	return index < 0 ? collection.length : index;
+  let index = collection.indexOf(code);
+  return index < 0 ? collection.length : index;
 }

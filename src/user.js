@@ -5,69 +5,69 @@ const bus = new EventBus();
 const STORAGE_KEY = 'soap4me-user';
 
 const cache = {
-	payload: JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'),
+  payload: JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'),
 };
 
 const contract = [
-	'till',
-	'token',
-	'logged',
-	'family',
-	'selected',
+  'till',
+  'token',
+  'logged',
+  'family',
+  'selected',
 ];
 
 export const subscription = bus.subscription.bind(bus);
 
 export function set(payload) {
-	cache.payload = Object
-		.keys(payload)
-		.reduce((result, key) => {
-			if (~contract.indexOf(key)) {
-				if (typeof(payload[key]) !== 'undefined') {
-					result[key] = payload[key];
-				}
-			} else {
-				console.warn(`Passed unsupported key "${key}". Skipping...`);
-			}
-			return result;
-		}, cache.payload);
+  cache.payload = Object
+    .keys(payload)
+    .reduce((result, key) => {
+      if (~contract.indexOf(key)) {
+        if (typeof(payload[key]) !== 'undefined') {
+          result[key] = payload[key];
+        }
+      } else {
+        console.warn(`Passed unsupported key "${key}". Skipping...`);
+      }
+      return result;
+    }, cache.payload);
 
-	localStorage.setItem(STORAGE_KEY, JSON.stringify(cache.payload));
-	bus.broadcast(cache.payload);
-	return cache.payload;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(cache.payload));
+  bus.broadcast(cache.payload);
+  return cache.payload;
 }
 
 export function get() {
-	return cache.payload;
+  return cache.payload;
 }
 
 export function clear() {
-	cache.payload = {};
-	localStorage.removeItem(STORAGE_KEY);
-	bus.broadcast(cache.payload);
+  cache.payload = {};
+  localStorage.removeItem(STORAGE_KEY);
+  bus.broadcast(cache.payload);
 }
 
 export function getToken() {
-	return get().token;
+  return get().token;
 }
 
 export function getLogin() {
-	return (get().selected || getMainAccount() || {}).name;
+  return (get().selected || getMainAccount() || {}).name;
 }
 
 export function getMainAccount() {
-	const [mainAccount] = (get().family || []).slice(0).sort(({main: a}, {main: b}) => b - a);
-	return mainAccount;
+  const [mainAccount] = (get().family || []).slice(0).sort(({main: a}, {main: b}) => b - a);
+  return mainAccount;
 }
 
 export function isExtended() {
-	return Date.now() / 1000 < get().till;
+  return Date.now() / 1000 < get().till;
 }
 
 export function isAuthorized() {
-	return get().logged > 0;
+  return get().logged > 0;
 }
 
 export function isFamily() {
-	return get().selected != null;
+  return get().selected != null;
 }

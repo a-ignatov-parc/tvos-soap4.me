@@ -15,50 +15,50 @@ const {LANGUAGE} = settings.params;
 const {AUTO, EN, RU} = settings.values[LANGUAGE];
 
 const translations = {
-	'default': English,
-	[EN]: English,
-	[RU]: Russian,
+  'default': English,
+  [EN]: English,
+  [RU]: Russian,
 };
 
 // Configuring initial locale.
 moment.locale(getLanguage());
 
 settings
-	.subscription()
-	.pipe(({key}) => {
-		if (key === LANGUAGE) {
-			const language = getLanguage();
+  .subscription()
+  .pipe(({key}) => {
+    if (key === LANGUAGE) {
+      const language = getLanguage();
 
-			// Updating locale
-			moment.locale(language);
-			bus.broadcast({language});
-		}
-	});
+      // Updating locale
+      moment.locale(language);
+      bus.broadcast({language});
+    }
+  });
 
 export const subscription = bus.subscription.bind(bus);
 
 export function get(name, params = {}) {
-	let translation = translations[getLanguage()] || translations.default;
-	let key = translation[name];
+  let translation = translations[getLanguage()] || translations.default;
+  let key = translation[name];
 
-	if (typeof(key) === 'function') {
-		return key(params);
-	}
+  if (typeof(key) === 'function') {
+    return key(params);
+  }
 
-	return key || name;
+  return key || name;
 }
 
 export function getSystemCountryCode() {
-	return Settings.storefrontCountryCode;
+  return Settings.storefrontCountryCode;
 }
 
 export function getSystemLanguage() {
-	return Settings.language;
+  return Settings.language;
 }
 
 export function getLanguage() {
-	if (settings.get(LANGUAGE) === AUTO) {
-		return getSystemLanguage();
-	}
-	return settings.get(LANGUAGE);
+  if (settings.get(LANGUAGE) === AUTO) {
+    return getSystemLanguage();
+  }
+  return settings.get(LANGUAGE);
 }
