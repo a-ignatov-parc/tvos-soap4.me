@@ -10,6 +10,8 @@ import {deepEqualShouldUpdate} from '../utils/components';
 import {logout, version, checkSession} from '../request/soap';
 import {getStartParams} from '../utils';
 
+import poster from '../assets/poster.png';
+
 const {get: i18n} = localization;
 
 const {
@@ -120,7 +122,7 @@ export default function() {
 					}));
 
 				const relatedImage = (
-					<img src={`${BASEURL}/assets/poster.png`} width="560" height="560"/>
+					<img src={BASEURL + poster} width="560" height="560"/>
 				);
 
 				return (

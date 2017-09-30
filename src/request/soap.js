@@ -1,6 +1,8 @@
 import md5 from 'blueimp-md5';
 import * as TVDML from 'tvdml';
 
+import config from '../../package';
+
 import {getToken} from '../user';
 import * as request from '../request';
 import * as settings from '../settings';
@@ -12,7 +14,7 @@ const {VIDEO_QUALITY, TRANSLATION} = settings.params;
 const {SD, HD, FULLHD} = settings.values[VIDEO_QUALITY];
 const {LOCALIZATION, SUBTITLES} = settings.values[TRANSLATION];
 
-export const version = 'v__VERSION__';
+export const version = `v${config.version}`;
 
 export const tvshow = {
 	ENDED: 'ended',

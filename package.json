@@ -40,6 +40,7 @@
     "babel-plugin-transform-react-jsx": "^6.24.1",
     "babel-preset-env": "^1.6.0",
     "blueimp-md5": "^2.3.0",
+    "file-loader": "^1.1.3",
     "moment": "^2.14.1",
     "simple-format-number": "^0.1.2",
     "tvdml": "^2.0.0",

@@ -6,6 +6,8 @@ import {noop, getStartParams, removeDocumentFromNavigation} from '../utils';
 
 import Loader from '../components/loader';
 
+import logo from '../assets/logo.png';
+
 const {Promise} = TVDML;
 
 const IDLE = 'idle';
@@ -197,7 +199,7 @@ function createForm(params = {}) {
 				<document>
 					<formTemplate>
 						<banner>
-							<img src={`${BASEURL}/assets/logo.png`} width="218" height="218"/>
+							<img src={BASEURL + logo} width="218" height="218"/>
 							<description>
 								{this.state.description}
 							</description>

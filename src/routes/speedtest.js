@@ -10,6 +10,15 @@ import {
 
 import Loader from '../components/loader';
 
+const flagsContext = require.context('../assets/countries', false, /\.png$/);
+const flags = flagsContext
+	.keys()
+	.reduce((result, moduleName) => {
+		const name = moduleName.replace(/^\.\/|\.png$/g, '');
+		result[name] = flagsContext(moduleName).default;
+		return result;
+	}, {});
+
 const {Promise} = TVDML;
 
 const fileSize = 10567604;
@@ -86,7 +95,7 @@ export default function() {
 													<img
 														width="298"
 														height="200"
-														src={`${BASEURL}/assets/countries/${id}.png`}
+														src={BASEURL + flags[id]}
 													/>
 													<subtitle style="margin: 10 0 0">{result}</subtitle>
 													<overlay style="margin: 0; padding: 0;">
