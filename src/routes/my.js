@@ -1,5 +1,3 @@
-/** @jsx TVDML.jsx */
-
 import moment from 'moment';
 import * as TVDML from 'tvdml';
 import assign from 'object-assign';

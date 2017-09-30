@@ -1,5 +1,3 @@
-/** @jsx TVDML.jsx */
-
 import * as TVDML from 'tvdml';
 
 import {get as i18n} from '../localization';

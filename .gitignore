@@ -2,14 +2,9 @@
 *~
 .DS_Store
 
-# Build files
-build.json
-
 # Build directories
 node_modules/
-releases/
-qello/
-out/
+dist/
 
 ## Build generated
 tvos/DerivedData/
