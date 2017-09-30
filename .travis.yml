@@ -1,7 +1,8 @@
+language: node_js
 install:
   - npm run install-deps
 script: 
   - gulp
 cache:
   directories:
-    - "node_modules"
+    - node_modules
