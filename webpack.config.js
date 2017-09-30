@@ -29,7 +29,7 @@ const rules = [
 				],
 				plugins: [
 					['transform-react-jsx', {
-						pragma: 'TVDML.jsx',
+						pragma: 'pragma.jsx',
 					}],
 					'transform-class-properties',
 					'transform-object-rest-spread',
@@ -59,6 +59,10 @@ const stats = {
 const plugins = [
 	new webpack.EnvironmentPlugin({
 		NODE_ENV: DEVELOPMENT,
+	}),
+
+	new webpack.ProvidePlugin({
+		pragma: resolveFromRoot('./src/pragma'),
 	}),
 ];
 

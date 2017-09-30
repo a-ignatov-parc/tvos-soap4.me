@@ -1,7 +1,3 @@
-/** @jsx jsx */
-
-import {jsx} from 'tvdml';
-
 import {get as i18n} from '../localization';
 import styles from '../common/styles';
 

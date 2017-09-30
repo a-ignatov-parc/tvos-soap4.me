@@ -1,6 +1,3 @@
-/** @jsx jsx */
-
-import {jsx} from 'tvdml';
 import {link} from '../utils';
 
 export default function Tile({key, attrs = {}, events = {}}) {

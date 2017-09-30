@@ -1,7 +1,3 @@
-/** @jsx jsx */
-
-import {jsx} from 'tvdml';
-
 export default function Loader({attrs = {}}) {
 	let {title, heroImg} = attrs;
 	let banner;
