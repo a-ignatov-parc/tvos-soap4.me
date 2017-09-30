@@ -1,9 +1,10 @@
 import * as TVDML from 'tvdml';
-import * as user from './user';
-import {processFamilyAccount} from './user/utils';
 
-import {get as i18n} from './localization';
-import {checkSession, getFamilyAccounts} from './request/soap';
+import * as user from './user';
+import { processFamilyAccount } from './user/utils';
+
+import { get as i18n } from './localization';
+import { checkSession } from './request/soap';
 
 import MyRoute from './routes/my';
 import AllRoute from './routes/all';
@@ -17,7 +18,7 @@ import GenresRoute from './routes/genres';
 import SettingsRoute from './routes/settings';
 import SpeedTestRoute from './routes/speedtest';
 
-import {AUTH, GUEST} from './routes/menu/constants';
+import { AUTH, GUEST } from './routes/menu/constants';
 
 import Loader from './components/loader';
 
@@ -30,18 +31,12 @@ TVDML
   .pipe(TVDML.render(<Loader title={i18n('auth-checking')} />))
   .pipe(checkSession)
   .pipe(payload => {
-    const {logged, token, till} = payload;
-    user.set({logged, token, till});
+    const { logged, token, till } = payload;
+    user.set({ logged, token, till });
     return payload;
   })
-  .pipe(({login}) => processFamilyAccount(login))
+  .pipe(({ login }) => processFamilyAccount(login))
   .pipe(() => TVDML.redirect('main'));
-  // 
-  // Testing routes
-  // .pipe(() => TVDML.redirect('tvshow', {sid: '296', title: 'Arrow'}));
-  // .pipe(() => TVDML.redirect('season', {sid: '296', id: '4', title: 'Arrow — Season 4'}));
-  // .pipe(() => TVDML.redirect('tvshow', {sid: '692', title: 'Bref'}));
-  // .pipe(() => TVDML.redirect('season', {sid: '692', id: '1', title: 'Bref — Season 1'}));
 
 TVDML
   .handleRoute('main')

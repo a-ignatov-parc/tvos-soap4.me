@@ -1,37 +1,27 @@
 import * as TVDML from 'tvdml';
 
-import {get as i18n} from '../../localization';
+import { get as i18n } from '../../localization';
 
+// eslint-disable-next-line import/prefer-default-export
 export function defaultErrorHandlers(error) {
-  if (error.code === 'EBADCREDENTIALS') {
-    this.reset().then(payload => TVDML.renderModal(
-      <document>
-        <alertTemplate>
-          <title>
-            {i18n('login-error-wrong-login')}
-          </title>
-          <button onSelect={TVDML.removeModal}>
-            <text>Ok</text>
-          </button>
-        </alertTemplate>
-      </document>
-    )
-    .sink(payload));
-  }
+  this.reset().then(payload => {
+    const messageCode = error.code === 'EBADCREDENTIALS'
+      ? 'login-error-wrong-login'
+      : 'login-error-something-went-wrong';
 
-  if (error.code === 'EBADRESPONSE') {
-    this.reset().then(payload => TVDML.renderModal(
+    const promise = TVDML.renderModal((
       <document>
         <alertTemplate>
           <title>
-            {i18n('login-error-something-went-wrong')}
+            {i18n(messageCode)}
           </title>
           <button onSelect={TVDML.removeModal}>
             <text>Ok</text>
           </button>
         </alertTemplate>
       </document>
-    )
-    .sink(payload));
-  }
+    ));
+
+    return promise.sink(payload);
+  });
 }

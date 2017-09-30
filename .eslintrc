@@ -1,3 +1,16 @@
 {
-    "extends": "airbnb"
+  "extends": "airbnb",
+  "rules": {
+    "react/prop-types": ["off"],
+    "react/style-prop-object": ["off"],
+    "react/react-in-jsx-scope": ["off"],
+    "react/no-unknown-property": ["off"],
+    "react/jsx-filename-extension": ["off"],
+    "jsx-a11y/alt-text": ["off"],
+    "no-bitwise": ["off"],
+    "max-len": ["error", 80],
+    "arrow-parens": ["error", "as-needed"],
+    "no-return-assign": ["error", "except-parens"],
+    "no-console": ["error", { allow: ["info", "warn", "error"] }]
+  },
 }

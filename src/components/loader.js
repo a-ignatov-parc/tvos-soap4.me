@@ -1,19 +1,14 @@
-export default function Loader({attrs = {}}) {
-  let {title, heroImg} = attrs;
-  let banner;
-
-  if (heroImg) {
-    banner = (
-      <banner>
-        <heroImg src={heroImg} />
-      </banner>
-    );
-  }
+export default function Loader({ attrs = {} }) {
+  const { title, heroImg } = attrs;
 
   return (
     <document>
       <loadingTemplate>
-        {banner}
+        {heroImg && (
+          <banner>
+            <heroImg src={heroImg} />
+          </banner>
+        )}
         <activityIndicator>
           <title>{title}</title>
         </activityIndicator>

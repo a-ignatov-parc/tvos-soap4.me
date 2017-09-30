@@ -1,9 +1,9 @@
-import {get as i18n} from '../localization';
+import { get as i18n } from '../localization';
 import styles from '../common/styles';
 
-export default function Authorize({key, attrs = {}, events = {}}) {
-  const {description} = attrs;
-  const {onAuthorize} = events;
+export default function Authorize({ attrs = {}, events = {} }) {
+  const { description } = attrs;
+  const { onAuthorize } = events;
 
   return (
     <document>

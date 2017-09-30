@@ -6,18 +6,18 @@ export default class EventBus {
   }
 
   subscription() {
-    let {subscriptions} = this;
+    const { subscriptions } = this;
 
-    let stream = TVDML.createStream({
+    const stream = TVDML.createStream({
       extend: {
         unsubscribe() {
-          let index = subscriptions.indexOf(this);
+          const index = subscriptions.indexOf(this);
 
           if (~index) {
             subscriptions.splice(index, 1);
           }
-        }
-      }
+        },
+      },
     });
 
     subscriptions.push(stream);

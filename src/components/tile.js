@@ -1,6 +1,6 @@
-import {link} from '../utils';
+import { link } from '../utils';
 
-export default function Tile({key, attrs = {}, events = {}}) {
+export default function Tile({ key, attrs = {}, events = {} }) {
   const {
     route,
     title,
@@ -35,7 +35,12 @@ export default function Tile({key, attrs = {}, events = {}}) {
         class="tile-img"
         style={`
           tv-placeholder: tv;
-          tv-tint-color: linear-gradient(top, 0.4, transparent, rgba(0, 0, 0, 0.5));
+          tv-tint-color: linear-gradient(
+            top,
+            0.4,
+            transparent,
+            rgba(0, 0, 0, 0.5)
+          );
         `}
       />
       <title
