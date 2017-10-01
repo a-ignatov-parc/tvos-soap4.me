@@ -6,5 +6,9 @@ jobs:
 
     steps:
       - checkout
-      - run: npm run install-deps
-      - run: npm run lint
+      - run:
+          name: install yarn
+          command: npm run install-local-yarn
+      - run:
+          name: install dependencies
+          command: npm run install-deps-with-local-yarn

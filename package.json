@@ -9,10 +9,11 @@
     "yarn": "^0.27.5"
   },
   "scripts": {
+    "install-local-yarn": "npm i yarn@$npm_package_engines_yarn",
+    "install-deps-with-local-yarn": "yarn",
     "build": "webpack --progress",
     "serve": "webpack-dev-server",
     "dist": "NODE_ENV=production webpack --progress",
-    "install-deps": "npm i -g yarn@$npm_package_engines_yarn && yarn",
     "lint": "eslint webpack.config.js src",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
