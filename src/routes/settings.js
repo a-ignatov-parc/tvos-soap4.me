@@ -1,18 +1,17 @@
 import * as TVDML from 'tvdml';
 
+import * as user from '../user';
 import * as settings from '../settings';
 import * as localization from '../localization';
 
-import {link} from '../utils';
-import * as user from '../user';
-import {deepEqualShouldUpdate} from '../utils/components';
+import { link, getStartParams } from '../utils';
+import { deepEqualShouldUpdate } from '../utils/components';
 
-import {logout, version, checkSession} from '../request/soap';
-import {getStartParams} from '../utils';
+import { version } from '../request/soap';
 
 import poster from '../assets/poster.png';
 
-const {get: i18n} = localization;
+const { get: i18n } = localization;
 
 const {
   VIDEO_QUALITY,
@@ -21,10 +20,10 @@ const {
   LANGUAGE,
 } = settings.params;
 
-const {SD, HD, FULLHD} = settings.values[VIDEO_QUALITY];
-const {LOCALIZATION, SUBTITLES} = settings.values[TRANSLATION];
-const {CONTINUES, BY_EPISODE} = settings.values[VIDEO_PLAYBACK];
-const {AUTO, EN, RU} = settings.values[LANGUAGE];
+const { SD, HD, FULLHD } = settings.values[VIDEO_QUALITY];
+const { LOCALIZATION, SUBTITLES } = settings.values[TRANSLATION];
+const { CONTINUES, BY_EPISODE } = settings.values[VIDEO_PLAYBACK];
+const { AUTO, EN, RU } = settings.values[LANGUAGE];
 
 const titleMapping = {
   [VIDEO_QUALITY]: 'settings-labels-video_quality',
@@ -57,7 +56,19 @@ const valueMapping = {
   [RU]: 'settings-values-ru',
 };
 
-export default function() {
+function getTitleForKey(key) {
+  return i18n(titleMapping[key] || key);
+}
+
+function getDescriptionForKey(key) {
+  return i18n(descriptionMapping[key]);
+}
+
+function getTitleForValue(key) {
+  return i18n(valueMapping[key] || key);
+}
+
+export default function settingsRoute() {
   return TVDML
     .createPipeline()
     .pipe(TVDML.render(TVDML.createComponent({
@@ -78,7 +89,9 @@ export default function() {
 
       componentDidMount() {
         this.languageChangeStream = localization.subscription();
-        this.languageChangeStream.pipe(({language}) => this.setState({language}));
+        this.languageChangeStream.pipe(({ language }) => {
+          this.setState({ language });
+        });
 
         this.userStateChangeStream = user.subscription();
         this.userStateChangeStream.pipe(() => {
@@ -104,55 +117,57 @@ export default function() {
       render() {
         const {
           extended,
-          settings,
           authorized,
+          settings: currentSettings,
         } = this.state;
 
-        const {BASEURL} = getStartParams();
+        const { BASEURL } = getStartParams();
 
         const items = Object
-          .keys(settings)
+          .keys(currentSettings)
           .filter(key => extended || !~onlyForExtendedAccounts.indexOf(key))
           .map(key => ({
             key,
-            value: settings[key],
             title: getTitleForKey(key),
+            value: currentSettings[key],
             description: getDescriptionForKey(key),
-            result: getTitleForValue(settings[key]),
+            result: getTitleForValue(currentSettings[key]),
           }));
 
         const relatedImage = (
-          <img src={BASEURL + poster} width="560" height="560"/>
+          <img src={BASEURL + poster} width="560" height="560" />
         );
 
         return (
           <document>
             <head>
-              <style content={`
-                .grey_title {
-                  color: rgb(142, 147, 157);
-                }
-
-                .grey_text {
-                  color: rgb(84, 82, 80);
-                }
-
-                .item {
-                  background-color: rgba(255, 255, 255, 0.3);
-                  tv-highlight-color: rgba(255, 255, 255, 0.9);
-                }
-
-                @media tv-template and (tv-theme:dark) {
-                  .item {
-                    background-color: rgba(255, 255, 255, 0.05);
+              <style
+                content={`
+                  .grey_title {
+                    color: rgb(142, 147, 157);
                   }
-                }
 
-                .item_description {
-                  margin: 80 0 0;
-                  text-align: center;
-                }
-              `} />
+                  .grey_text {
+                    color: rgb(84, 82, 80);
+                  }
+
+                  .item {
+                    background-color: rgba(255, 255, 255, 0.3);
+                    tv-highlight-color: rgba(255, 255, 255, 0.9);
+                  }
+
+                  @media tv-template and (tv-theme:dark) {
+                    .item {
+                      background-color: rgba(255, 255, 255, 0.05);
+                    }
+                  }
+
+                  .item_description {
+                    margin: 80 0 0;
+                    text-align: center;
+                  }
+                `}
+              />
             </head>
             <listTemplate>
               <banner>
@@ -167,10 +182,12 @@ export default function() {
                   </lockup>
                 </relatedContent>
                 <section>
-                  {items.map(({key, value, title, description, result}) => (
+                  {items.map(({ key, value, title, description, result }) => (
                     <listItemLockup
                       key={key}
                       class="item"
+
+                      // eslint-disable-next-line react/jsx-no-bind
                       onSelect={this.onChangeOption.bind(this, key, value)}
                     >
                       <title>
@@ -228,10 +245,10 @@ export default function() {
       },
 
       onChangeOption(key, active) {
-        let values = settings.values[key]
-        let options = Object
+        const values = settings.values[key];
+        const options = Object
           .keys(values)
-          .map(key => values[key])
+          .map(name => values[name])
           .map(value => ({
             value,
             isActive: value === active,
@@ -239,43 +256,33 @@ export default function() {
           }));
 
         TVDML
-          .renderModal(
+          .renderModal((
             <document>
               <alertTemplate>
                 <title>
                   {getTitleForKey(key)}
                 </title>
-                {options.map(({title, value, isActive}) => (
+                {options.map(({ title, value, isActive }) => (
                   <button
                     key={value}
-                    onSelect={this.onOptionSelect.bind(this, key, value)}
                     autoHighlight={isActive || undefined}
+
+                    // eslint-disable-next-line react/jsx-no-bind
+                    onSelect={this.onOptionSelect.bind(this, key, value)}
                   >
                     <text>{title}</text>
                   </button>
                 ))}
               </alertTemplate>
             </document>
-          )
+          ))
           .sink();
       },
 
       onOptionSelect(key, value) {
         settings.set(key, value);
-        this.setState({settings: settings.getAll()});
+        this.setState({ settings: settings.getAll() });
         TVDML.removeModal();
       },
     })));
-}
-
-function getTitleForKey(key) {
-  return i18n(titleMapping[key] || key);
-}
-
-function getDescriptionForKey(key) {
-  return i18n(descriptionMapping[key]);
-}
-
-function getTitleForValue(key) {
-  return i18n(valueMapping[key] || key);
 }

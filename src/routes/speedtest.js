@@ -1,12 +1,14 @@
 import * as TVDML from 'tvdml';
 
-import {request} from '../request';
-import {get as i18n} from '../localization';
-import {noop, getStartParams} from '../utils';
+import { request } from '../request';
 import {
   getSpeedTestServers,
   saveSpeedTestResults,
 } from '../request/soap';
+
+import { get as i18n } from '../localization';
+
+import { noop, getStartParams } from '../utils';
 
 import Loader from '../components/loader';
 
@@ -15,15 +17,36 @@ const flags = flagsContext
   .keys()
   .reduce((result, moduleName) => {
     const name = moduleName.replace(/^\.\/|\.png$/g, '');
+
+    // eslint-disable-next-line no-param-reassign
     result[name] = flagsContext(moduleName).default;
     return result;
   }, {});
 
-const {Promise} = TVDML;
+const { Promise } = TVDML;
 
 const fileSize = 10567604;
 
-export default function() {
+function createLoader(id, file, resolver = noop()) {
+  const start = Date.now();
+
+  return request(file, {
+    prepare(xhr) {
+      resolver(xhr);
+      return xhr;
+    },
+  }).then(() => {
+    const end = Date.now();
+    const diff = end - start;
+    const seconds = diff / 1000;
+    const speed = (fileSize / seconds) / 102400;
+    const prettifiedSpeed = speed.toFixed(2);
+
+    return { [id]: prettifiedSpeed };
+  });
+}
+
+export default function speedTestRoute() {
   return TVDML
     .createPipeline()
     .pipe(TVDML.render(TVDML.createComponent({
@@ -40,15 +63,15 @@ export default function() {
 
       componentDidMount() {
         // To improuve UX on fast request we are adding rendering timeout.
-        const waitForAnimations = new Promise((resolve) => setTimeout(resolve, 500));
+        const waitForAnimations = new Promise(done => setTimeout(done, 500));
 
         Promise
           .all([getSpeedTestServers(), waitForAnimations])
-          .then(([servers]) => this.setState({loading: false, servers}));
+          .then(([servers]) => this.setState({ loading: false, servers }));
       },
 
       render() {
-        const {BASEURL} = getStartParams();
+        const { BASEURL } = getStartParams();
 
         const {
           running,
@@ -60,12 +83,14 @@ export default function() {
         } = this.state;
 
         if (loading) {
-          return <Loader title={i18n('speedtest-loading')} />
+          return (
+            <Loader title={i18n('speedtest-loading')} />
+          );
         }
 
         const serversList = Object
           .keys(servers)
-          .map(id => ({id, file: servers[id]}));
+          .map(id => ({ id, file: servers[id] }));
 
         return (
           <document>
@@ -76,15 +101,20 @@ export default function() {
                 </title>
               </banner>
               <collectionList>
-                <shelf centered="true" style="tv-interitem-spacing: 60; margin: 228 0 0">
+                <shelf
+                  centered="true"
+                  style="tv-interitem-spacing: 60; margin: 228 0 0"
+                >
                   <section>
-                    {serversList.map(({id, file}) => {
+                    {serversList.map(({ id }) => {
                       let result = '...';
 
                       if (skipped[id]) {
                         result = i18n('speedtest-result-too-slow');
                       } else if (results[id]) {
-                        result = i18n('speedtest-result', {speed: results[id]});
+                        result = i18n('speedtest-result', {
+                          speed: results[id],
+                        });
                       }
 
                       return (
@@ -116,7 +146,9 @@ export default function() {
                 </shelf>
                 <row style="tv-align: center">
                   {running ? (
-                    <text style="tv-text-style: headline; color: rgb(84, 82, 80)">
+                    <text
+                      style="tv-text-style: headline; color: rgb(84, 82, 80)"
+                    >
                       {i18n('speedtest-testing')}
                     </text>
                   ) : (
@@ -142,7 +174,7 @@ export default function() {
           .keys(this.state.servers)
           .forEach(id => {
             chain = chain.then(results => {
-              let request;
+              let requestToServer;
 
               this.setState({
                 results,
@@ -150,14 +182,18 @@ export default function() {
                 progress: 0,
               });
 
-              let timer = setInterval(() => {
+              const timer = setInterval(() => {
                 if (this.state.progress >= 100) {
-                  return request.abort();
+                  requestToServer.abort();
+                } else {
+                  this.setState({ progress: this.state.progress + 1 });
                 }
-                this.setState({progress: this.state.progress + 1});
               }, 300);
 
-              return createLoader(id, this.state.servers[id], (xhr) => request = xhr)
+              return createLoader(id, this.state.servers[id], xhr => {
+                requestToServer = xhr;
+                return xhr;
+              })
                 .then(result => {
                   clearInterval(timer);
                   return {
@@ -193,23 +229,4 @@ export default function() {
           .then(saveSpeedTestResults);
       },
     })));
-}
-
-function createLoader(id, file, resolver = noop()) {
-  let start = Date.now();
-
-  return request(file, {
-    prepare(xhr) {
-      resolver(xhr);
-      return xhr;
-    },
-  }).then(() => {
-    let end = Date.now();
-    let diff = end - start;
-    let seconds = diff / 1000;
-    let speed = (fileSize / seconds) / 102400;
-    let prettifiedSpeed = speed.toFixed(2);
-
-    return {[id]: prettifiedSpeed};
-  });
 }
