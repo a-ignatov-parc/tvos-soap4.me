@@ -12,11 +12,11 @@ jobs:
 
       - run:
           name: Install local yarn
-          command: npm run install-local-yarn
+          command: npm run yarn:install
 
       - run:
-          name: Install dependencies
-          command: npm run install-deps-with-local-yarn
+          name: Install dependencies using local yarn
+          command: npm run yarn:install-deps
 
       - save_cache:
           key: dependency-cache-{{ checksum "package.json" }}
@@ -24,5 +24,5 @@ jobs:
             - ./node_modules
 
       - run:
-          name: Run linter
+          name: Run code checks
           command: npm run lint

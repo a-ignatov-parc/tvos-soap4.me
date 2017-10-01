@@ -9,9 +9,9 @@
     "yarn": "^1.1.0"
   },
   "scripts": {
-    "install-deps": "npm run install-local-yarn && npm run install-deps-with-local-yarn",
-    "install-local-yarn": "npm i yarn@$npm_package_engines_yarn",
-    "install-deps-with-local-yarn": "yarn",
+    "install-deps": "npm run yarn:install && npm run yarn:install-deps",
+    "yarn:install": "npm i yarn@$npm_package_engines_yarn",
+    "yarn:install-deps": "yarn",
     "build": "webpack --progress",
     "serve": "webpack-dev-server",
     "dist": "NODE_ENV=production webpack --progress",
