@@ -26,7 +26,6 @@ jobs:
           root: ./
           paths:
             - .eslintrc
-            - node_modules
             - src
             - package.json
             - webpack.config.js
@@ -36,6 +35,8 @@ jobs:
     steps:
       - attach_workspace:
           at: ./
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
       - run:
           name: Run code checks
           command: npm run lint
@@ -45,6 +46,8 @@ jobs:
     steps:
       - attach_workspace:
           at: ./
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
       - run:
           name: Build application
           command: npm run dist
