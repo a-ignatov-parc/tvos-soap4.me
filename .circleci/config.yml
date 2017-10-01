@@ -1,10 +1,13 @@
 version: 2
 
+defaults: &defaults
+  working_directory: ~/app
+  docker:
+    - image: circleci/node:6.10
+
 jobs:
   install-deps:
-    docker:
-      - image: circleci/node:6.10
-    working_directory: ~/app
+    <<: *defaults
     steps:
       - checkout
       - restore_cache:
@@ -19,25 +22,25 @@ jobs:
           key: dependency-cache-{{ checksum "package.json" }}
           paths:
             - ./node_modules
+      - persist_to_workspace:
+          root: /root
+          paths:
+            - app
 
   test:
-    docker:
-      - image: circleci/node:6.10
-    working_directory: ~/app
+    <<: *defaults
     steps:
-      - restore_cache:
-          key: dependency-cache-{{ checksum "package.json" }}
+      - attach_workspace:
+          at: /root
       - run:
           name: Run code checks
           command: npm run lint
 
   build:
-    docker:
-      - image: circleci/node:6.10
-    working_directory: ~/app
+    <<: *defaults
     steps:
-      - restore_cache:
-          key: dependency-cache-{{ checksum "package.json" }}
+      - attach_workspace:
+          at: /root
       - run:
           name: Build application
           command: npm run dist
