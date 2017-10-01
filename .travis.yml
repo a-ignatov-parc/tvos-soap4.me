@@ -1,8 +1,0 @@
-language: node_js
-install:
-  - npm run install-deps
-script: 
-  - npm run lint
-cache:
-  directories:
-    - node_modules
