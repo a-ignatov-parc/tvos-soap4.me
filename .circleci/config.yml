@@ -23,15 +23,19 @@ jobs:
           paths:
             - ./node_modules
       - persist_to_workspace:
-          root: /root
+          root: ./
           paths:
-            - app
+            - .eslintrc
+            - node_modules
+            - src
+            - package.json
+            - webpack.config.js
 
   test:
     <<: *defaults
     steps:
       - attach_workspace:
-          at: /root
+          at: ./
       - run:
           name: Run code checks
           command: npm run lint
@@ -40,7 +44,7 @@ jobs:
     <<: *defaults
     steps:
       - attach_workspace:
-          at: /root
+          at: ./
       - run:
           name: Build application
           command: npm run dist
