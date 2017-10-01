@@ -1,28 +1,55 @@
 version: 2
+
 jobs:
-  build:
+  install-deps:
     docker:
       - image: circleci/node:6.10
-
+    working_directory: ~/app
     steps:
       - checkout
-
       - restore_cache:
           key: dependency-cache-{{ checksum "package.json" }}
-
       - run:
           name: Install local yarn
           command: npm run yarn:install
-
       - run:
           name: Install dependencies using local yarn
           command: npm run yarn:install-deps
-
       - save_cache:
           key: dependency-cache-{{ checksum "package.json" }}
           paths:
             - ./node_modules
 
+  test:
+    docker:
+      - image: circleci/node:6.10
+    working_directory: ~/app
+    steps:
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
       - run:
           name: Run code checks
           command: npm run lint
+
+  build:
+    docker:
+      - image: circleci/node:6.10
+    working_directory: ~/app
+    steps:
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run:
+          name: Build application
+          command: npm run dist
+
+workflows:
+  version: 2
+  build-test-and-deploy:
+    jobs:
+      - install-deps
+      - test:
+          requires:
+            - install-deps
+      - build:
+          requires:
+            - test
