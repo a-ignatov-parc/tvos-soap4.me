@@ -1,3 +1,6 @@
+/* eslint max-len: "off" */
+/* eslint camelcase: "off" */
+
 export default {
   'auth-checking': 'Checking authorization...',
 
@@ -11,7 +14,7 @@ export default {
   'genres-caption': 'Genres',
 
   'user-caption': 'Account',
-  'user-description': ({till}) => `Extended account expires ${till}`,
+  'user-description': ({ till }) => `Extended account expires ${till}`,
 
   'user-account-active': 'Active',
   'user-turn-on-family-account-button': 'Turn On Family Account',
@@ -27,12 +30,12 @@ export default {
   'user-add-account-form-description': 'Enter name for new account.',
   'user-add-account-form-button': 'Add',
 
-  'user-action-menu-title': ({name}) => `What you want to do with "${name}"?`,
+  'user-action-menu-title': ({ name }) => `What you want to do with "${name}"?`,
   'user-action-set-as-active-button': 'Set as Active',
   'user-action-rename-button': 'Rename',
   'user-action-delete-button': 'Delete',
 
-  'user-rename-account-form-title': ({name}) => `Rename account "${name}"`,
+  'user-rename-account-form-title': ({ name }) => `Rename account "${name}"`,
   'user-rename-account-form-description': 'Enter new name for the account.',
   'user-rename-account-form-button': 'Update',
 
@@ -73,7 +76,7 @@ export default {
   'speedtest-begin': 'Begin test',
   'speedtest-testing': 'Testing download speed...',
 
-  'speedtest-result': ({speed}) => `${speed} Mb/s`,
+  'speedtest-result': ({ speed }) => `${speed} Mb/s`,
   'speedtest-result-too-slow': 'Too slow. Skipped...',
 
   'speedtest-country-fr': 'France',
@@ -106,11 +109,11 @@ export default {
   'season-mark-as-watched': 'Mark Season as Watched',
   'season-mark-as-unwatched': 'Mark Season as Unwatched',
 
-  'tvshow-title': ({title}) => title,
-  'tvshow-title-from-episode': ({soap_en}) => soap_en,
-  'tvshow-episode-title': ({title_en}) => title_en,
-  'tvshow-episode-airdate': ({airdate}) => `Airdate ${airdate}`,
-  'tvshow-season': ({seasonNumber}) => `Season ${seasonNumber}`,
+  'tvshow-title': ({ title }) => title,
+  'tvshow-title-from-episode': ({ soap_en }) => soap_en,
+  'tvshow-episode-title': ({ title_en }) => title_en,
+  'tvshow-episode-airdate': ({ airdate }) => `Airdate ${airdate}`,
+  'tvshow-season': ({ seasonNumber }) => `Season ${seasonNumber}`,
 
   'tvshow-status': 'Status',
   'tvshow-genres': 'Genres',
@@ -134,12 +137,12 @@ export default {
   'tvshow-mark-as-watched': 'Mark TV Show as Watched',
   'tvshow-mark-as-unwatched': 'Mark TV Show as Unwatched',
 
-  'tvshow-average-imdb': ({amount}) => `Average of ${amount} IMDB user ratings.`,
-  'tvshow-average-kinopoisk': ({amount}) => `Average of ${amount} Kinopoisk user ratings.`,
-  'tvshow-average-soap': ({amount}) => `Average of ${amount} soap4.me user ratings.`,
+  'tvshow-average-imdb': ({ amount }) => `Average of ${amount} IMDB user ratings.`,
+  'tvshow-average-kinopoisk': ({ amount }) => `Average of ${amount} Kinopoisk user ratings.`,
+  'tvshow-average-soap': ({ amount }) => `Average of ${amount} soap4.me user ratings.`,
 
   'tvshow-liked-by': 'Liked by',
-  'tvshow-liked-by-people': ({likes}) => `${likes} people`,
+  'tvshow-liked-by-people': ({ likes }) => `${likes} people`,
   'tvshow-liked-by-no-one': 'no one',
 
   'tvshow-status-ended': 'Ended',
@@ -156,11 +159,11 @@ export default {
 
   'new-episode-soon': 'Soon',
   'new-episode-day': 'Episode in a day',
-  'new-episode-custom-date': ({date}) => `Episode ${date}`,
+  'new-episode-custom-date': ({ date }) => `Episode ${date}`,
 
   'new-season-soon': 'Soon',
   'new-season-day': 'Season in a day',
-  'new-season-custom-date': ({date}) => `Season ${date}`,
+  'new-season-custom-date': ({ date }) => `Season ${date}`,
 
   'my-caption': 'My',
 
@@ -168,14 +171,14 @@ export default {
   'my-watched': 'Watched',
   'my-new-episodes': 'New episodes',
 
-  'my-empty-list-title': `You don't have any subscriptions`,
+  'my-empty-list-title': 'You don\'t have any subscriptions',
   'my-empty-list-description': 'You can start from adding some tv series from "TV Shows" sections',
   'my-empty-list-button': 'Go to "TV Shows"',
 
   'all-caption': 'TV Shows',
 
   'all-group-by': 'Group by',
-  'all-group-by-title': ({title}) => `Group by ${title}`,
+  'all-group-by-title': ({ title }) => `Group by ${title}`,
 
   'all-group-title-name': 'Name',
   'all-group-name-title': 'A — Z',
@@ -183,9 +186,9 @@ export default {
   'all-group-title-date': 'Date',
 
   'all-group-title-likes': 'Likes',
-  'all-group-likes-title-over-thousand': ({thousand}) => `Over ${thousand}k`,
-  'all-group-likes-title-over-hundred': ({hundred}) => `Over ${hundred}`,
-  'all-group-likes-title-lower-hundred': ({hundred}) => `Lower ${hundred}`,
+  'all-group-likes-title-over-thousand': ({ thousand }) => `Over ${thousand}k`,
+  'all-group-likes-title-over-hundred': ({ hundred }) => `Over ${hundred}`,
+  'all-group-likes-title-lower-hundred': ({ hundred }) => `Lower ${hundred}`,
 
   'all-group-title-rating': 'Rating',
 

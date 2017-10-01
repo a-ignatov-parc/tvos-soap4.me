@@ -1,3 +1,6 @@
+/* eslint max-len: "off" */
+/* eslint camelcase: "off" */
+
 export default {
   'auth-checking': 'Проверяем авторизацию...',
 
@@ -11,7 +14,7 @@ export default {
   'genres-caption': 'Жанры',
 
   'user-caption': 'Аккаунт',
-  'user-description': ({till}) => `Расширенный аккаунт истекает ${till}`,
+  'user-description': ({ till }) => `Расширенный аккаунт истекает ${till}`,
 
   'user-account-active': 'Активный',
   'user-turn-on-family-account-button': 'Включить Семейный Аккаунт',
@@ -27,12 +30,12 @@ export default {
   'user-add-account-form-description': 'Введи имя для нового аккаунта.',
   'user-add-account-form-button': 'Добавить',
 
-  'user-action-menu-title': ({name}) => `Что сделать с аккаунтом "${name}"?`,
+  'user-action-menu-title': ({ name }) => `Что сделать с аккаунтом "${name}"?`,
   'user-action-set-as-active-button': 'Сделать активным',
   'user-action-rename-button': 'Переименовать',
   'user-action-delete-button': 'Удалить',
 
-  'user-rename-account-form-title': ({name}) => `Переименовать аккаунт "${name}"`,
+  'user-rename-account-form-title': ({ name }) => `Переименовать аккаунт "${name}"`,
   'user-rename-account-form-description': 'Введи новое имя для аккаунта.',
   'user-rename-account-form-button': 'Обновить',
 
@@ -73,7 +76,7 @@ export default {
   'speedtest-begin': 'Начать тест',
   'speedtest-testing': 'Тестируем скорость загрузки...',
 
-  'speedtest-result': ({speed}) => `${speed} Мб/с`,
+  'speedtest-result': ({ speed }) => `${speed} Мб/с`,
   'speedtest-result-too-slow': 'Слишком медленно. Пропускаем...',
 
   'speedtest-country-fr': 'Франция',
@@ -106,11 +109,11 @@ export default {
   'season-mark-as-watched': 'Отметить сезон как просмотренный',
   'season-mark-as-unwatched': 'Отметить сезон как не просмотренный',
 
-  'tvshow-title': ({title_ru}) => title_ru,
-  'tvshow-title-from-episode': ({soap_ru}) => soap_ru,
-  'tvshow-episode-title': ({title_ru}) => title_ru,
-  'tvshow-episode-airdate': ({airdate}) => `Выходит ${airdate}`,
-  'tvshow-season': ({seasonNumber}) => `Сезон ${seasonNumber}`,
+  'tvshow-title': ({ title_ru }) => title_ru,
+  'tvshow-title-from-episode': ({ soap_ru }) => soap_ru,
+  'tvshow-episode-title': ({ title_ru }) => title_ru,
+  'tvshow-episode-airdate': ({ airdate }) => `Выходит ${airdate}`,
+  'tvshow-season': ({ seasonNumber }) => `Сезон ${seasonNumber}`,
 
   'tvshow-status': 'Статус',
   'tvshow-genres': 'Жанры',
@@ -134,12 +137,12 @@ export default {
   'tvshow-mark-as-watched': 'Отметить Сериал как просмотренный',
   'tvshow-mark-as-unwatched': 'Отметить Сериал как не просмотренный',
 
-  'tvshow-average-imdb': ({amount}) => `На основе рейтинга ${amount} пользователей IMDB.`,
-  'tvshow-average-kinopoisk': ({amount}) => `На основе рейтинга ${amount} пользователей Кинопоиска.`,
-  'tvshow-average-soap': ({amount}) => `На основе рейтинга ${amount} пользователей soap4.me.`,
+  'tvshow-average-imdb': ({ amount }) => `На основе рейтинга ${amount} пользователей IMDB.`,
+  'tvshow-average-kinopoisk': ({ amount }) => `На основе рейтинга ${amount} пользователей Кинопоиска.`,
+  'tvshow-average-soap': ({ amount }) => `На основе рейтинга ${amount} пользователей soap4.me.`,
 
   'tvshow-liked-by': 'Нравится',
-  'tvshow-liked-by-people': ({likes}) => `пользователям: ${likes}`,
+  'tvshow-liked-by-people': ({ likes }) => `пользователям: ${likes}`,
   'tvshow-liked-by-no-one': 'никому',
 
   'tvshow-status-ended': 'Закончен',
@@ -156,11 +159,11 @@ export default {
 
   'new-episode-soon': 'Скоро',
   'new-episode-day': 'Эпизод в течение дня',
-  'new-episode-custom-date': ({date}) => `Эпизод ${date}`,
+  'new-episode-custom-date': ({ date }) => `Эпизод ${date}`,
 
   'new-season-soon': 'Скоро',
   'new-season-day': 'Сезон в течение дня',
-  'new-season-custom-date': ({date}) => `Сезон ${date}`,
+  'new-season-custom-date': ({ date }) => `Сезон ${date}`,
 
   'my-caption': 'Мои',
 
@@ -175,7 +178,7 @@ export default {
   'all-caption': 'Сериалы',
 
   'all-group-by': 'Группировать по',
-  'all-group-by-title': ({title}) => `Группировать по ${title}`,
+  'all-group-by-title': ({ title }) => `Группировать по ${title}`,
 
   'all-group-title-name': 'Имени',
   'all-group-name-title': 'A — Z',
@@ -183,9 +186,9 @@ export default {
   'all-group-title-date': 'Дате',
 
   'all-group-title-likes': 'Лайкам',
-  'all-group-likes-title-over-thousand': ({thousand}) => `Более ${thousand}k`,
-  'all-group-likes-title-over-hundred': ({hundred}) => `Более ${hundred}`,
-  'all-group-likes-title-lower-hundred': ({hundred}) => `Менее ${hundred}`,
+  'all-group-likes-title-over-thousand': ({ thousand }) => `Более ${thousand}k`,
+  'all-group-likes-title-over-hundred': ({ hundred }) => `Более ${hundred}`,
+  'all-group-likes-title-lower-hundred': ({ hundred }) => `Менее ${hundred}`,
 
   'all-group-title-rating': 'Рейтингу',
 
