@@ -163,7 +163,7 @@ function someEpisodesHasSubtitles(episodes) {
   return episodes.some(episodeHasSubtitles);
 }
 
-export default function searchRoute() {
+export default function seasonRoute() {
   return TVDML
     .createPipeline()
     .pipe(TVDML.passthrough(({

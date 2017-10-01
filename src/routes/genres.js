@@ -1,7 +1,8 @@
 import * as TVDML from 'tvdml';
 
 import * as user from '../user';
-import {get as i18n} from '../localization';
+
+import { get as i18n } from '../localization';
 
 import {
   getGenresList,
@@ -14,14 +15,12 @@ import {
   isMenuButtonPressNavigatedTo,
 } from '../utils';
 
-import {deepEqualShouldUpdate} from '../utils/components';
+import { deepEqualShouldUpdate } from '../utils/components';
 
 import Tile from '../components/tile';
 import Loader from '../components/loader';
 
-const {Promise} = TVDML;
-
-export default function() {
+export default function genresRoute() {
   return TVDML
     .createPipeline()
     .pipe(TVDML.render(TVDML.createComponent({
@@ -39,6 +38,7 @@ export default function() {
       },
 
       componentDidMount() {
+        // eslint-disable-next-line no-underscore-dangle
         const currentDocument = this._rootNode.ownerDocument;
 
         this.menuButtonPressStream = TVDML.subscribe('menu-button-press');
@@ -46,7 +46,7 @@ export default function() {
           .pipe(isMenuButtonPressNavigatedTo(currentDocument))
           .pipe(isNavigated => {
             if (isNavigated) {
-              this.setState({updated_genres: []});
+              this.setState({ updated_genres: [] });
               this.onGenreSelect(this.state.active);
             }
           });
@@ -56,23 +56,23 @@ export default function() {
           const token = user.getToken();
 
           if (token !== this.state.token) {
-            this.setState({updating: true, token});
+            this.setState({ updating: true, token });
           }
         });
 
         this.loadData().then(payload => {
-          this.setState({loading: false, ...payload});
+          this.setState({ loading: false, ...payload });
         });
       },
 
-      componentWillReceiveProps(nextProps) {
-        this.setState({updating: true});
+      componentWillReceiveProps() {
+        this.setState({ updating: true });
       },
 
       componentDidUpdate(prevProps, prevState) {
         if (this.state.updating && prevState.updating !== this.state.updating) {
           this.loadData().then(payload => {
-            this.setState({updating: false, ...payload});
+            this.setState({ updating: false, ...payload });
           });
         }
       },
@@ -85,7 +85,7 @@ export default function() {
       shouldComponentUpdate: deepEqualShouldUpdate,
 
       loadData() {
-        return getGenresList().then(genres => ({genres}));
+        return getGenresList().then(genres => ({ genres }));
       },
 
       render() {
@@ -101,13 +101,15 @@ export default function() {
         return (
           <document>
             <head>
-              <style content={`
-                @media tv-template and (tv-theme:dark) {
-                  .tile-title {
-                    color: rgb(152, 151, 152);
+              <style
+                content={`
+                  @media tv-template and (tv-theme:dark) {
+                    .tile-title {
+                      color: rgb(152, 151, 152);
+                    }
                   }
-                }
-              `} />
+                `}
+              />
             </head>
             <catalogTemplate>
               <banner>
@@ -124,6 +126,8 @@ export default function() {
                     return (
                       <listItemLockup
                         key={genre}
+
+                        // eslint-disable-next-line react/jsx-no-bind
                         onHighlight={this.onGenreSelect.bind(this, genre)}
                       >
                         <title>
@@ -143,7 +147,7 @@ export default function() {
                                     sid,
                                     watching,
                                     unwatched,
-                                    covers: {big: poster},
+                                    covers: { big: poster },
                                   } = tvshow;
 
                                   const title = i18n('tvshow-title', tvshow);
@@ -156,7 +160,7 @@ export default function() {
                                       poster={poster}
                                       counter={unwatched}
                                       isWatched={watching > 0 && !unwatched}
-                                      payload={{title, sid, poster}}
+                                      payload={{ title, sid, poster }}
                                     />
                                   );
                                 })}
@@ -176,10 +180,12 @@ export default function() {
 
       onGenreSelect(genre) {
         const id = genreToId(genre);
-        const {updated_genres} = this.state;
+        const { updated_genres } = this.state;
 
-        this.setState({active: genre});
+        this.setState({ active: genre });
+
         if (~updated_genres.indexOf(id)) return;
+
         getTVShowsByGenre(genre).then(tvshows => this.setState({
           [id]: tvshows,
           updated_genres: updated_genres.concat(id),

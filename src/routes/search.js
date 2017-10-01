@@ -1,8 +1,10 @@
 import * as TVDML from 'tvdml';
 
-import {get as i18n} from '../localization';
-import {link, prettifyEpisodeNum} from '../utils';
-import {processEntitiesInString} from '../utils/parser';
+import { get as i18n } from '../localization';
+
+import { link, prettifyEpisodeNum } from '../utils';
+import { processEntitiesInString } from '../utils/parser';
+
 import {
   getSearchResults,
   getLatestTVShows,
@@ -11,11 +13,11 @@ import {
 
 import Tile from '../components/tile';
 
-const {Promise} = TVDML;
+const { Promise } = TVDML;
 
 const THROTTLE_TIMEOUT = 500;
 
-export default function() {
+export default function searchRoute() {
   return TVDML
     .createPipeline()
     .pipe(TVDML.render(TVDML.createComponent({
@@ -33,27 +35,30 @@ export default function() {
       },
 
       render() {
-        let tvshows = this.state.episodes.reduce((result, item) => {
-          let title = i18n('tvshow-title-from-episode', item);
+        const tvshows = this.state.episodes.reduce((result, item) => {
+          const title = i18n('tvshow-title-from-episode', item);
+          // eslint-disable-next-line no-param-reassign
           if (!result[title]) result[title] = [];
           result[title].push(item);
           return result;
         }, {});
 
-        let episodes = Object.keys(tvshows);
+        const episodes = Object.keys(tvshows);
 
         return (
           <document>
             <head>
-              <style content={`
-                .shelf_indent {
-                  margin: 0 0 60;
-                }
-              `} />
+              <style
+                content={`
+                  .shelf_indent {
+                    margin: 0 0 60;
+                  }
+                `}
+              />
             </head>
             <searchTemplate>
               <searchField
-                ref={node => this.searchField = node}
+                ref={node => (this.searchField = node)}
                 showSpinner={this.state.loading ? 'true' : undefined}
               />
               <collectionList>
@@ -61,7 +66,11 @@ export default function() {
                 {this.renderPopular()}
                 {this.renderPersons()}
                 {this.renderShows()}
-                {episodes.map((name, i) => this.renderEpisodes(name, tvshows[name], (i + 1) === episodes.length))}
+                {episodes.map((name, i) => this.renderEpisodes(...[
+                  name,
+                  tvshows[name],
+                  (i + 1) === episodes.length,
+                ]))}
               </collectionList>
             </searchTemplate>
           </document>
@@ -80,19 +89,19 @@ export default function() {
             </header>
             <section>
               {this.state.latest.map(tvshow => {
-                let {
+                const {
                   sid,
-                  covers: {big: poster},
+                  covers: { big: poster },
                 } = tvshow;
 
-                let title = i18n('tvshow-title', tvshow);
+                const title = i18n('tvshow-title', tvshow);
 
                 return (
                   <Tile
                     title={title}
                     route="tvshow"
                     poster={poster}
-                    payload={{title, sid, poster}}
+                    payload={{ title, sid, poster }}
                   />
                 );
               })}
@@ -113,19 +122,19 @@ export default function() {
             </header>
             <section>
               {this.state.popular.map(tvshow => {
-                let {
+                const {
                   sid,
-                  covers: {big: poster},
+                  covers: { big: poster },
                 } = tvshow;
 
-                let title = i18n('tvshow-title', tvshow);
+                const title = i18n('tvshow-title', tvshow);
 
                 return (
                   <Tile
                     title={title}
                     route="tvshow"
                     poster={poster}
-                    payload={{title, sid, poster}}
+                    payload={{ title, sid, poster }}
                   />
                 );
               })}
@@ -146,26 +155,30 @@ export default function() {
             </header>
             <section>
               {this.state.persons.map(actor => {
-                let {
+                const {
                   id,
-                  name_en,
-                  image_original,
+                  name_en: actorName,
+                  image_original: actorImage,
                 } = actor;
 
-                let [firstName, lastName] = name_en.split(' ');
+                const [firstName, lastName] = actorName.split(' ');
 
                 return (
                   <monogramLockup
                     key={id}
-                    onSelect={link('actor', {id, actor: name_en, poster: image_original})}
+                    onSelect={link('actor', {
+                      id,
+                      actor: actorName,
+                      poster: actorImage,
+                    })}
                   >
                     <monogram
                       style="tv-placeholder: monogram"
-                      src={image_original}
+                      src={actorImage}
                       firstName={firstName}
                       lastName={lastName}
                     />
-                    <title>{name_en}</title>
+                    <title>{actorName}</title>
                     <subtitle>
                       {i18n('search-actor')}
                     </subtitle>
@@ -189,19 +202,19 @@ export default function() {
             </header>
             <section>
               {this.state.series.map(tvshow => {
-                let {
+                const {
                   sid,
-                  covers: {big: poster},
+                  covers: { big: poster },
                 } = tvshow;
 
-                let title = i18n('tvshow-title', tvshow);
+                const title = i18n('tvshow-title', tvshow);
 
                 return (
                   <Tile
                     title={title}
                     route="tvshow"
                     poster={poster}
-                    payload={{title, sid, poster}}
+                    payload={{ title, sid, poster }}
                   />
                 );
               })}
@@ -218,22 +231,28 @@ export default function() {
             </header>
             <section>
               {list.map(episode => {
-                let {
+                const {
                   sid,
                   season: seasonNumber,
                   episode: episodeNumber,
-                  covers: {big: poster},
+                  covers: { big: poster },
                 } = episode;
 
-                let seasonTitle = i18n('tvshow-season', {seasonNumber});
-                let episodeTitle = processEntitiesInString(i18n('tvshow-episode-title', episode));
+                const seasonTitle = i18n('tvshow-season', { seasonNumber });
+                const episodeTitle = i18n('tvshow-episode-title', episode);
 
                 return (
                   <Tile
-                    title={episodeTitle}
+                    title={processEntitiesInString(episodeTitle)}
                     route="season"
                     poster={poster}
-                    payload={{sid, id: seasonNumber, episodeNumber, title: `${title} — ${seasonTitle}`, poster}}
+                    payload={{
+                      sid,
+                      poster,
+                      episodeNumber,
+                      id: seasonNumber,
+                      title: `${title} — ${seasonTitle}`,
+                    }}
                     subtitle={prettifyEpisodeNum(seasonNumber, episodeNumber)}
                   />
                 );
@@ -249,18 +268,18 @@ export default function() {
         keyboard.onTextChange = () => this.search(keyboard.text);
 
         this.loadData().then(payload => {
-          this.setState({loading: false, ...payload});
+          this.setState({ loading: false, ...payload });
         });
       },
 
-      componentWillReceiveProps(nextProps) {
-        this.setState({updating: true});
+      componentWillReceiveProps() {
+        this.setState({ updating: true });
       },
 
       componentDidUpdate(prevProps, prevState) {
         if (this.state.updating && prevState.updating !== this.state.updating) {
           this.loadData().then(payload => {
-            this.setState({updating: false, ...payload});
+            this.setState({ updating: false, ...payload });
           });
         }
       },
@@ -271,20 +290,22 @@ export default function() {
             getLatestTVShows(),
             getPopularTVShows(),
           ])
-          .then(([latest, popular]) => ({latest, popular}));
+          .then(([latest, popular]) => ({ latest, popular }));
       },
 
       search(query) {
-        this.setState({value: query});
-        this.throttle && clearTimeout(this.throttle);
-        this.throttle = setTimeout(this.loadResults.bind(this, query), THROTTLE_TIMEOUT);
+        this.setState({ value: query });
+        if (this.throttle) clearTimeout(this.throttle);
+        this.throttle = setTimeout(() => {
+          this.loadResults(query);
+        }, THROTTLE_TIMEOUT);
       },
 
       loadResults(query) {
-        this.setState({loading: true});
+        this.setState({ loading: true });
         return getSearchResults(query)
           .catch(() => ({}))
-          .then(result => this.setState({loading: false, ...result}));
+          .then(result => this.setState({ loading: false, ...result }));
       },
     })));
 }

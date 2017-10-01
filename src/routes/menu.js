@@ -4,13 +4,14 @@ import moment from 'moment';
 
 import * as user from '../user';
 import * as localization from '../localization';
-import {deepEqualShouldUpdate} from '../utils/components';
 
-import {AUTH, GUEST} from './menu/constants';
+import { deepEqualShouldUpdate } from '../utils/components';
+
+import { AUTH, GUEST } from './menu/constants';
 
 const datePattern = 'DD-MM-YYYY';
 
-export default function(menu) {
+export default function menuRoute(items) {
   return TVDML
     .createPipeline()
     .pipe(TVDML.render(TVDML.createComponent({
@@ -18,8 +19,8 @@ export default function(menu) {
         const language = localization.getLanguage();
 
         return {
-          menu,
           language,
+          menu: items,
           rendered: false,
           ...this.getUserState(),
         };
@@ -30,20 +31,25 @@ export default function(menu) {
         const authorized = user.isAuthorized();
         const isFamilyAccount = user.isFamily();
         const avatar = isFamilyAccount ? '👪' : this.getUserIcon();
-        return {nickname, authorized, isFamilyAccount, avatar};
+        return { nickname, authorized, isFamilyAccount, avatar };
       },
 
       componentDidMount() {
         this.languageChangeStream = localization.subscription();
-        this.languageChangeStream.pipe(({language}) => this.setState({language}));
+        this.languageChangeStream.pipe(({ language }) => {
+          this.setState({ language });
+        });
 
         this.userStateChangeStream = user.subscription();
-        this.userStateChangeStream.pipe(() => this.setState(this.getUserState()));
+        this.userStateChangeStream.pipe(() => {
+          this.setState(this.getUserState());
+        });
 
         this.appResumeStream = TVDML.subscribe(TVDML.event.RESUME);
         this.appResumeStream.pipe(() => this.setState(this.getUserState()));
 
-        this.setState({rendered: true});
+        // eslint-disable-next-line react/no-did-mount-set-state
+        this.setState({ rendered: true });
       },
 
       componentWillUnmount() {
@@ -63,19 +69,21 @@ export default function(menu) {
           authorized,
         } = this.state;
 
-        const menuItems = menu.filter(({hidden}) => !this.resolveToken(hidden));
+        const menuItems = menu.filter(item => !this.resolveToken(item.hidden));
 
         return (
           <document>
             <menuBarTemplate>
               <menuBar>
-                {menuItems.map(({route, active}) => {
+                {menuItems.map(({ route, active }) => {
                   const isActive = this.resolveToken(active);
 
                   return (
                     <menuItem
                       key={route}
                       route={route}
+
+                      // eslint-disable-next-line no-mixed-operators
                       autoHighlight={!rendered && isActive || undefined}
                     >
                       <title>{localization.get(`menu-${route}`)}</title>
@@ -99,15 +107,19 @@ export default function(menu) {
       },
 
       resolveToken(token) {
-        return typeof(token) === 'boolean'
+        const authState = this.state.authorized
+          ? token === AUTH
+          : token === GUEST;
+
+        return typeof token === 'boolean'
           ? token
-          : this.state.authorized
-            ? token === AUTH
-            : token === GUEST;
+          : authState;
       },
 
       getUserIcon() {
-        if (moment().isSame(moment('01-01', datePattern).add(256, 'days'))) return '👨‍💻';
+        if (moment().isSame(moment('01-01', datePattern).add(256, 'days'))) {
+          return '👨‍💻';
+        }
         if (this.currentDateIsBetween('01-01', '07-01')) return '🎅';
         if (this.currentDateIs('31-10')) return '🎃';
         if (this.currentDateIs('14-02')) return '❤️';
@@ -122,7 +134,9 @@ export default function(menu) {
       },
 
       currentDateIsBetween(start, end) {
-        return moment().isBetween(moment(start, datePattern), moment(end, datePattern));
+        const startMoment = moment(start, datePattern);
+        const endMoment = moment(end, datePattern);
+        return moment().isBetween(startMoment, endMoment);
       },
     })));
 }

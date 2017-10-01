@@ -2,24 +2,24 @@ import moment from 'moment';
 import * as TVDML from 'tvdml';
 
 import * as user from '../user';
-import {get as i18n} from '../localization';
+import { get as i18n } from '../localization';
 
 import {
   getMyTVShows,
   getMySchedule,
 } from '../request/soap';
 
-import {link, isMenuButtonPressNavigatedTo} from '../utils';
-import {deepEqualShouldUpdate} from '../utils/components';
+import { link, isMenuButtonPressNavigatedTo } from '../utils';
+import { deepEqualShouldUpdate } from '../utils/components';
 
 import Tile from '../components/tile';
 import Loader from '../components/loader';
 
 import commonStyles from '../common/styles';
 
-const {Promise} = TVDML;
+const { Promise } = TVDML;
 
-export default function() {
+export default function myRoute() {
   return TVDML
     .createPipeline()
     .pipe(TVDML.render(TVDML.createComponent({
@@ -36,38 +36,41 @@ export default function() {
       },
 
       componentDidMount() {
+        const setState = this.setState.bind(this);
+
+        // eslint-disable-next-line no-underscore-dangle
         const currentDocument = this._rootNode.ownerDocument;
 
         this.menuButtonPressStream = TVDML.subscribe('menu-button-press');
         this.menuButtonPressStream
           .pipe(isMenuButtonPressNavigatedTo(currentDocument))
-          .pipe(isNavigated => isNavigated && this.loadData().then(this.setState.bind(this)));
+          .pipe(isNavigated => isNavigated && this.loadData().then(setState));
 
         this.userStateChangeStream = user.subscription();
         this.userStateChangeStream.pipe(() => {
           const token = user.getToken();
 
           if (token !== this.state.token) {
-            this.setState({updating: true, token});
+            this.setState({ updating: true, token });
           }
         });
 
         this.appResumeStream = TVDML.subscribe(TVDML.event.RESUME);
-        this.appResumeStream.pipe(() => this.loadData().then(this.setState.bind(this)));
+        this.appResumeStream.pipe(() => this.loadData().then(setState));
 
         this.loadData().then(payload => {
-          this.setState({loading: false, ...payload});
+          this.setState({ loading: false, ...payload });
         });
       },
 
-      componentWillReceiveProps(nextProps) {
-        this.setState({updating: true});
+      componentWillReceiveProps() {
+        this.setState({ updating: true });
       },
 
       componentDidUpdate(prevProps, prevState) {
         if (this.state.updating && prevState.updating !== this.state.updating) {
           this.loadData().then(payload => {
-            this.setState({updating: false, ...payload});
+            this.setState({ updating: false, ...payload });
           });
         }
       },
@@ -90,15 +93,21 @@ export default function() {
             getMyTVShows(),
             getMySchedule(),
           ])
-          .then(([series, schedule]) => ({series, schedule}));
+          .then(([series, schedule]) => ({ series, schedule }));
       },
 
       render() {
-        if (this.state.loading) {
+        const {
+          series,
+          loading,
+          schedule,
+        } = this.state;
+
+        if (loading) {
           return <Loader />;
         }
 
-        if (!this.state.series.length) {
+        if (!series.length) {
           return (
             <document>
               <head>
@@ -121,13 +130,21 @@ export default function() {
           );
         }
 
-        let watching = this.state.series.filter(({watching}) => watching > 0);
-        let others = this.state.series.filter(({watching}) => watching < 1);
+        const watching = series.filter(item => item.watching > 0);
 
-        let ongoing = watching.filter(({status, unwatched}) => status == 0 || unwatched > 0);
-        let unwatched = ongoing.filter(({unwatched}) => unwatched > 0);
-        let watched = ongoing.filter(({unwatched}) => !unwatched);
-        let closed = watching.filter(({status, unwatched}) => status > 0 && !unwatched);
+        // eslint-disable-next-line arrow-body-style
+        const ongoing = watching.filter(item => {
+          // eslint-disable-next-line eqeqeq
+          return item.status == 0 || item.unwatched > 0;
+        });
+
+        const unwatched = ongoing.filter(item => item.unwatched > 0);
+        const watched = ongoing.filter(item => !item.unwatched);
+
+        // eslint-disable-next-line arrow-body-style
+        const closed = watching.filter(item => {
+          return item.status > 0 && !item.unwatched;
+        });
 
         return (
           <document>
@@ -138,9 +155,15 @@ export default function() {
                 </title>
               </banner>
               <collectionList>
-                {unwatched.length && this.renderSectionGrid(unwatched, 'my-new-episodes')}
-                {watched.length && this.renderSectionGrid(watched, 'my-watched', this.state.schedule)}
-                {closed.length && this.renderSectionGrid(closed, 'my-closed')}
+                {unwatched.length && (
+                  this.renderSectionGrid(unwatched, 'my-new-episodes')
+                )}
+                {watched.length && (
+                  this.renderSectionGrid(watched, 'my-watched', schedule)
+                )}
+                {closed.length && (
+                  this.renderSectionGrid(closed, 'my-closed')
+                )}
               </collectionList>
             </stackTemplate>
           </document>
@@ -148,39 +171,42 @@ export default function() {
       },
 
       renderSectionGrid(collection, title, schedule = []) {
-        let header;
-        let scheduleDictionary = schedule.reduce((result, item) => {
+        const scheduleDictionary = schedule.reduce((result, item) => {
+          // eslint-disable-next-line no-param-reassign
           result[item.sid] = item;
           return result;
         }, {});
 
-        if (title) {
-          header = (
-            <header>
-              <title>
-                {i18n(title)}
-              </title>
-            </header>
-          )
-        }
+        const currentMoment = moment();
 
-        let currentMoment = moment();
-        let nextDay = currentMoment.clone().add(moment.relativeTimeThreshold('h'), 'hour');
-        let nextMonth = currentMoment.clone().add(moment.relativeTimeThreshold('d'), 'day');
+        const nextDay = currentMoment
+          .clone()
+          .add(moment.relativeTimeThreshold('h'), 'hour');
+
+        const nextMonth = currentMoment
+          .clone()
+          .add(moment.relativeTimeThreshold('d'), 'day');
 
         return (
           <grid>
-            {header}
+            {title && (
+              <header>
+                <title>
+                  {i18n(title)}
+                </title>
+              </header>
+            )}
             <section>
               {collection.map(tvshow => {
-                let {
+                const {
                   sid,
                   unwatched,
-                  covers: {big: poster},
+                  covers: { big: poster },
                 } = tvshow;
 
-                let title = i18n('tvshow-title', tvshow);
-                let scheduleEpisode = scheduleDictionary[sid];
+                const tvShowTitle = i18n('tvshow-title', tvshow);
+                const scheduleEpisode = scheduleDictionary[sid];
+
                 let isWatched = !unwatched;
                 let dateTitle;
                 let date;
@@ -193,20 +219,26 @@ export default function() {
                   } else if (nextDay > date) {
                     dateTitle = i18n('new-episode-day');
                   } else {
-                    dateTitle = i18n('new-episode-custom-date', {date: date.fromNow()});
+                    dateTitle = i18n('new-episode-custom-date', {
+                      date: date.fromNow(),
+                    });
                   }
-                  currentMoment < date && (isWatched = false);
+                  if (currentMoment < date) isWatched = false;
                 }
 
                 return (
                   <Tile
                     key={sid}
-                    title={title}
+                    title={tvShowTitle}
                     route="tvshow"
                     poster={poster}
                     counter={unwatched || dateTitle}
                     isWatched={isWatched}
-                    payload={{title, sid, poster}}
+                    payload={{
+                      sid,
+                      poster,
+                      title: tvShowTitle,
+                    }}
                   />
                 );
               })}
