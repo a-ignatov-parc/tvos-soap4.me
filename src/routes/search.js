@@ -2,7 +2,12 @@ import * as TVDML from 'tvdml';
 
 import { get as i18n } from '../localization';
 
-import { link, prettifyEpisodeNum } from '../utils';
+import {
+  link,
+  prettifyEpisodeNum,
+  getCroppedImageUrl,
+} from '../utils';
+
 import { processEntitiesInString } from '../utils/parser';
 
 import {
@@ -174,7 +179,7 @@ export default function searchRoute() {
                   >
                     <monogram
                       style="tv-placeholder: monogram"
-                      src={actorImage}
+                      src={getCroppedImageUrl(actorImage, 250)}
                       firstName={firstName}
                       lastName={lastName}
                     />

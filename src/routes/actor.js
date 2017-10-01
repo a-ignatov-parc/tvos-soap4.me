@@ -1,7 +1,10 @@
 import * as TVDML from 'tvdml';
 
 import { get as i18n } from '../localization';
+
 import { getActorInfo } from '../request/soap';
+
+import { getCroppedImageUrl } from '../utils';
 
 import Tile from '../components/tile';
 import Loader from '../components/loader';
@@ -43,7 +46,7 @@ export default function actorRoute(title) {
                   <monogramLockup disabled="true">
                     <monogram
                       style="tv-placeholder: monogram"
-                      src={actorImage}
+                      src={getCroppedImageUrl(actorImage, 250)}
                       firstName={firstName}
                       lastName={lastName}
                     />

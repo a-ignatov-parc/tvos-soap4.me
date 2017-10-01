@@ -306,15 +306,16 @@ export default function seasonRoute() {
                     margin: 40 0 0;
                     tv-align: center;
                     tv-content-align: top;
-                  }
-
-                  .control {
-                    margin: 0 24;
+                    tv-interitem-spacing: 24;
                   }
 
                   .item {
                     background-color: rgba(255, 255, 255, 0.05);
                     tv-highlight-color: rgba(255, 255, 255, 0.9);
+                  }
+
+                  .item-content {
+                    margin: 60 75 0 0;
                   }
 
                   .item--disabled {
@@ -483,13 +484,11 @@ export default function seasonRoute() {
                           }, [])}
                         </decorationLabel>
                         <relatedContent>
-                          <lockup>
+                          <lockup class="item-content">
                             {this.renderPoster(episodePoster, true)}
                             <row class="controls_container">
                               {authorized && (this.state[epId] ? (
                                 <buttonLockup
-                                  class="control"
-
                                   // eslint-disable-next-line react/jsx-no-bind
                                   onSelect={this.onMarkAsNew.bind(...[
                                     this,
@@ -503,8 +502,6 @@ export default function seasonRoute() {
                                 </buttonLockup>
                               ) : (
                                 <buttonLockup
-                                  class="control"
-
                                   // eslint-disable-next-line react/jsx-no-bind
                                   onSelect={this.onMarkAsWatched.bind(...[
                                     this,
@@ -521,8 +518,6 @@ export default function seasonRoute() {
                               {authorized && [
                                 (
                                   <buttonLockup
-                                    class="control"
-
                                     // eslint-disable-next-line
                                     onSelect={this.onRate.bind(this, episode)}
                                   >
@@ -534,7 +529,6 @@ export default function seasonRoute() {
                                 ),
                                 extended && (
                                   <buttonLockup
-                                    class="control"
                                     onSelect={link('speedtest')}
                                   >
                                     <badge src="resource://button-cloud" />
@@ -545,7 +539,6 @@ export default function seasonRoute() {
                                 ),
                                 (
                                   <buttonLockup
-                                    class="control"
                                     onSelect={this.onMore}
                                   >
                                     <badge src="resource://button-more" />

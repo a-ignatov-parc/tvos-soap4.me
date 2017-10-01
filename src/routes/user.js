@@ -157,10 +157,7 @@ export default function userRoute() {
                           onSelect={this.onActivate.bind(this, account)}
                           disabled={!extended}
                         >
-                          <monogram
-                            style="tv-placeholder: monogram"
-                            firstName={firstName || name}
-                          />
+                          <monogram firstName={firstName || name} />
                           <title>{name}</title>
                           {isActive && (
                             <subtitle>

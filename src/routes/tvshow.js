@@ -8,16 +8,17 @@ import { processFamilyAccount } from '../user/utils';
 import authFactory from '../helpers/auth';
 import { defaultErrorHandlers } from '../helpers/auth/handlers';
 
+import {
+  link,
+  capitalizeText,
+  getCroppedImageUrl,
+  isMenuButtonPressNavigatedTo,
+} from '../utils';
+
 import { processEntitiesInString } from '../utils/parser';
 import { deepEqualShouldUpdate } from '../utils/components';
 
 import { get as i18n } from '../localization';
-
-import {
-  link,
-  capitalizeText,
-  isMenuButtonPressNavigatedTo,
-} from '../utils';
 
 import {
   TVShowStatuses,
@@ -691,17 +692,13 @@ export default function tvShowRoute() {
                     })}
                   >
                     <monogram
-                      style="tv-placeholder: monogram"
-                      src={personImage}
+                      style="tv-placeholder: monogram;"
+                      src={getCroppedImageUrl(personImage, 250)}
                       firstName={firstName}
                       lastName={lastName}
                     />
                     <title>{personName}</title>
-                    <subtitle
-                      style="tv-text-highlight-style: marquee-on-highlight"
-                    >
-                      {characterName}
-                    </subtitle>
+                    <subtitle>{characterName}</subtitle>
                   </monogramLockup>
                 );
               })}

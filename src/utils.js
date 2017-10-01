@@ -1,5 +1,7 @@
 /* global sessionStorage navigationDocument Device */
 
+import url from 'url';
+
 import { Promise, navigate } from 'tvdml';
 
 export function promisedTimeout(timeout) {
@@ -92,4 +94,17 @@ export function removeDocumentFromNavigation(document) {
 
 export function genreToId(genre) {
   return genre.replace(/\s/g, '_');
+}
+
+export function getCroppedImageUrl(targetUrl, size) {
+  const params = `w=${size}&h=${size}&mode=crop`;
+  const descriptor = url.parse(targetUrl);
+  const croppedUrl = url.format({
+    hostname: 'rsz.io',
+    protocol: 'http:',
+    pathname: descriptor.hostname + descriptor.pathname,
+    search: descriptor.search ? `${descriptor.search}&${params}` : `?${params}`,
+  });
+
+  return croppedUrl;
 }
