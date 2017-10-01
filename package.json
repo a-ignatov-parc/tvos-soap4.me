@@ -6,9 +6,10 @@
   "engine-strict": true,
   "engines": {
     "node": "^6.0.0",
-    "yarn": "^0.27.5"
+    "yarn": "^1.1.0"
   },
   "scripts": {
+    "install-deps": "npm run install-local-yarn && npm run install-deps-with-local-yarn",
     "install-local-yarn": "npm i yarn@$npm_package_engines_yarn",
     "install-deps-with-local-yarn": "yarn",
     "build": "webpack --progress",

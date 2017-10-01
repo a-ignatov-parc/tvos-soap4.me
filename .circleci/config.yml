@@ -2,13 +2,27 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/node:6
+      - image: circleci/node:6.10
 
     steps:
       - checkout
+
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+
       - run:
-          name: install yarn
+          name: Install local yarn
           command: npm run install-local-yarn
+
       - run:
-          name: install dependencies
+          name: Install dependencies
           command: npm run install-deps-with-local-yarn
+
+      - save_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+          paths:
+            - ./node_modules
+
+      - run:
+          name: Run linter
+          command: npm run lint
