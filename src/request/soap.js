@@ -1,3 +1,5 @@
+/* global Device */
+
 import md5 from 'blueimp-md5';
 import * as TVDML from 'tvdml';
 
@@ -11,8 +13,10 @@ import { genreToId, isQello } from '../utils';
 const { Promise } = TVDML;
 
 const { VIDEO_QUALITY, TRANSLATION } = settings.params;
-const { SD, HD, FULLHD } = settings.values[VIDEO_QUALITY];
+const { SD, HD, FULLHD, UHD } = settings.values[VIDEO_QUALITY];
 const { LOCALIZATION, SUBTITLES } = settings.values[TRANSLATION];
+
+export const supportUHD = Device.productType !== 'AppleTV5,3';
 
 export const version = `v${config.version}`;
 
@@ -33,13 +37,15 @@ export const mediaQualities = {
   1: SD,
   2: HD,
   3: FULLHD,
+  4: UHD,
 };
 
 export const mediaQualityRanking = [
+  supportUHD && UHD,
   FULLHD,
   HD,
   SD,
-];
+].filter(Boolean);
 
 export const mediaLocalizationRanking = {
   [LOCALIZATION]: [

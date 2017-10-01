@@ -1,6 +1,8 @@
 /* eslint max-len: "off" */
 /* eslint camelcase: "off" */
 
+import { supportUHD } from '../request/soap';
+
 export default {
   'auth-checking': 'Проверяем авторизацию...',
 
@@ -56,13 +58,14 @@ export default {
   'settings-labels-speedtest': 'Тест скорости',
   'settings-labels-version': 'Версия',
 
-  'settings-descriptions-video_quality': 'Предпочитаемое качество видео для воспроизведения если оно доступно.',
+  'settings-descriptions-video_quality': `Предпочитаемое качество видео для воспроизведения если оно доступно.\n4K (UHD) видео${supportUHD ? ' ' : ' не '}поддерживается на данном девайсе.`,
   'settings-descriptions-translation': 'Для того чтоб просматривать эпизоды с субтитрами необходимо активировать специальный параметр в настройках сайта soap4.me. В противном случае будут отображаться только серии с переводом.',
   'settings-descriptions-video_playback': 'Настройка воспроизведения серий. Воспроизводить их непрерывно друг за другом или по эпизоду.',
 
   'settings-values-sd': 'SD',
   'settings-values-hd': 'HD',
   'settings-values-fhd': 'Full HD',
+  'settings-values-uhd': '4K (UHD)',
   'settings-values-subtitles': 'Приоритет субтитров',
   'settings-values-localization': 'Приоритет локализации',
   'settings-values-continues': 'Без остановки',

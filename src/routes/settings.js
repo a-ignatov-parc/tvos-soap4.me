@@ -7,7 +7,7 @@ import * as localization from '../localization';
 import { link, getStartParams } from '../utils';
 import { deepEqualShouldUpdate } from '../utils/components';
 
-import { version } from '../request/soap';
+import { version, supportUHD } from '../request/soap';
 
 import poster from '../assets/poster.png';
 
@@ -20,7 +20,7 @@ const {
   LANGUAGE,
 } = settings.params;
 
-const { SD, HD, FULLHD } = settings.values[VIDEO_QUALITY];
+const { SD, HD, FULLHD, UHD } = settings.values[VIDEO_QUALITY];
 const { LOCALIZATION, SUBTITLES } = settings.values[TRANSLATION];
 const { CONTINUES, BY_EPISODE } = settings.values[VIDEO_PLAYBACK];
 const { AUTO, EN, RU } = settings.values[LANGUAGE];
@@ -37,6 +37,10 @@ const onlyForExtendedAccounts = [
   VIDEO_PLAYBACK,
 ];
 
+const disabledFeatures = {
+  [UHD]: !supportUHD,
+};
+
 const descriptionMapping = {
   [VIDEO_QUALITY]: 'settings-descriptions-video_quality',
   [TRANSLATION]: 'settings-descriptions-translation',
@@ -47,6 +51,7 @@ const valueMapping = {
   [SD]: 'settings-values-sd',
   [HD]: 'settings-values-hd',
   [FULLHD]: 'settings-values-fhd',
+  [UHD]: 'settings-values-uhd',
   [SUBTITLES]: 'settings-values-subtitles',
   [LOCALIZATION]: 'settings-values-localization',
   [CONTINUES]: 'settings-values-continues',
@@ -252,6 +257,7 @@ export default function settingsRoute() {
           .map(value => ({
             value,
             isActive: value === active,
+            isDisabled: !!disabledFeatures[value],
             title: getTitleForValue(value),
           }));
 
@@ -262,9 +268,10 @@ export default function settingsRoute() {
                 <title>
                   {getTitleForKey(key)}
                 </title>
-                {options.map(({ title, value, isActive }) => (
+                {options.map(({ title, value, isActive, isDisabled }) => (
                   <button
                     key={value}
+                    disabled={isDisabled || undefined}
                     autoHighlight={isActive || undefined}
 
                     // eslint-disable-next-line react/jsx-no-bind

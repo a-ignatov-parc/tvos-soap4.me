@@ -1,6 +1,8 @@
 /* eslint max-len: "off" */
 /* eslint camelcase: "off" */
 
+import { supportUHD } from '../request/soap';
+
 export default {
   'auth-checking': 'Checking authorization...',
 
@@ -56,13 +58,14 @@ export default {
   'settings-labels-speedtest': 'Speed test',
   'settings-labels-version': 'Version',
 
-  'settings-descriptions-video_quality': 'Prefered video quality that will be used if available.',
+  'settings-descriptions-video_quality': `Prefered video quality that will be used if available.\n4K (UHD) video is${supportUHD ? ' ' : ' not '}supported on this device.`,
   'settings-descriptions-translation': 'To be able to use subtitles special option must be activated in account preferences on soap4.me site. Until this will be done only localized episodes will be shown.',
   'settings-descriptions-video_playback': 'Configure player playback mode. Should it play all episodes in season or just one.',
 
   'settings-values-sd': 'SD',
   'settings-values-hd': 'HD',
   'settings-values-fhd': 'Full HD',
+  'settings-values-uhd': '4K (UHD)',
   'settings-values-subtitles': 'Subtitles priority',
   'settings-values-localization': 'Localization priority',
   'settings-values-continues': 'Continues',

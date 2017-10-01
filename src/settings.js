@@ -12,6 +12,7 @@ const quality = {
   SD: 'sd',
   HD: 'hd',
   FULLHD: 'fullhd',
+  UHD: '4k',
 };
 
 const translation = {
