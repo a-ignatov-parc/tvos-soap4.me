@@ -3,14 +3,15 @@ import * as TVDML from 'tvdml';
 import formatNumber from 'simple-format-number';
 
 import * as user from '../user';
-import {processFamilyAccount} from '../user/utils';
+import { processFamilyAccount } from '../user/utils';
 
 import authFactory from '../helpers/auth';
-import {defaultErrorHandlers} from '../helpers/auth/handlers';
+import { defaultErrorHandlers } from '../helpers/auth/handlers';
 
-import {get as i18n} from '../localization';
-import {processEntitiesInString} from '../utils/parser';
-import {deepEqualShouldUpdate} from '../utils/components';
+import { processEntitiesInString } from '../utils/parser';
+import { deepEqualShouldUpdate } from '../utils/components';
+
+import { get as i18n } from '../localization';
 
 import {
   link,
@@ -45,12 +46,31 @@ import Tile from '../components/tile';
 import Loader from '../components/loader';
 import Authorize from '../components/authorize';
 
-const {Promise} = TVDML;
+const { Promise } = TVDML;
 
-export default function() {
+function calculateUnwatchedCount(season) {
+  return season.unwatched || 0;
+}
+
+function getTrailerItem(trailer) {
+  const { tid } = getEpisodeMedia(trailer);
+
+  return getTrailerStream(tid).then(({ stream }) => ({
+    id: tid,
+    url: stream,
+  }));
+}
+
+export default function tvShowRoute() {
   return TVDML
     .createPipeline()
-    .pipe(TVDML.passthrough(({navigation: {sid, title, poster}}) => ({sid, title, poster})))
+    .pipe(TVDML.passthrough(({
+      navigation: {
+        sid,
+        title,
+        poster,
+      },
+    }) => ({ sid, title, poster })))
     .pipe(TVDML.render(TVDML.createComponent({
       getInitialState() {
         const extended = user.isExtended();
@@ -67,13 +87,15 @@ export default function() {
       },
 
       componentDidMount() {
-        const {sid} = this.props;
+        const setState = this.setState.bind(this);
+
+        // eslint-disable-next-line no-underscore-dangle
         const currentDocument = this._rootNode.ownerDocument;
 
         this.menuButtonPressStream = TVDML.subscribe('menu-button-press');
         this.menuButtonPressStream
           .pipe(isMenuButtonPressNavigatedTo(currentDocument))
-          .pipe(isNavigated => isNavigated && this.loadData().then(this.setState.bind(this)));
+          .pipe(isNavigated => isNavigated && this.loadData().then(setState));
 
         this.userStateChangeStream = user.subscription();
         this.userStateChangeStream.pipe(() => this.setState({
@@ -82,14 +104,14 @@ export default function() {
         }));
 
         this.appResumeStream = TVDML.subscribe(TVDML.event.RESUME);
-        this.appResumeStream.pipe(() => this.loadData().then(this.setState.bind(this)));
+        this.appResumeStream.pipe(() => this.loadData().then(setState));
 
         // To improuve UX on fast request we are adding rendering timeout.
-        const waitForAnimations = new Promise((resolve) => setTimeout(resolve, 500));
+        const waitForAnimations = new Promise(done => setTimeout(done, 500));
 
         Promise
           .all([this.loadData(), waitForAnimations])
-          .then(([payload]) => this.setState({loading: false, ...payload}));
+          .then(([payload]) => this.setState({ loading: false, ...payload }));
       },
 
       componentWillUnmount() {
@@ -101,7 +123,7 @@ export default function() {
       shouldComponentUpdate: deepEqualShouldUpdate,
 
       loadData() {
-        const {sid} = this.props;
+        const { sid } = this.props;
 
         return Promise
           .all([
@@ -111,27 +133,30 @@ export default function() {
             getTVShowDescription(sid),
             getTVShowRecommendations(sid),
           ])
-          .then(([
-            contries,
-            seasons,
-            schedule,
-            tvshow,
-            recomendations,
-          ]) => Promise
-            .all([
-              tvshow.reviews > 0 ? getTVShowReviews(sid) : Promise.resolve([]),
-              tvshow.trailers > 0 ? getTVShowTrailers(sid) : Promise.resolve([]),
-            ])
-            .then(([reviews, trailers]) => ({
-              tvshow,
-              reviews,
+          .then(payload => {
+            const [
+              contries,
               seasons,
               schedule,
-              trailers,
-              contries,
+              tvshow,
               recomendations,
-            }))
-          )
+            ] = payload;
+
+            return Promise
+              .all([
+                tvshow.reviews > 0 ? getTVShowReviews(sid) : [],
+                tvshow.trailers > 0 ? getTVShowTrailers(sid) : [],
+              ])
+              .then(([reviews, trailers]) => ({
+                tvshow,
+                reviews,
+                seasons,
+                schedule,
+                trailers,
+                contries,
+                recomendations,
+              }));
+          })
           .then(payload => ({
             likes: +payload.tvshow.likes,
             watching: payload.tvshow.watching > 0,
@@ -193,9 +218,9 @@ export default function() {
                   {i18n('tvshow-genres')}
                 </title>
               </header>
-              {genres.map(capitalizeText).map(genre => {
-                return <text key={genre}>{genre}</text>;
-              })}
+              {genres.map(capitalizeText).map(genre => (
+                <text key={genre}>{genre}</text>
+              ))}
             </info>
             {actors.length && (
               <info>
@@ -204,9 +229,9 @@ export default function() {
                     {i18n('tvshow-actors')}
                   </title>
                 </header>
-                {actors.map(({person_en}) => {
-                  return <text key={person_en}>{person_en}</text>;
-                })}
+                {actors.map(({ person_en: personName }) => (
+                  <text key={personName}>{personName}</text>
+                ))}
               </info>
             )}
           </infoList>
@@ -214,8 +239,16 @@ export default function() {
       },
 
       renderInfo() {
-        const {likes, extended} = this.state;
-        const {description, soap_rating} = this.state.tvshow;
+        const {
+          likes,
+          extended,
+        } = this.state;
+
+        const {
+          description,
+          soap_rating: soapRating,
+        } = this.state.tvshow;
+
         const title = i18n('tvshow-title', this.state.tvshow);
         const hasTrailers = !!this.state.trailers.length;
         const hasMultipleTrailers = this.state.trailers.length > 1;
@@ -234,6 +267,10 @@ export default function() {
           </buttonLockup>
         );
 
+        const trailerBtnTitleCode = hasMultipleTrailers
+          ? 'tvshow-control-show-trailers'
+          : 'tvshow-control-show-trailer';
+
         const showTrailerBtn = (
           <buttonLockup
             onPlay={this.onShowFirstTrailer}
@@ -241,7 +278,7 @@ export default function() {
           >
             <badge src="resource://button-preview" />
             <title>
-              {i18n(hasMultipleTrailers ? 'tvshow-control-show-trailers' : 'tvshow-control-show-trailer')}
+              {i18n(trailerBtnTitleCode)}
             </title>
           </buttonLockup>
         );
@@ -307,11 +344,14 @@ export default function() {
           <stack>
             <title>{title}</title>
             <row>
-              <ratingBadge value={soap_rating / 10} />
+              <ratingBadge value={soapRating / 10} />
               <text>
                 {i18n('tvshow-liked-by')}
                 {' '}
-                {likes > 0 ? i18n('tvshow-liked-by-people', {likes}) : i18n('tvshow-liked-by-no-one')}
+                {likes > 0
+                  ? i18n('tvshow-liked-by-people', { likes })
+                  : i18n('tvshow-liked-by-no-one')
+                }
               </text>
             </row>
             <description
@@ -324,10 +364,10 @@ export default function() {
       },
 
       renderSeasons() {
-        let {sid, covers} = this.state.tvshow;
-        let title = i18n('tvshow-title', this.state.tvshow);
+        const { sid, covers } = this.state.tvshow;
+        const title = i18n('tvshow-title', this.state.tvshow);
 
-        let scheduleDiff = this.state.schedule
+        const scheduleDiff = this.state.schedule
           .slice(this.state.seasons.length)
           .map(season => ({
             covers,
@@ -335,11 +375,17 @@ export default function() {
             ...season,
           }));
 
-        let seasons = this.state.seasons.concat(scheduleDiff);
+        const seasons = this.state.seasons.concat(scheduleDiff);
 
-        let currentMoment = moment();
-        let nextDay = currentMoment.clone().add(moment.relativeTimeThreshold('h'), 'hour');
-        let nextMonth = currentMoment.clone().add(moment.relativeTimeThreshold('d'), 'day');
+        const currentMoment = moment();
+
+        const nextDay = currentMoment
+          .clone()
+          .add(moment.relativeTimeThreshold('h'), 'hour');
+
+        const nextMonth = currentMoment
+          .clone()
+          .add(moment.relativeTimeThreshold('d'), 'day');
 
         if (!seasons.length) return null;
 
@@ -352,22 +398,30 @@ export default function() {
             </header>
             <section>
               {seasons.map((season, i) => {
-                let {
+                const {
                   begins,
                   season: seasonNumber,
-                  covers: {big: poster},
+                  covers: { big: poster },
                 } = season;
 
-                let seasonTitle = i18n('tvshow-season', {seasonNumber});
-                let unwatched = calculateUnwatchedCount(season);
-                let isWatched = !unwatched;
+                const { schedule } = this.state;
 
-                let {episodes: seasonEpisodes} = season;
-                let {episodes: scheduleEpisodes} = this.state.schedule[i] || {episodes: []};
-                let scheduleDiff = scheduleEpisodes.slice(seasonEpisodes.length);
-                let [scheduleEpisode] = scheduleDiff.filter(episode => {
-                  return moment(episode.date, 'DD.MM.YYYY') > currentMoment;
-                });
+                const seasonTitle = i18n('tvshow-season', { seasonNumber });
+                const unwatched = calculateUnwatchedCount(season);
+
+                const { episodes: seasonEpisodes } = season;
+                const { episodes: scheduleEpisodes } = schedule[i] || {
+                  episodes: [],
+                };
+
+                const [scheduleEpisode] = scheduleEpisodes
+                  .slice(seasonEpisodes.length)
+                  .filter(episode => {
+                    const episodeDate = moment(episode.date, 'DD.MM.YYYY');
+                    return episodeDate > currentMoment;
+                  });
+
+                let isWatched = !unwatched;
                 let dateTitle;
                 let date;
 
@@ -379,9 +433,11 @@ export default function() {
                   } else if (nextDay > date) {
                     dateTitle = i18n('new-episode-day');
                   } else {
-                    dateTitle = i18n('new-episode-custom-date', {date: date.fromNow()});
+                    dateTitle = i18n('new-episode-custom-date', {
+                      date: date.fromNow(),
+                    });
                   }
-                  currentMoment < date && (isWatched = false);
+                  if (currentMoment < date) isWatched = false;
                 }
 
                 if (begins) {
@@ -392,7 +448,9 @@ export default function() {
                   } else if (nextDay > date) {
                     dateTitle = i18n('new-season-day');
                   } else {
-                    dateTitle = i18n('new-season-custom-date', {date: date.fromNow()});
+                    dateTitle = i18n('new-season-custom-date', {
+                      date: date.fromNow(),
+                    });
                   }
                   isWatched = false;
                 }
@@ -413,7 +471,14 @@ export default function() {
                     counter={unwatched || dateTitle}
                     isWatched={isWatched}
                     payload={payload}
-                    onHoldselect={this.onSeasonOptions.bind(this, payload.id, payload.title, isWatched)}
+
+                    // eslint-disable-next-line react/jsx-no-bind
+                    onHoldselect={this.onSeasonOptions.bind(...[
+                      this,
+                      payload.id,
+                      payload.title,
+                      isWatched,
+                    ])}
                   />
                 );
               })}
@@ -424,20 +489,26 @@ export default function() {
 
       onSeasonOptions(id, title, isWatched) {
         TVDML
-          .renderModal(
+          .renderModal((
             <document>
               <alertTemplate>
                 <title>
                   {title}
                 </title>
                 {isWatched ? (
-                  <button onSelect={this.onMarkSeasonAsUnwatched.bind(this, id)}>
+                  <button
+                    // eslint-disable-next-line react/jsx-no-bind
+                    onSelect={this.onMarkSeasonAsUnwatched.bind(this, id)}
+                  >
                     <text>
                       {i18n('season-mark-as-unwatched')}
                     </text>
                   </button>
                 ) : (
-                  <button onSelect={this.onMarkSeasonAsWatched.bind(this, id)}>
+                  <button
+                    // eslint-disable-next-line react/jsx-no-bind
+                    onSelect={this.onMarkSeasonAsWatched.bind(this, id)}
+                  >
                     <text>
                       {i18n('season-mark-as-watched')}
                     </text>
@@ -445,12 +516,12 @@ export default function() {
                 )}
               </alertTemplate>
             </document>
-          )
+          ))
           .sink();
       },
 
       onMarkSeasonAsWatched(id) {
-        const {sid} = this.state.tvshow;
+        const { sid } = this.state.tvshow;
 
         return markSeasonAsWatched(sid, id)
           .then(this.loadData.bind(this))
@@ -459,7 +530,7 @@ export default function() {
       },
 
       onMarkSeasonAsUnwatched(id) {
-        const {sid} = this.state.tvshow;
+        const { sid } = this.state.tvshow;
 
         return markSeasonAsUnwatched(sid, id)
           .then(this.loadData.bind(this))
@@ -479,12 +550,12 @@ export default function() {
             </header>
             <section>
               {this.state.recomendations.map(tvshow => {
-                let {
+                const {
                   sid,
-                  covers: {big: poster}
+                  covers: { big: poster },
                 } = tvshow;
 
-                let title = i18n('tvshow-title', tvshow);
+                const title = i18n('tvshow-title', tvshow);
 
                 return (
                   <Tile
@@ -492,7 +563,7 @@ export default function() {
                     title={title}
                     poster={poster}
                     route="tvshow"
-                    payload={{sid, title, poster}}
+                    payload={{ sid, title, poster }}
                   />
                 );
               })}
@@ -503,12 +574,12 @@ export default function() {
 
       renderRatings() {
         const {
-          soap_votes,
-          soap_rating,
-          imdb_votes,
-          imdb_rating,
-          kinopoisk_votes,
-          kinopoisk_rating,
+          soap_votes: soapVotes,
+          soap_rating: soapRating,
+          imdb_votes: imdbVotes,
+          imdb_rating: imdbRating,
+          kinopoisk_votes: kinopoiskVotes,
+          kinopoisk_rating: kinopoiskRating,
         } = this.state.tvshow;
 
         return (
@@ -519,55 +590,68 @@ export default function() {
               </title>
             </header>
             <section>
-              {!!+imdb_rating && (
+              {!!+imdbRating && (
                 <ratingCard>
-                  <title>{(`${imdb_rating}`).slice(0, 3)} / 10</title>
-                  <ratingBadge value={imdb_rating / 10} />
+                  <title>{(`${imdbRating}`).slice(0, 3)} / 10</title>
+                  <ratingBadge value={imdbRating / 10} />
                   <description>
-                    {i18n('tvshow-average-imdb', {amount: formatNumber(+imdb_votes, {fractionDigits: 0})})}
+                    {i18n('tvshow-average-imdb', {
+                      amount: formatNumber(+imdbVotes, {
+                        fractionDigits: 0,
+                      }),
+                    })}
                   </description>
                 </ratingCard>
               )}
-              {!!+kinopoisk_rating && (
+              {!!+kinopoiskRating && (
                 <ratingCard>
-                  <title>{(`${kinopoisk_rating}`).slice(0, 3)} / 10</title>
-                  <ratingBadge value={kinopoisk_rating / 10} />
+                  <title>{(`${kinopoiskRating}`).slice(0, 3)} / 10</title>
+                  <ratingBadge value={kinopoiskRating / 10} />
                   <description>
-                    {i18n('tvshow-average-kinopoisk', {amount: formatNumber(+kinopoisk_votes, {fractionDigits: 0})})}
+                    {i18n('tvshow-average-kinopoisk', {
+                      amount: formatNumber(+kinopoiskVotes, {
+                        fractionDigits: 0,
+                      }),
+                    })}
                   </description>
                 </ratingCard>
               )}
-              {!!+soap_rating && (
+              {!!+soapRating && (
                 <ratingCard>
-                  <title>{(`${soap_rating}`).slice(0, 3)} / 10</title>
-                  <ratingBadge value={soap_rating / 10} />
+                  <title>{(`${soapRating}`).slice(0, 3)} / 10</title>
+                  <ratingBadge value={soapRating / 10} />
                   <description>
-                    {i18n('tvshow-average-soap', {amount: formatNumber(+soap_votes, {fractionDigits: 0})})}
+                    {i18n('tvshow-average-soap', {
+                      amount: formatNumber(+soapVotes, {
+                        fractionDigits: 0,
+                      }),
+                    })}
                   </description>
                 </ratingCard>
               )}
               {this.state.reviews.map(review => {
-                let {
+                const {
                   id,
-                  user,
                   date,
                   text,
-                  review_likes,
-                  review_dislikes,
+                  user: userName,
+                  review_likes: likes,
+                  review_dislikes: dislikes,
                 } = review;
 
                 return (
                   <reviewCard
-                    key={id}
+                    // eslint-disable-next-line react/jsx-no-bind
                     onSelect={this.onShowFullReview.bind(this, review)}
+                    key={id}
                   >
-                    <title>{user}</title>
+                    <title>{userName}</title>
                     <description>
                       {moment(date * 1000).format('lll')}
                       {'\n\n'}
                       {processEntitiesInString(text)}
                     </description>
-                    <text>{review_likes} 👍 / {review_dislikes} 👎</text>
+                    <text>{likes} 👍 / {dislikes} 👎</text>
                   </reviewCard>
                 );
               })}
@@ -588,29 +672,35 @@ export default function() {
             </header>
             <section>
               {this.state.tvshow.actors.map(actor => {
-                let {
-                  person_id,
-                  person_en,
-                  person_image_original,
-                  character_en,
+                const {
+                  person_id: personId,
+                  person_en: personName,
+                  person_image_original: personImage,
+                  character_en: characterName,
                 } = actor;
 
-                let [firstName, lastName] = person_en.split(' ');
+                const [firstName, lastName] = personName.split(' ');
 
                 return (
                   <monogramLockup
-                    key={person_id}
-                    onSelect={link('actor', {id: person_id, actor: person_en, poster: person_image_original})}
+                    key={personId}
+                    onSelect={link('actor', {
+                      id: personId,
+                      actor: personName,
+                      poster: personImage,
+                    })}
                   >
                     <monogram
                       style="tv-placeholder: monogram"
-                      src={person_image_original}
+                      src={personImage}
                       firstName={firstName}
                       lastName={lastName}
                     />
-                    <title>{person_en}</title>
-                    <subtitle style="tv-text-highlight-style: marquee-on-highlight">
-                      {character_en}
+                    <title>{personName}</title>
+                    <subtitle
+                      style="tv-text-highlight-style: marquee-on-highlight"
+                    >
+                      {characterName}
                     </subtitle>
                   </monogramLockup>
                 );
@@ -621,15 +711,18 @@ export default function() {
       },
 
       renderAdditionalInfo() {
-        let {
+        const {
           year,
           network,
-          episode_runtime,
+          episode_runtime: episodeRuntime,
           country: countryCode,
         } = this.state.tvshow;
 
-        let {contries} = this.state;
-        let [{full: country}] = contries.filter(({short}) => short === countryCode)
+        const { contries } = this.state;
+
+        const [{
+          full: country,
+        }] = contries.filter(({ short }) => short === countryCode);
 
         return (
           <productInfo>
@@ -653,7 +746,9 @@ export default function() {
                     {i18n('tvshow-information-runtime')}
                   </title>
                 </header>
-                <text>{moment.duration(+episode_runtime, 'minutes').humanize()}</text>
+                <text>
+                  {moment.duration(+episodeRuntime, 'minutes').humanize()}
+                </text>
               </info>
               <info>
                 <header>
@@ -706,10 +801,14 @@ export default function() {
 
       onContinueWatching(event, shouldPlayImmediately) {
         const uncompletedSeason = this.getSeasonToWatch(this.state.seasons);
-        const {season: seasonNumber, covers: {big: poster}} = uncompletedSeason;
-        const seasonTitle = i18n('tvshow-season', {seasonNumber});
+        const {
+          season: seasonNumber,
+          covers: { big: poster },
+        } = uncompletedSeason;
+
+        const seasonTitle = i18n('tvshow-season', { seasonNumber });
         const title = i18n('tvshow-title', this.state.tvshow);
-        const {sid} = this.state.tvshow;
+        const { sid } = this.state.tvshow;
 
         TVDML.navigate('season', {
           sid,
@@ -721,30 +820,33 @@ export default function() {
       },
 
       onShowTrailer() {
-        const {trailers} = this.state;
+        const { trailers } = this.state;
 
         if (trailers.length < 2) {
-          return this.onShowFirstTrailer();
+          this.onShowFirstTrailer();
+        } else {
+          const title = i18n('tvshow-title', this.state.tvshow);
+
+          TVDML
+            .renderModal((
+              <document>
+                <alertTemplate>
+                  <title>
+                    {title}
+                  </title>
+                  {trailers.map(trailer => (
+                    <button
+                      // eslint-disable-next-line react/jsx-no-bind
+                      onSelect={this.playTrailer.bind(this, trailer)}
+                    >
+                      <text>{trailer.name}</text>
+                    </button>
+                  ))}
+                </alertTemplate>
+              </document>
+            ))
+            .sink();
         }
-
-        const title = i18n('tvshow-title', this.state.tvshow);
-
-        TVDML
-          .renderModal(
-            <document>
-              <alertTemplate>
-                <title>
-                  {title}
-                </title>
-                {trailers.map(trailer => (
-                  <button onSelect={this.playTrailer.bind(this, trailer)}>
-                    <text>{trailer.name}</text>
-                  </button>
-                ))}
-              </alertTemplate>
-            </document>
-          )
-          .sink();
       },
 
       onShowFirstTrailer() {
@@ -755,7 +857,7 @@ export default function() {
       playTrailer(trailer) {
         TVDML
           .createPlayer({
-            items(item, request) {
+            items(item) {
               if (!item) return getTrailerItem(trailer);
               return null;
             },
@@ -770,14 +872,14 @@ export default function() {
       onAddToSubscriptions() {
         const {
           authorized,
-          tvshow: {sid},
+          tvshow: { sid },
         } = this.state;
 
         if (!authorized) {
           const authHelper = authFactory({
             onError: defaultErrorHandlers,
-            onSuccess: ({token, till, login}) => {
-              user.set({token, till, logged: 1});
+            onSuccess: ({ token, till, login }) => {
+              user.set({ token, till, logged: 1 });
               processFamilyAccount(login)
                 .then(this.loadData.bind(this))
                 .then(payload => {
@@ -789,12 +891,12 @@ export default function() {
           });
 
           return TVDML
-            .renderModal(
+            .renderModal((
               <Authorize
                 description={i18n('authorize-tvshow-description')}
                 onAuthorize={() => authHelper.present()}
               />
-            )
+            ))
             .sink();
         }
 
@@ -807,7 +909,7 @@ export default function() {
       },
 
       onRemoveFromSubscription() {
-        const {sid} = this.state.tvshow;
+        const { sid } = this.state.tvshow;
 
         this.setState({
           watching: false,
@@ -819,40 +921,54 @@ export default function() {
 
       onShowFullDescription() {
         const title = i18n('tvshow-title', this.state.tvshow);
-        const {description} = this.state.tvshow;
+        const { description } = this.state.tvshow;
 
         TVDML
-          .renderModal(
+          .renderModal((
             <document>
               <descriptiveAlertTemplate>
                 <title>{title}</title>
                 <description>{description}</description>
               </descriptiveAlertTemplate>
             </document>
-          )
+          ))
           .sink();
       },
 
-      onShowFullReview({id, user, text, you_liked, you_disliked}) {
+      onShowFullReview(review) {
+        const {
+          id,
+          text,
+          user: userName,
+          you_liked: youLiked,
+          you_disliked: youDisliked,
+        } = review;
+
         TVDML
-          .renderModal(
+          .renderModal((
             <document>
               <descriptiveAlertTemplate>
-                <title>{user}</title>
+                <title>{userName}</title>
                 <description>{processEntitiesInString(text)}</description>
-                {!you_liked && !you_disliked && (
+                {!youLiked && !youDisliked && (
                   <row>
-                    <button onSelect={this.onReviewLiked.bind(this, id)}>
+                    <button
+                      // eslint-disable-next-line react/jsx-no-bind
+                      onSelect={this.onReviewLiked.bind(this, id)}
+                    >
                       <text>👍</text>
                     </button>
-                    <button onSelect={this.onReviewDisliked.bind(this, id)}>
+                    <button
+                      // eslint-disable-next-line react/jsx-no-bind
+                      onSelect={this.onReviewDisliked.bind(this, id)}
+                    >
                       <text>👎</text>
                     </button>
                   </row>
                 )}
               </descriptiveAlertTemplate>
             </document>
-          )
+          ))
           .sink();
       },
 
@@ -871,17 +987,17 @@ export default function() {
       },
 
       onRate() {
-        const {title} = this.props;
+        const { title } = this.props;
 
         TVDML
-          .renderModal(
+          .renderModal((
             <document>
               <ratingTemplate>
                 <title>{title}</title>
                 <ratingBadge onChange={this.onRateChange} />
               </ratingTemplate>
             </document>
-          )
+          ))
           .sink();
       },
 
@@ -890,38 +1006,42 @@ export default function() {
       },
 
       onRateTVShow(rating) {
-        const {sid} = this.props;
+        const { sid } = this.props;
 
         return rateTVShow(sid, rating)
-          .then(({votes: soap_votes, rating: soap_rating}) => ({soap_votes, soap_rating}))
-          .then(rating => this.setState({
+          .then(({
+            votes: soap_votes,
+            rating: soap_rating,
+          }) => ({ soap_votes, soap_rating }))
+          .then(processedRating => this.setState({
             tvshow: {
               ...this.state.tvshow,
-              ...rating,
+              ...processedRating,
             },
           }))
           .then(TVDML.removeModal);
       },
 
       onMore() {
-        const hasWatchedEpisodes = this.state.seasons.some(({unwatched}) => !unwatched);
-        const hasUnwatchedEpisodes = this.state.seasons.some(({unwatched}) => !!unwatched);
+        const { seasons } = this.state;
+        const hasWatchedEps = seasons.some(({ unwatched }) => !unwatched);
+        const hasUnwatchedEps = seasons.some(({ unwatched }) => !!unwatched);
 
         TVDML
-          .renderModal(
+          .renderModal((
             <document>
               <alertTemplate>
                 <title>
                   {i18n('tvshow-title-more')}
                 </title>
-                {hasUnwatchedEpisodes && (
+                {hasUnwatchedEps && (
                   <button onSelect={this.onMarkTVShowAsWatched}>
                     <text>
                       {i18n('tvshow-mark-as-watched')}
                     </text>
                   </button>
                 )}
-                {hasWatchedEpisodes && (
+                {hasWatchedEps && (
                   <button onSelect={this.onMarkTVShowAsUnwatched}>
                     <text>
                       {i18n('tvshow-mark-as-unwatched')}
@@ -930,12 +1050,12 @@ export default function() {
                 )}
               </alertTemplate>
             </document>
-          )
+          ))
           .sink();
       },
 
       onMarkTVShowAsWatched() {
-        const {sid} = this.props;
+        const { sid } = this.props;
 
         return markTVShowAsWatched(sid)
           .then(this.loadData.bind(this))
@@ -944,7 +1064,7 @@ export default function() {
       },
 
       onMarkTVShowAsUnwatched() {
-        const {sid} = this.props;
+        const { sid } = this.props;
 
         return markTVShowAsUnwatched(sid)
           .then(this.loadData.bind(this))
@@ -952,17 +1072,4 @@ export default function() {
           .then(TVDML.removeModal);
       },
     })));
-}
-
-function calculateUnwatchedCount(season) {
-  return season.unwatched || 0;
-}
-
-function getTrailerItem(trailer) {
-  let {tid} = getEpisodeMedia(trailer);
-
-  return getTrailerStream(tid).then(({stream}) => ({
-    id: tid,
-    url: stream,
-  }));
 }

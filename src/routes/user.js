@@ -2,11 +2,14 @@ import moment from 'moment';
 import * as TVDML from 'tvdml';
 
 import * as user from '../user';
-import {promisedTimeout} from '../utils';
+
+import { promisedTimeout } from '../utils';
+import { deepEqualShouldUpdate } from '../utils/components';
+
 import authFactory from '../helpers/auth';
-import {get as i18n} from '../localization';
-import {deepEqualShouldUpdate} from '../utils/components';
-import {defaultErrorHandlers} from '../helpers/auth/handlers';
+import { defaultErrorHandlers } from '../helpers/auth/handlers';
+
+import { get as i18n } from '../localization';
 
 import {
   logout,
@@ -31,7 +34,7 @@ const RENDERING_DELAY = 500;
 
 const nameRegex = /^[a-zа-я0-9_ ]{1,50}$/i;
 
-export default function() {
+export default function userRoute() {
   return TVDML
     .createPipeline()
     .pipe(TVDML.render(TVDML.createComponent({
@@ -42,7 +45,7 @@ export default function() {
       getUserState() {
         const extended = user.isExtended();
         const authorized = user.isAuthorized();
-        const {family, selected} = user.get();
+        const { family, selected } = user.get();
         const isFamilyAccount = user.isFamily();
         const mainAccount = user.getMainAccount();
 
@@ -51,7 +54,7 @@ export default function() {
           extended,
           authorized,
           isFamilyAccount,
-          selected : selected || mainAccount,
+          selected: selected || mainAccount,
         };
       },
 
@@ -60,13 +63,15 @@ export default function() {
       componentDidMount() {
         this.authHelper = authFactory({
           onError: defaultErrorHandlers,
-          onSuccess: ({token, till, login}) => {
+
+          // eslint-disable-next-line consistent-return
+          onSuccess: ({ token, till, login }) => {
             const dismiss = this.authHelper.dismiss.bind(this.authHelper);
 
-            user.set({token, till, logged: 1});
+            user.set({ token, till, logged: 1 });
 
             if (!user.isExtended()) {
-              user.set({family: [{name: login, fid: 0}], selected: null});
+              user.set({ family: [{ name: login, fid: 0 }], selected: null });
               this.setState(this.getUserState());
               return promisedTimeout(RENDERING_DELAY).then(dismiss);
             }
@@ -111,17 +116,22 @@ export default function() {
           })
           : [selected];
 
-        // Исправление рендеринга списка аккаунтов.
-        // Если изменять количество элементов в `shelf` и не тригерить пересчет стилей
-        // на самом `shelf`, то будут артефакты позиционирования. Для того чтоб это
-        // исправить изменяем значение боковых отсутпов для того чтоб TVMLKit запустил
-        // пересчет геометрии.
-        const shelfStyles = `tv-interitem-spacing: 100; margin: 247 ${accountsList.length} 0`;
+        /**
+         * Исправление рендеринга списка аккаунтов.
+         * Если изменять количество элементов в `shelf` и не тригерить пересчет
+         * стилей на самом `shelf`, то будут артефакты позиционирования.
+         * Для того чтоб это исправить изменяем значение боковых отсутпов
+         * для того чтоб TVMLKit запустил пересчет геометрии.
+         */
+        const shelfStyles = `
+          tv-interitem-spacing: 100;
+          margin: 247 ${accountsList.length} 0;
+        `;
 
         const timestamp = +user.get().till;
         const date = moment.unix(timestamp);
         const till = date.fromNow();
-        const accountInfo = extended ? i18n('user-description', {till}) : ' ';
+        const accountInfo = extended ? i18n('user-description', { till }) : ' ';
 
         return (
           <document>
@@ -138,13 +148,14 @@ export default function() {
                 <shelf centered="true" style={shelfStyles}>
                   <section>
                     {accountsList.map(account => {
-                      const {fid, name, firstName} = account;
+                      const { fid, name, firstName } = account;
                       const isActive = currentFid === fid;
 
                       return (
                         <monogramLockup
-                          disabled={!extended}
+                          // eslint-disable-next-line react/jsx-no-bind
                           onSelect={this.onActivate.bind(this, account)}
+                          disabled={!extended}
                         >
                           <monogram
                             style="tv-placeholder: monogram"
@@ -213,7 +224,7 @@ export default function() {
 
       onSwitchFamilyAccountStateAttempt(state) {
         TVDML
-          .renderModal(
+          .renderModal((
             <document>
               <alertTemplate>
                 {state === TURN_ON_FAMILY_ACCOUNT && (
@@ -227,24 +238,28 @@ export default function() {
                   </title>
                 )}
                 {state === TURN_ON_FAMILY_ACCOUNT && (
-                  <button onSelect={() => {
-                    this
-                      .onTurnOnFamilyAccount()
-                      .then(promisedTimeout(RENDERING_DELAY))
-                      .then(TVDML.removeModal);
-                  }}>
+                  <button
+                    onSelect={() => {
+                      this
+                        .onTurnOnFamilyAccount()
+                        .then(promisedTimeout(RENDERING_DELAY))
+                        .then(TVDML.removeModal);
+                    }}
+                  >
                     <text>
                       {i18n('user-turn-on-family-account-action_button')}
                     </text>
                   </button>
                 )}
                 {state === TURN_OFF_FAMILY_ACCOUNT && (
-                  <button onSelect={() => {
-                    this
-                      .onTurnOffFamilyAccount()
-                      .then(promisedTimeout(RENDERING_DELAY))
-                      .then(TVDML.removeModal);
-                  }}>
+                  <button
+                    onSelect={() => {
+                      this
+                        .onTurnOffFamilyAccount()
+                        .then(promisedTimeout(RENDERING_DELAY))
+                        .then(TVDML.removeModal);
+                    }}
+                  >
                     <text>
                       {i18n('user-turn-off-family-account-action_button')}
                     </text>
@@ -257,7 +272,7 @@ export default function() {
                 </button>
               </alertTemplate>
             </document>
-          )
+          ))
           .sink();
       },
 
@@ -269,10 +284,10 @@ export default function() {
         logout()
           .then(user.clear)
           .then(checkSession)
-          .then(({logged, token, till}) => {
+          .then(({ logged, token, till }) => {
             const family = null;
             const selected = null;
-            user.set({logged, token, till, family, selected});
+            user.set({ logged, token, till, family, selected });
             this.setState(this.getUserState());
           })
           .then(promisedTimeout(RENDERING_DELAY))
@@ -281,7 +296,7 @@ export default function() {
 
       onLogoutAttempt() {
         TVDML
-          .renderModal(
+          .renderModal((
             <document>
               <alertTemplate>
                 <title>
@@ -299,13 +314,13 @@ export default function() {
                 </button>
               </alertTemplate>
             </document>
-          )
+          ))
           .sink();
       },
 
       onActivate(account) {
         if (account.action === ADD_ACCOUNT) {
-          return this.showUserRenamePopover({
+          this.showUserRenamePopover({
             title: i18n('user-add-account-form-title'),
             description: i18n('user-add-account-form-description'),
             button: i18n('user-add-account-form-button'),
@@ -316,58 +331,64 @@ export default function() {
                 .then(TVDML.removeModal);
             },
           });
+        } else {
+          this.onAction(account);
         }
-
-        this.onAction(account);
       },
 
       onAction(account) {
-        const {fid, name} = account;
+        const { fid, name } = account;
         const isActive = this.isActiveAccount(account);
 
         TVDML
-          .renderModal(
+          .renderModal((
             <document>
               <alertTemplate>
                 <title>
-                  {i18n('user-action-menu-title', {name})}
+                  {i18n('user-action-menu-title', { name })}
                 </title>
                 {!isActive && (
-                  <button onSelect={() => {
-                    this
-                      .selectAccount(fid)
-                      .then(promisedTimeout(RENDERING_DELAY))
-                      .then(TVDML.removeModal);
-                  }}>
+                  <button
+                    onSelect={() => {
+                      this
+                        .selectAccount(fid)
+                        .then(promisedTimeout(RENDERING_DELAY))
+                        .then(TVDML.removeModal);
+                    }}
+                  >
                     <text>
                       {i18n('user-action-set-as-active-button')}
                     </text>
                   </button>
                 )}
-                <button onSelect={() => {
-                  this.showUserRenamePopover({
-                    title: i18n('user-rename-account-form-title', {name}),
-                    description: i18n('user-rename-account-form-description'),
-                    button: i18n('user-rename-account-form-button'),
-                    submit: value => {
-                      this
-                        .renameAccount(fid, value)
-                        .then(promisedTimeout(RENDERING_DELAY))
-                        .then(TVDML.removeModal);
-                    },
-                  });
-                }}>
+                <button
+                  onSelect={() => {
+                    this.showUserRenamePopover({
+                      title: i18n('user-rename-account-form-title', { name }),
+                      description: i18n('user-rename-account-form-description'),
+                      button: i18n('user-rename-account-form-button'),
+                      submit: value => {
+                        this
+                          .renameAccount(fid, value)
+                          .then(promisedTimeout(RENDERING_DELAY))
+                          .then(TVDML.removeModal);
+                      },
+                    });
+                  }}
+                >
                   <text>
                     {i18n('user-action-rename-button')}
                   </text>
                 </button>
                 {!isActive && (
-                  <button onSelect={() => {
-                    this
-                      .deleteAccount(fid)
-                      .then(promisedTimeout(RENDERING_DELAY))
-                      .then(TVDML.removeModal);
-                  }}>
+                  <button
+                    onSelect={() => {
+                      this
+                        .deleteAccount(fid)
+                        .then(promisedTimeout(RENDERING_DELAY))
+                        .then(TVDML.removeModal);
+                    }}
+                  >
                     <text>
                       {i18n('user-action-delete-button')}
                     </text>
@@ -375,7 +396,7 @@ export default function() {
                 )}
               </alertTemplate>
             </document>
-          )
+          ))
           .sink();
       },
 
@@ -396,7 +417,7 @@ export default function() {
             },
 
             validate(value) {
-              this.setState({value, valid: nameRegex.test(value)});
+              this.setState({ value, valid: nameRegex.test(value) });
             },
 
             render() {
@@ -415,7 +436,7 @@ export default function() {
                         {params.description}
                       </description>
                     </banner>
-                    <textField ref={node => this.textField = node} />
+                    <textField ref={node => (this.textField = node)} />
                     <footer>
                       <button
                         onSelect={this.onSubmit}
@@ -432,9 +453,9 @@ export default function() {
             },
 
             onSubmit() {
-              this.setState({loading: true});
+              this.setState({ loading: true });
 
-              if (typeof(params.submit) === 'function') {
+              if (typeof params.submit === 'function') {
                 params.submit(this.state.value);
               }
             },
@@ -451,7 +472,8 @@ export default function() {
       },
 
       renameAccount(fid, name) {
-        return renameAccount(fid, name).then(this.fetchAccountUpdate.bind(this));
+        const boundFetchAccountUpdate = this.fetchAccountUpdate.bind(this);
+        return renameAccount(fid, name).then(boundFetchAccountUpdate);
       },
 
       deleteAccount(fid) {
@@ -459,13 +481,18 @@ export default function() {
       },
 
       fetchAccountUpdate() {
-        return getFamilyAccounts().then(({family, selected}) => {
-          user.set({family, selected});
+        return getFamilyAccounts().then(({ family, selected }) => {
+          user.set({ family, selected });
           this.setState(this.getUserState());
         });
       },
 
       isActiveAccount(account) {
+        /**
+         * Из-за того что апи в некоторых случаях может выдавать разный тип
+         * у `fid` приходится сравнивать значения с приведением типов.
+         */
+        // eslint-disable-next-line eqeqeq
         return this.state.selected.fid == account.fid;
       },
     })));

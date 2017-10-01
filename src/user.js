@@ -1,3 +1,5 @@
+/* global localStorage */
+
 import EventBus from './event-bus';
 
 const bus = new EventBus();
@@ -23,7 +25,8 @@ export function set(payload) {
     .keys(payload)
     .reduce((result, key) => {
       if (~contract.indexOf(key)) {
-        if (typeof(payload[key]) !== 'undefined') {
+        if (typeof payload[key] !== 'undefined') {
+          // eslint-disable-next-line no-param-reassign
           result[key] = payload[key];
         }
       } else {
@@ -51,13 +54,17 @@ export function getToken() {
   return get().token;
 }
 
-export function getLogin() {
-  return (get().selected || getMainAccount() || {}).name;
+export function getMainAccount() {
+  const [mainAccount] = (get().family || []).slice(0).sort(({
+    main: a,
+  }, {
+    main: b,
+  }) => b - a);
+  return mainAccount;
 }
 
-export function getMainAccount() {
-  const [mainAccount] = (get().family || []).slice(0).sort(({main: a}, {main: b}) => b - a);
-  return mainAccount;
+export function getLogin() {
+  return (get().selected || getMainAccount() || {}).name;
 }
 
 export function isExtended() {

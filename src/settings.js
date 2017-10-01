@@ -1,3 +1,5 @@
+/* global localStorage */
+
 import EventBus from './event-bus';
 
 const bus = new EventBus();
@@ -49,48 +51,6 @@ const defaults = {
   [params.LANGUAGE]: language.AUTO,
 };
 
-const settings = getSettingsFromStorage(defaults);
-
-export function set(key, value) {
-  let hasParam = checkKeyValidity(key);
-  let hasValue = checkKeyValueValidity(key, value);
-
-  if (!hasParam) throw new Error(`Unsupported settings param "${key}"`);
-  if (!hasValue) throw new Error(`Unsupported value "${value}" for settings param "${key}"`);
-
-  let prevValue = settings[key];
-
-  settings[key] = value;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-  bus.broadcast({key, value, prevValue});
-}
-
-export function get(key) {
-  return settings[key];
-}
-
-export function getAll() {
-  return {...settings};
-}
-
-function getSettingsFromStorage(defaults = {}) {
-  let settings = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-  let validatedSettings = Object
-    .keys(settings)
-    .filter(checkKeyValidity)
-    .map(key => ({key, value: settings[key]}))
-    .filter(({key, value}) => checkKeyValueValidity(key, value))
-    .reduce((result, {key, value}) => {
-      result[key] = value;
-      return result;
-    }, {});
-
-  return {
-    ...defaults,
-    ...validatedSettings,
-  };
-}
-
 function checkKeyValidity(key) {
   return Object
     .keys(params)
@@ -103,4 +63,49 @@ function checkKeyValueValidity(key, value) {
   return Object
     .keys(values[key])
     .some(param => values[key][param] === value);
+}
+
+function getSettingsFromStorage(defaultSettings = {}) {
+  const settings = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+  const validatedSettings = Object
+    .keys(settings)
+    .filter(checkKeyValidity)
+    .map(key => ({ key, value: settings[key] }))
+    .filter(({ key, value }) => checkKeyValueValidity(key, value))
+    .reduce((result, { key, value }) => {
+      // eslint-disable-next-line no-param-reassign
+      result[key] = value;
+      return result;
+    }, {});
+
+  return {
+    ...defaultSettings,
+    ...validatedSettings,
+  };
+}
+
+const settings = getSettingsFromStorage(defaults);
+
+export function set(key, value) {
+  const hasParam = checkKeyValidity(key);
+  const hasValue = checkKeyValueValidity(key, value);
+
+  if (!hasParam) throw new Error(`Unsupported settings param "${key}"`);
+  if (!hasValue) {
+    throw new Error(`Unsupported value "${value}" for settings param "${key}"`);
+  }
+
+  const prevValue = settings[key];
+
+  settings[key] = value;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+  bus.broadcast({ key, value, prevValue });
+}
+
+export function get(key) {
+  return settings[key];
+}
+
+export function getAll() {
+  return { ...settings };
 }

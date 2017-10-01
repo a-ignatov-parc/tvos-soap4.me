@@ -6,17 +6,17 @@ import { processFamilyAccount } from './user/utils';
 import { get as i18n } from './localization';
 import { checkSession } from './request/soap';
 
-import MyRoute from './routes/my';
-import AllRoute from './routes/all';
-import MenuRoute from './routes/menu';
-import UserRoute from './routes/user';
-import ActorRoute from './routes/actor';
-import SeasonRoute from './routes/season';
-import TVShowRoute from './routes/tvshow';
-import SearchRoute from './routes/search';
-import GenresRoute from './routes/genres';
-import SettingsRoute from './routes/settings';
-import SpeedTestRoute from './routes/speedtest';
+import myRoute from './routes/my';
+import allRoute from './routes/all';
+import menuRoute from './routes/menu';
+import userRoute from './routes/user';
+import actorRoute from './routes/actor';
+import seasonRoute from './routes/season';
+import tvShowRoute from './routes/tvshow';
+import searchRoute from './routes/search';
+import genresRoute from './routes/genres';
+import settingsRoute from './routes/settings';
+import speedTestRoute from './routes/speedtest';
 
 import { AUTH, GUEST } from './routes/menu/constants';
 
@@ -40,7 +40,7 @@ TVDML
 
 TVDML
   .handleRoute('main')
-  .pipe(MenuRoute([
+  .pipe(menuRoute([
     {
       route: 'search',
     }, {
@@ -59,40 +59,40 @@ TVDML
 
 TVDML
   .handleRoute('my')
-  .pipe(MyRoute());
+  .pipe(myRoute());
 
 TVDML
   .handleRoute('all')
-  .pipe(AllRoute());
+  .pipe(allRoute());
 
 TVDML
   .handleRoute('search')
-  .pipe(SearchRoute());
+  .pipe(searchRoute());
 
 TVDML
   .handleRoute('settings')
-  .pipe(SettingsRoute());
+  .pipe(settingsRoute());
 
 TVDML
   .handleRoute('tvshow')
-  .pipe(TVShowRoute());
+  .pipe(tvShowRoute());
 
 TVDML
   .handleRoute('season')
-  .pipe(SeasonRoute());
+  .pipe(seasonRoute());
 
 TVDML
   .handleRoute('actor')
-  .pipe(ActorRoute());
+  .pipe(actorRoute());
 
 TVDML
   .handleRoute('speedtest')
-  .pipe(SpeedTestRoute());
+  .pipe(speedTestRoute());
 
 TVDML
   .handleRoute('user')
-  .pipe(UserRoute());
+  .pipe(userRoute());
 
 TVDML
   .handleRoute('genres')
-  .pipe(GenresRoute());
+  .pipe(genresRoute());
