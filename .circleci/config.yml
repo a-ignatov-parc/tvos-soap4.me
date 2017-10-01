@@ -3,6 +3,20 @@ jobs:
   build:
     docker:
       - image: circleci/node:6
+
     steps:
       - checkout
-      - run: echo "hello world"
+
+      - restore_cache:
+        keys:
+          - v1-dependencies-{{ checksum "package.json" }}
+          - v1-dependencies-
+
+      - run: npm run install-deps
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+
+      - run: npm run lint
