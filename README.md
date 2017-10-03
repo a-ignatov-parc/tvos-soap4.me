@@ -10,17 +10,15 @@ This is proof of concept application written with help of [TVDML](https://github
 
 In order to run TVML application localy you will have to build source code and serve result with web-server. Luckily this repo already includes all necessary tools.
 
-The only requirement is installed lts version of node.js and npm.
+The only requirement is installed LTS version of node.js and npm.
 
-> You can install proper version of node.js using [nvm](https://github.com/creationix/nvm) with `nvm use`.
+> You can install proper version of node.js using [nvm](https://github.com/creationix/nvm) with `nvm use` command.
 
-To install everything you need to start and running this application type following command in terminal
+To install everything you need to start and running this application use following command in terminal and wait until it's done.
 
 ```
 npm run install-deps
 ```
-
-And wait until it's done.
 
 Next step is to build and serve TVML application. You can do this with following command:
 
@@ -28,7 +26,7 @@ Next step is to build and serve TVML application. You can do this with following
 npm run serve
 ```
 
-Now you can build Xcode project and run it in simulator or on Apple TV.
+Now you can build Xcode project and run it in tvOS simulator or on Apple TV.
 
 ## Application
 
