@@ -1,6 +1,9 @@
-export function deepEqualShouldUpdate(nextProps, nextState) {
-	let propsAreEqual = JSON.stringify(this.props) === JSON.stringify(nextProps);
-	let stateAreEqual = JSON.stringify(this.state) === JSON.stringify(nextState);
+const { stringify } = JSON;
 
-	return !propsAreEqual || !stateAreEqual;
+// eslint-disable-next-line import/prefer-default-export
+export function deepEqualShouldUpdate(nextProps, nextState) {
+  const propsAreEqual = stringify(this.props) === stringify(nextProps);
+  const stateAreEqual = stringify(this.state) === stringify(nextState);
+
+  return !propsAreEqual || !stateAreEqual;
 }

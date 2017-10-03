@@ -1,105 +1,98 @@
-/** @jsx TVDML.jsx */
-
 import * as TVDML from 'tvdml';
+
 import * as user from './user';
-import {processFamilyAccount} from './user/utils';
+import { processFamilyAccount } from './user/utils';
 
-import {get as i18n} from './localization';
-import {checkSession, getFamilyAccounts} from './request/soap';
+import { get as i18n } from './localization';
+import { checkSession } from './request/soap';
 
-import MyRoute from './routes/my';
-import AllRoute from './routes/all';
-import MenuRoute from './routes/menu';
-import UserRoute from './routes/user';
-import ActorRoute from './routes/actor';
-import SeasonRoute from './routes/season';
-import TVShowRoute from './routes/tvshow';
-import SearchRoute from './routes/search';
-import GenresRoute from './routes/genres';
-import SettingsRoute from './routes/settings';
-import SpeedTestRoute from './routes/speedtest';
+import myRoute from './routes/my';
+import allRoute from './routes/all';
+import menuRoute from './routes/menu';
+import userRoute from './routes/user';
+import actorRoute from './routes/actor';
+import seasonRoute from './routes/season';
+import tvShowRoute from './routes/tvshow';
+import searchRoute from './routes/search';
+import genresRoute from './routes/genres';
+import settingsRoute from './routes/settings';
+import speedTestRoute from './routes/speedtest';
 
-import {AUTH, GUEST} from './routes/menu/constants';
+import { AUTH, GUEST } from './routes/menu/constants';
 
 import Loader from './components/loader';
 
 TVDML
-	.subscribe(TVDML.event.LAUNCH)
-	.pipe(() => TVDML.navigate('get-token'));
+  .subscribe(TVDML.event.LAUNCH)
+  .pipe(() => TVDML.navigate('get-token'));
 
 TVDML
-	.handleRoute('get-token')
-	.pipe(TVDML.render(<Loader title={i18n('auth-checking')} />))
-	.pipe(checkSession)
-	.pipe(payload => {
-		const {logged, token, till} = payload;
-		user.set({logged, token, till});
-		return payload;
-	})
-	.pipe(({login}) => processFamilyAccount(login))
-	.pipe(() => TVDML.redirect('main'));
-	// 
-	// Testing routes
-	// .pipe(() => TVDML.redirect('tvshow', {sid: '296', title: 'Arrow'}));
-	// .pipe(() => TVDML.redirect('season', {sid: '296', id: '4', title: 'Arrow — Season 4'}));
-	// .pipe(() => TVDML.redirect('tvshow', {sid: '692', title: 'Bref'}));
-	// .pipe(() => TVDML.redirect('season', {sid: '692', id: '1', title: 'Bref — Season 1'}));
+  .handleRoute('get-token')
+  .pipe(TVDML.render(<Loader title={i18n('auth-checking')} />))
+  .pipe(checkSession)
+  .pipe(payload => {
+    const { logged, token, till } = payload;
+    user.set({ logged, token, till });
+    return payload;
+  })
+  .pipe(({ login }) => processFamilyAccount(login))
+  .pipe(() => TVDML.redirect('main'));
 
 TVDML
-	.handleRoute('main')
-	.pipe(MenuRoute([
-		{
-			route: 'search',
-		}, {
-			route: 'my',
-			active: AUTH,
-			hidden: GUEST,
-		}, {
-			route: 'all',
-			active: GUEST,
-		}, {
-			route: 'genres',
-		}, {
-			route: 'settings',
-		},
-	]));
+  .handleRoute('main')
+  .pipe(menuRoute([
+    {
+      route: 'search',
+    }, {
+      route: 'my',
+      active: AUTH,
+      hidden: GUEST,
+    }, {
+      route: 'all',
+      active: GUEST,
+    }, {
+      route: 'genres',
+    }, {
+      route: 'settings',
+    },
+  ]));
 
 TVDML
-	.handleRoute('my')
-	.pipe(MyRoute());
+  .handleRoute('my')
+  .pipe(myRoute());
 
 TVDML
-	.handleRoute('all')
-	.pipe(AllRoute());
+  .handleRoute('all')
+  .pipe(allRoute());
 
 TVDML
-	.handleRoute('search')
-	.pipe(SearchRoute());
+  .handleRoute('search')
+  .pipe(searchRoute());
 
 TVDML
-	.handleRoute('settings')
-	.pipe(SettingsRoute());
+  .handleRoute('settings')
+  .pipe(settingsRoute());
 
 TVDML
-	.handleRoute('tvshow')
-	.pipe(TVShowRoute());
+  .handleRoute('tvshow')
+  .pipe(tvShowRoute());
 
 TVDML
-	.handleRoute('season')
-	.pipe(SeasonRoute());
+  .handleRoute('season')
+  .pipe(seasonRoute());
 
 TVDML
-	.handleRoute('actor')
-	.pipe(ActorRoute());
+  .handleRoute('actor')
+  .pipe(actorRoute());
 
 TVDML
-	.handleRoute('speedtest')
-	.pipe(SpeedTestRoute());
+  .handleRoute('speedtest')
+  .pipe(speedTestRoute());
 
 TVDML
-	.handleRoute('user')
-	.pipe(UserRoute());
+  .handleRoute('user')
+  .pipe(userRoute());
 
 TVDML
-	.handleRoute('genres')
-	.pipe(GenresRoute());
+  .handleRoute('genres')
+  .pipe(genresRoute());

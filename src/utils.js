@@ -1,88 +1,110 @@
-import {Promise, navigate} from 'tvdml';
+/* global sessionStorage navigationDocument Device */
+
+import url from 'url';
+
+import { Promise, navigate } from 'tvdml';
 
 export function promisedTimeout(timeout) {
-	return () => new Promise(resolve => setTimeout(resolve, timeout));
+  return () => new Promise(resolve => setTimeout(resolve, timeout));
 }
 
 export function isMenuButtonPressNavigatedTo(targetDocument) {
-	return ({to: {document}}) => {
-		let {menuBarDocument} = document;
+  return ({ to: { document } }) => {
+    const { menuBarDocument } = document;
 
-		if (menuBarDocument) {
-			document = menuBarDocument.getDocument(menuBarDocument.getSelectedItem());
-		}
+    if (menuBarDocument) {
+      // eslint-disable-next-line no-param-reassign
+      document = menuBarDocument.getDocument(menuBarDocument.getSelectedItem());
+    }
 
-		return targetDocument === document;
-	}
+    return targetDocument === document;
+  };
 }
 
 export function log(message = '') {
-	return (payload) => {
-		console.log(message, payload);
-		return payload;
-	}
+  return function logger(payload) {
+    console.info(message, payload);
+    return payload;
+  };
 }
 
 export function link(route, params) {
-	return event => navigate(route, params);
-}
-
-export function getStartParams() {
-	let params = JSON.parse(sessionStorage.getItem('startParams') || '{}');
-
-	// Ad-hoc fix for assets urls
-	if (isQello()) {
-		params.BASEURL = 'https://a-ignatov-parc.github.io/tvos-soap4.me-releases/qello/tvml/';
-	}
-
-	return params;
+  return () => navigate(route, params);
 }
 
 export function isQello() {
-	return !!~Device.appIdentifier.toLowerCase().indexOf('qello');
+  return !!~Device.appIdentifier.toLowerCase().indexOf('qello');
+}
+
+export function getStartParams() {
+  const params = JSON.parse(sessionStorage.getItem('startParams') || '{}');
+
+  // Ad-hoc fix for assets urls
+  if (isQello()) {
+    const host = 'https://a-ignatov-parc.github.io';
+    const path = '/tvos-soap4.me-releases/qello/tvml/';
+
+    params.BASEURL = host + path;
+  }
+
+  return params;
 }
 
 export function noop() {
-	return () => {};
+  return () => {};
 }
 
 export function capitalize(word) {
-	word = `${word}`;
-	return word.charAt(0).toUpperCase() + word.slice(1);
+  const str = `${word}`;
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 export function capitalizeText(text) {
-	return `${text}`.split(' ').map(capitalize).join(' ');
+  return `${text}`.split(' ').map(capitalize).join(' ');
 }
 
 export function seconds(amount) {
-	return amount * 1000;
+  return amount * 1000;
 }
 
 export function minutes(amount) {
-	return seconds(amount) * 60;
+  return seconds(amount) * 60;
 }
 
 export function hours(amount) {
-	return minutes(amount) * 60;
-}
-
-export function prettifyEpisodeNum(season = 0, episode = 0) {
-	return `s${prettifyNum(season)}e${prettifyNum(episode)}`;
+  return minutes(amount) * 60;
 }
 
 export function prettifyNum(num, ordinal = 2) {
-	return `${Math.pow(10, ordinal)}${num}`.slice(-ordinal);
+  return `${10 ** ordinal}${num}`.slice(-ordinal);
+}
+
+export function prettifyEpisodeNum(season = 0, episode = 0) {
+  return `s${prettifyNum(season)}e${prettifyNum(episode)}`;
 }
 
 export function removeDocumentFromNavigation(document) {
-	// Workaround for strange tvOS issue when after deleting document 
-	// from `navigationDocument.documents` it still remains there.
-	while(~navigationDocument.documents.indexOf(document)) {
-		try {navigationDocument.removeDocument(document)} catch(e) {}
-	}
+  // Workaround for strange tvOS issue when after deleting document
+  // from `navigationDocument.documents` it still remains there.
+  while (~navigationDocument.documents.indexOf(document)) {
+    // eslint-disable-next-line no-empty
+    try { navigationDocument.removeDocument(document); } catch (e) {}
+  }
 }
 
 export function genreToId(genre) {
-	return genre.replace(/\s/g, '_');
+  return genre.replace(/\s/g, '_');
+}
+
+export function getCroppedImageUrl(targetUrl, size) {
+  const params = `w=${size}&h=${size}&mode=crop`;
+  const descriptor = url.parse(targetUrl);
+  const croppedUrl = url.format({
+    hostname: 'rsz.io',
+    protocol: 'http:',
+    pathname: descriptor.hostname + descriptor.pathname,
+    search: descriptor.search ? `${descriptor.search}&${params}` : `?${params}`,
+  });
+
+  return croppedUrl;
 }

@@ -1,27 +1,18 @@
-/** @jsx jsx */
+export default function Loader({ attrs = {} }) {
+  const { title, heroImg } = attrs;
 
-import {jsx} from 'tvdml';
-
-export default function Loader({attrs = {}}) {
-	let {title, heroImg} = attrs;
-	let banner;
-
-	if (heroImg) {
-		banner = (
-			<banner>
-				<heroImg src={heroImg} />
-			</banner>
-		);
-	}
-
-	return (
-		<document>
-			<loadingTemplate>
-				{banner}
-				<activityIndicator>
-					<title>{title}</title>
-				</activityIndicator>
-			</loadingTemplate>
-		</document>
-	);
+  return (
+    <document>
+      <loadingTemplate>
+        {heroImg && (
+          <banner>
+            <heroImg src={heroImg} />
+          </banner>
+        )}
+        <activityIndicator>
+          <title>{title}</title>
+        </activityIndicator>
+      </loadingTemplate>
+    </document>
+  );
 }
