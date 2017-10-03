@@ -87,15 +87,15 @@ workflows:
       - approve-major:
          type: approval
          requires:
-           - install-deps
+           - test
       - approve-minor:
          type: approval
          requires:
-           - install-deps
+           - test
       - approve-patch:
          type: approval
          requires:
-           - install-deps
+           - test
       - release-major:
           requires:
             - approve-major
