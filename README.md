@@ -1,27 +1,32 @@
 # TVML app for soap4.me
 
+[![CircleCI](https://circleci.com/gh/a-ignatov-parc/tvos-soap4.me.svg?style=svg)](https://circleci.com/gh/a-ignatov-parc/tvos-soap4.me)
+
 This is proof of concept application written with help of [TVDML](https://github.com/a-ignatov-parc/tvdml) library using javascript and TVML support provided by [TVMLKit](https://developer.apple.com/reference/tvmlkit) in tvOS starting from tvOS 9.0. It uses [soap4.me](https://soap4.me/) api to show information about tv shows.
 
-> Application was written for tvOS 10 and may have some UI issues in previous tvOS releases.
+> Application is written for tvOS 11 and may have some UI issues in previous tvOS releases.
 
 ## Building project
 
-In order to run TVML application localy you will have to build and serve result from web-server. You can do this using prepared [gulp.js](http://gulpjs.com/) tasks. But first you'll need to have installed node.js with npm.
+In order to run TVML application localy you will have to build source code and serve result with web-server. Luckily this repo already includes all necessary tools.
 
-To install dependencies execute the folowing commands in terminal
+The only requirement is installed LTS version of node.js and npm.
 
-```
-npm install -g gulp
-npm install
-```
+> You can install proper version of node.js using [nvm](https://github.com/creationix/nvm) with `nvm use` command.
 
-To build and serve TVML application using run web-server run
+To install everything you need to start and running this application use following command in terminal and wait until it's done.
 
 ```
-gulp serve
+npm run install-deps
 ```
 
-Now you can build Xcode project and run it in simulator or on Apple TV.
+Next step is to build and serve TVML application. You can do this with following command:
+
+```
+npm run serve
+```
+
+Now you can build Xcode project and run it in tvOS simulator or on Apple TV.
 
 ## Application
 
