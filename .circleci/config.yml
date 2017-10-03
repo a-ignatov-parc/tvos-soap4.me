@@ -25,6 +25,7 @@ jobs:
       - persist_to_workspace:
           root: ./
           paths:
+            - .git
             - .eslintrc
             - node_modules
             - src
