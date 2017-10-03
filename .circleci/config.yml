@@ -134,13 +134,22 @@ workflows:
       - build:
           requires:
             - install-deps
+          filters:
+            tags:
+              only: /.*/
       - approve-deploy:
           type: approval
           requires:
             - build
+          filters:
+            tags:
+              only: /.*/
       - deploy:
           requires:
             - approve-deploy
+          filters:
+            tags:
+              only: /.*/
 
   test-and-release:
     jobs:
