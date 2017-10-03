@@ -16,7 +16,7 @@ prepare-git: &prepare-git
     git checkout -- .
     git config user.name "ci-bot"
     git config user.email "ci-bot@circleci.com"
-    mkdir ~/.ssh/ && echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
+    echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
 
 publish-to-git: &publish-to-git
   name: Publish created version
