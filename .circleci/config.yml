@@ -6,19 +6,23 @@ job-configuration: &job-configuration
     - image: circleci/node:6.10
 
 prepare-git: &prepare-git
-  name: Preparing git working directory
-  command: |
-    git clean -d -f
-    git checkout -- .
-    git config user.name "ci-bot"
-    git config user.email "ci-bot@circleci.com"
-    mkdir ~/.ssh/ && echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
+  - add-ssh-keys:
+      fingerprints:
+        - "b9:59:21:b0:6b:81:87:c0:e5:ac:80:90:2f:7d:fc:09"
+  - run:
+      name: Preparing git working directory
+      command: |
+        git clean -d -f
+        git checkout -- .
+        git config user.name "ci-bot"
+        git config user.email "ci-bot@circleci.com"
 
 publish-to-git: &publish-to-git
-  name: Publish created version
-  command: |
-    git push origin $CIRCLE_BRANCH
-    git push --tags
+  - run:
+      name: Publish created version
+      command: |
+        git push origin $CIRCLE_BRANCH
+        git push --tags
 
 jobs:
   install-deps:
@@ -70,39 +74,33 @@ jobs:
     steps:
       - attach_workspace:
           at: ./
-      - run:
-          <<: *prepare-git
+      <<: *prepare-git
       - run:
           name: Bump major version
           command: npm version major
-      - run:
-          <<: *publish-to-git
+      <<: *publish-to-git
 
   release-minor:
     <<: *job-configuration
     steps:
       - attach_workspace:
           at: ./
-      - run:
-          <<: *prepare-git
+      <<: *prepare-git
       - run:
           name: Bump minor version
           command: npm version minor
-      - run:
-          <<: *publish-to-git
+      <<: *publish-to-git
 
   release-patch:
     <<: *job-configuration
     steps:
       - attach_workspace:
           at: ./
-      - run:
-          <<: *prepare-git
+      <<: *prepare-git
       - run:
           name: Bump patch version
           command: npm version patch
-      - run:
-          <<: *publish-to-git
+      <<: *publish-to-git
 
 workflows:
   version: 2
