@@ -67,11 +67,14 @@ jobs:
       - attach_workspace:
           at: ./
       - run:
-          name: Create and publish minor release
-          command:
-            - npm version minor
-            - git push origin $CIRCLE_BRANCH
-            - git push --tags
+          name: Bump minor version
+          command: npm version minor
+      - run:
+          name: Push created version
+          command: git push origin $CIRCLE_BRANCH
+      - run:
+          name: Publish created version tag
+          command: git push --tags
 
   release-patch:
     <<: *defaults
