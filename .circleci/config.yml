@@ -65,6 +65,21 @@ jobs:
       - run:
           name: Build application
           command: npm run dist
+      - store_artifacts:
+          path: ./dist
+      - persist_to_workspace:
+          root: ./
+          paths:
+            - dist
+
+  deploy:
+    <<: *job-configuration
+    steps:
+      - attach_workspace:
+          at: ./
+      - run:
+          name: Deploy artifacts
+          command: npm run dist
 
   release-major:
     <<: *job-configuration
@@ -107,23 +122,32 @@ jobs:
 
 workflows:
   version: 2
-  build-test-and-deploy:
+
+  build-and-deploy:
     jobs:
       - install-deps:
           filters:
             tags:
               only: /.*/
-      - test:
-          requires:
-            - install-deps
+            branches:
+              ignore: /.*/
       - build:
           requires:
             - install-deps
-          filters:
-            tags:
-              only: /.*/
-            branches:
-              ignore: /.*/
+      - approve-deploy:
+          type: approval
+          requires:
+            - build
+      - deploy:
+          requires:
+            - approve-deploy
+
+  test-and-release:
+    jobs:
+      - install-deps
+      - test:
+          requires:
+            - install-deps
       - approve-major:
           type: approval
           requires:
