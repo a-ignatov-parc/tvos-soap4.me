@@ -1,5 +1,7 @@
 # TVML app for soap4.me
 
+[![CircleCI](https://circleci.com/gh/a-ignatov-parc/tvos-soap4.me.svg?style=svg)](https://circleci.com/gh/a-ignatov-parc/tvos-soap4.me)
+
 This is proof of concept application written with help of [TVDML](https://github.com/a-ignatov-parc/tvdml) library using javascript and TVML support provided by [TVMLKit](https://developer.apple.com/reference/tvmlkit) in tvOS starting from tvOS 9.0. It uses [soap4.me](https://soap4.me/) api to show information about tv shows.
 
 > Application was written for tvOS 10 and may have some UI issues in previous tvOS releases.
