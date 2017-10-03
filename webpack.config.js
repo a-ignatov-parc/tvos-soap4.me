@@ -10,6 +10,8 @@ const DEVELOPMENT = 'development';
 const PRODUCTION = 'production';
 
 const env = process.env.NODE_ENV || DEVELOPMENT;
+const name = process.env.APP_NAME || 'application';
+
 const isProd = env === PRODUCTION;
 
 const rules = [
@@ -86,7 +88,7 @@ if (isProd) {
 
 module.exports = {
   entry: {
-    application: resolveFromRoot('./src'),
+    [name]: resolveFromRoot('./src'),
   },
   output: {
     filename: '[name].js',
