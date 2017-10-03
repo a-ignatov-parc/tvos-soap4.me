@@ -27,7 +27,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: dependency-cache-{{ checksum "package.json" }}
+          key: dependency-cache-{{ checksum "yarn.lock" }}
       - run:
           name: Install local yarn
           command: npm run yarn:install
@@ -35,7 +35,7 @@ jobs:
           name: Install dependencies using local yarn
           command: npm run yarn:install-deps
       - save_cache:
-          key: dependency-cache-{{ checksum "package.json" }}
+          key: dependency-cache-{{ checksum "yarn.lock" }}
           paths:
             - ./node_modules
       - persist_to_workspace:
@@ -64,7 +64,9 @@ jobs:
           at: ./
       - run:
           name: Build application
-          command: npm run dist
+          command: |
+            NODE_ENV=production $(npm bin)/webpack --output-path ./dist/soap4atv
+            NODE_ENV=production $(npm bin)/webpack --output-path ./dist/qello app=./src
       - store_artifacts:
           path: ./dist
       - persist_to_workspace:
@@ -82,7 +84,7 @@ jobs:
           command: |
             ls -la ~/app
             mkdir -p ~/tmp
-            cp -r ~/app/dist ~/tmp/app
+            cp -r ~/app/dist ~/tmp/apps
       - run:
           <<: *prepare-git
       - run:
@@ -93,10 +95,12 @@ jobs:
             git checkout gh-pages
             git clean -d -f
             git merge origin/gh-pages
-            mkdir -p $CIRCLE_TAG
-            cp -r ~/tmp/app $CIRCLE_TAG
-            git add $CIRCLE_TAG
-            git commit -m "v$CIRCLE_TAG release for soap4.me"
+            mkdir -p $SOAP4ATV_TARGET_DIR
+            cp -r ~/tmp/apps/soap4atv/* $SOAP4ATV_TARGET_DIR
+            mkdir -p $QELLO_TARGET_DIR
+            cp -r ~/tmp/apps/qello/* $QELLO_TARGET_DIR
+            git add $SOAP4ATV_TARGET_DIR $QELLO_TARGET_DIR
+            git commit -m "$CIRCLE_TAG release for soap4atv and qello"
             git push origin gh-pages
 
   release-major:
