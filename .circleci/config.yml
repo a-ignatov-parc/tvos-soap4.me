@@ -68,10 +68,12 @@ jobs:
       - attach_workspace:
           at: ./
       - run:
-          name: Cleaning git working directory
+          name: Preparing git working directory
           command: |
             git clean -d -f
             git checkout -- .
+            git config user.name "ci-bot"
+            git config user.email "ci-bot@circleci.com"
       - run:
           name: Bump minor version
           command: npm version minor
