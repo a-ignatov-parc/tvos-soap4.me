@@ -78,20 +78,23 @@ jobs:
       - attach_workspace:
           at: ./
       - run:
+          name: Preserve artifacts
+          command: |
+            ls -la ~/app
+            mkdir -p ~/tmp
+            cp -r ~/app/dist ~/tmp/app
+      - run:
           <<: *prepare-git
       - run:
           name: Deploy artifacts
           command: |
-            git remote -v
             git remote set-url origin $GITHUB_UPSTREAM
-            git remote -v
             git fetch -p
             git checkout gh-pages
             git clean -d -f
             git merge origin/gh-pages
             mkdir -p $CIRCLE_TAG
-            ls -la ~/app
-            cp -r ~/app/dist $CIRCLE_TAG
+            cp -r ~/tmp/app $CIRCLE_TAG
             git add $CIRCLE_TAG
             git commit -m "v$CIRCLE_TAG release for soap4.me"
             git push origin gh-pages
