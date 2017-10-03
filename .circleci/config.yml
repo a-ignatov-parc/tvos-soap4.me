@@ -96,17 +96,26 @@ workflows:
           requires:
             - install-deps
       - approve-major:
-         type: approval
-         requires:
-           - test
+          type: approval
+          requires:
+            - test
+          filters:
+            branches:
+              only: master
       - approve-minor:
-         type: approval
-         requires:
-           - test
+          type: approval
+          requires:
+            - test
+          filters:
+            branches:
+              only: master
       - approve-patch:
-         type: approval
-         requires:
-           - test
+          type: approval
+          requires:
+            - test
+          filters:
+            branches:
+              only: master
       - create-major-release:
           requires:
             - approve-major
