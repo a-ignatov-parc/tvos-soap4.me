@@ -75,7 +75,7 @@ jobs:
           <<: *prepare-git
       - run:
           name: Bump major version
-          command: npm version major
+          command: npm version major -m "%s [skip ci]"
       - run:
           <<: *publish-to-git
 
@@ -88,7 +88,7 @@ jobs:
           <<: *prepare-git
       - run:
           name: Bump minor version
-          command: npm version minor
+          command: npm version minor -m "%s [skip ci]"
       - run:
           <<: *publish-to-git
 
@@ -101,7 +101,7 @@ jobs:
           <<: *prepare-git
       - run:
           name: Bump patch version
-          command: npm version patch
+          command: npm version patch -m "%s [skip ci]"
       - run:
           <<: *publish-to-git
 
@@ -116,9 +116,6 @@ workflows:
       - test:
           requires:
             - install-deps
-          filters:
-            tags:
-              ignore: /.*/
       - build:
           requires:
             - install-deps
