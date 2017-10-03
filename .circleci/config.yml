@@ -49,32 +49,43 @@ jobs:
           name: Build application
           command: npm run dist
 
-  release-major:
+  create-major-release:
     <<: *defaults
     steps:
       - attach_workspace:
           at: ./
       - run:
-          name: Release major version
-          command: npm run dist
+          name: Create major version release
+          command: npm version major
 
-  release-minor:
+  create-minor-release:
     <<: *defaults
     steps:
       - attach_workspace:
           at: ./
       - run:
-          name: Release minor version
-          command: npm run dist
+          name: Create minor version release
+          command: npm version minor
 
-  release-patch:
+  create-patch-release:
     <<: *defaults
     steps:
       - attach_workspace:
           at: ./
       - run:
-          name: Release patch version
-          command: npm run dist
+          name: Create patch version release
+          command: npm version patch
+
+  publish-created-release:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ./
+      - run:
+          name: Release created version
+          command:
+            - git push origin $CIRCLE_BRANCH
+            - git push --tags
 
 workflows:
   version: 2
@@ -96,12 +107,17 @@ workflows:
          type: approval
          requires:
            - test
-      - release-major:
+      - create-major-release:
           requires:
             - approve-major
-      - release-minor:
+      - create-minor-release:
           requires:
             - approve-minor
-      - release-patch:
+      - create-patch-release:
           requires:
             - approve-patch
+      - publish-created-release:
+          requires:
+            - create-major-release
+            - create-minor-release
+            - create-patch-release
