@@ -49,41 +49,39 @@ jobs:
           name: Build application
           command: npm run dist
 
-  create-major-release:
+  release-major:
     <<: *defaults
     steps:
       - attach_workspace:
           at: ./
       - run:
-          name: Create major version release
-          command: npm version major
-
-  create-minor-release:
-    <<: *defaults
-    steps:
-      - attach_workspace:
-          at: ./
-      - run:
-          name: Create minor version release
-          command: npm version minor
-
-  create-patch-release:
-    <<: *defaults
-    steps:
-      - attach_workspace:
-          at: ./
-      - run:
-          name: Create patch version release
-          command: npm version patch
-
-  publish-created-release:
-    <<: *defaults
-    steps:
-      - attach_workspace:
-          at: ./
-      - run:
-          name: Release created version
+          name: Create and publish major release
           command:
+            - npm version major
+            - git push origin $CIRCLE_BRANCH
+            - git push --tags
+
+  release-minor:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ./
+      - run:
+          name: Create and publish minor release
+          command:
+            - npm version minor
+            - git push origin $CIRCLE_BRANCH
+            - git push --tags
+
+  release-patch:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ./
+      - run:
+          name: Create and publish patch release
+          command:
+            - npm version patch
             - git push origin $CIRCLE_BRANCH
             - git push --tags
 
@@ -116,17 +114,12 @@ workflows:
           filters:
             branches:
               only: master
-      - create-major-release:
+      - release-major:
           requires:
             - approve-major
-      - create-minor-release:
+      - release-minor:
           requires:
             - approve-minor
-      - create-patch-release:
+      - release-patch:
           requires:
             - approve-patch
-      - publish-created-release:
-          requires:
-            - create-major-release
-            - create-minor-release
-            - create-patch-release
