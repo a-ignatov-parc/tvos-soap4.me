@@ -79,7 +79,17 @@ jobs:
           at: ./
       - run:
           name: Deploy artifacts
-          command: npm run dist
+          command: |
+            git remote -v
+            git remote add upstream $GITHUB_UPSTREAM
+            git fetch -p upstream
+            git checkout upstream/gh-pages
+            git merge upstream/gh-pages
+            mkdir -p $CIRCLE_TAG
+            cp -r ~/app/dist/* $CIRCLE_TAG
+            git add $CIRCLE_TAG
+            git commit -m "v$CIRCLE_TAG release for soap4.me"
+            git push upstream gh-pages
 
   release-major:
     <<: *job-configuration
