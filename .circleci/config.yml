@@ -87,9 +87,11 @@ jobs:
             git remote -v
             git fetch -p
             git checkout gh-pages
+            git clean -d -f
             git merge origin/gh-pages
             mkdir -p $CIRCLE_TAG
-            cp -r ~/app/dist/* $CIRCLE_TAG
+            ls -la ~/app
+            cp -r ~/app/dist $CIRCLE_TAG
             git add $CIRCLE_TAG
             git commit -m "v$CIRCLE_TAG release for soap4.me"
             git push origin gh-pages
