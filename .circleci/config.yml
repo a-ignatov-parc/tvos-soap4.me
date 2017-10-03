@@ -91,6 +91,9 @@ jobs:
       - add-ssh-keys:
           <<: *ssh-keys
       - run:
+          name: Check ssh key
+          command: ssh -T git@github.com
+      - run:
           <<: *prepare-git
       - run:
           name: Bump minor version
