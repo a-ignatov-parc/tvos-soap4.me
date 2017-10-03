@@ -5,24 +5,23 @@ job-configuration: &job-configuration
   docker:
     - image: circleci/node:6.10
 
+ssh-keys: &ssh-keys
+  fingerprints:
+    - "b9:59:21:b0:6b:81:87:c0:e5:ac:80:90:2f:7d:fc:09"
+
 prepare-git: &prepare-git
-  - add-ssh-keys:
-      fingerprints:
-        - "b9:59:21:b0:6b:81:87:c0:e5:ac:80:90:2f:7d:fc:09"
-  - run:
-      name: Preparing git working directory
-      command: |
-        git clean -d -f
-        git checkout -- .
-        git config user.name "ci-bot"
-        git config user.email "ci-bot@circleci.com"
+  name: Preparing git working directory
+  command: |
+    git clean -d -f
+    git checkout -- .
+    git config user.name "ci-bot"
+    git config user.email "ci-bot@circleci.com"
 
 publish-to-git: &publish-to-git
-  - run:
-      name: Publish created version
-      command: |
-        git push origin $CIRCLE_BRANCH
-        git push --tags
+  name: Publish created version
+  command: |
+    git push origin $CIRCLE_BRANCH
+    git push --tags
 
 jobs:
   install-deps:
@@ -74,33 +73,45 @@ jobs:
     steps:
       - attach_workspace:
           at: ./
-      <<: *prepare-git
+      - add-ssh-keys:
+          <<: *ssh-keys
+      - run:
+          <<: *prepare-git
       - run:
           name: Bump major version
           command: npm version major
-      <<: *publish-to-git
+      - run:
+          <<: *publish-to-git
 
   release-minor:
     <<: *job-configuration
     steps:
       - attach_workspace:
           at: ./
-      <<: *prepare-git
+      - add-ssh-keys:
+          <<: *ssh-keys
+      - run:
+          <<: *prepare-git
       - run:
           name: Bump minor version
           command: npm version minor
-      <<: *publish-to-git
+      - run:
+          <<: *publish-to-git
 
   release-patch:
     <<: *job-configuration
     steps:
       - attach_workspace:
           at: ./
-      <<: *prepare-git
+      - add-ssh-keys:
+          <<: *ssh-keys
+      - run:
+          <<: *prepare-git
       - run:
           name: Bump patch version
           command: npm version patch
-      <<: *publish-to-git
+      - run:
+          <<: *publish-to-git
 
 workflows:
   version: 2
