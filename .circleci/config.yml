@@ -71,8 +71,8 @@ jobs:
       - run:
           name: Build application
           command: |
-            NODE_ENV=production $(npm bin)/webpack --output-path ./dist/soap4atv
-            NODE_ENV=production APP_NAME=app $(npm bin)/webpack --output-path ./dist/qello
+            npm run dist -- --output-path ./dist/soap4atv
+            APP_NAME=app npm run dist -- --output-path ./dist/qello
       - store_artifacts:
           path: ./dist
       - persist_to_workspace:
