@@ -55,7 +55,13 @@ jobs:
           at: ./
       - run:
           name: Run code checks
-          command: npm run lint
+          command: |
+            mkdir -p ~/reports
+            npm run lint -- --format junit --output-file ~/reports/eslint.xml
+      - store_test_results:
+          path: ~/reports
+      - store_artifacts:
+          path: ~/reports
 
   build:
     <<: *job-configuration
