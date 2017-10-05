@@ -35,7 +35,7 @@ import Loader from '../components/loader';
 const { Promise } = TVDML;
 
 const { VIDEO_QUALITY, VIDEO_PLAYBACK, TRANSLATION } = settings.params;
-const { SD } = settings.values[VIDEO_QUALITY];
+const { SD, UHD } = settings.values[VIDEO_QUALITY];
 const { BY_EPISODE } = settings.values[VIDEO_PLAYBACK];
 const { LOCALIZATION, SUBTITLES } = settings.values[TRANSLATION];
 
@@ -417,6 +417,7 @@ export default function seasonRoute() {
                     const mtCode = file && mediaLocalizations[file.translate];
 
                     const hasHD = file && mqCode !== SD;
+                    const isUHD = hasHD && mqCode === UHD;
                     const hasSubtitles = !!~subtitlesList.indexOf(mtCode);
 
                     let highlight = false;
@@ -443,7 +444,10 @@ export default function seasonRoute() {
                         <badge class="badge" src="resource://cc" />
                       ),
                       hasHD && (
-                        <badge class="badge" src="resource://hd" />
+                        <badge
+                          class="badge"
+                          src={`resource://${isUHD ? '4k' : 'hd'}`}
+                        />
                       ),
                     ];
 

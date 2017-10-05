@@ -99,6 +99,7 @@ export default function searchRoute() {
                   covers: { big: poster },
                 } = tvshow;
 
+                const isUHD = !!tvshow['4k'];
                 const title = i18n('tvshow-title', tvshow);
 
                 return (
@@ -106,6 +107,7 @@ export default function searchRoute() {
                     title={title}
                     route="tvshow"
                     poster={poster}
+                    isUHD={isUHD}
                     payload={{ title, sid, poster }}
                   />
                 );
@@ -132,6 +134,7 @@ export default function searchRoute() {
                   covers: { big: poster },
                 } = tvshow;
 
+                const isUHD = !!tvshow['4k'];
                 const title = i18n('tvshow-title', tvshow);
 
                 return (
@@ -139,6 +142,7 @@ export default function searchRoute() {
                     title={title}
                     route="tvshow"
                     poster={poster}
+                    isUHD={isUHD}
                     payload={{ title, sid, poster }}
                   />
                 );
@@ -212,6 +216,7 @@ export default function searchRoute() {
                   covers: { big: poster },
                 } = tvshow;
 
+                const isUHD = !!tvshow['4k'];
                 const title = i18n('tvshow-title', tvshow);
 
                 return (
@@ -219,6 +224,7 @@ export default function searchRoute() {
                     title={title}
                     route="tvshow"
                     poster={poster}
+                    isUHD={isUHD}
                     payload={{ title, sid, poster }}
                   />
                 );

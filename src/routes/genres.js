@@ -150,6 +150,7 @@ export default function genresRoute() {
                                     covers: { big: poster },
                                   } = tvshow;
 
+                                  const isUHD = !!tvshow['4k'];
                                   const title = i18n('tvshow-title', tvshow);
 
                                   return (
@@ -160,6 +161,7 @@ export default function genresRoute() {
                                       poster={poster}
                                       counter={unwatched}
                                       isWatched={watching > 0 && !unwatched}
+                                      isUHD={isUHD}
                                       payload={{ title, sid, poster }}
                                     />
                                   );

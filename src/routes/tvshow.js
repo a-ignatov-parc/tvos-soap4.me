@@ -5,6 +5,8 @@ import formatNumber from 'simple-format-number';
 import * as user from '../user';
 import { processFamilyAccount } from '../user/utils';
 
+import * as settings from '../settings';
+
 import authFactory from '../helpers/auth';
 import { defaultErrorHandlers } from '../helpers/auth/handlers';
 
@@ -41,6 +43,7 @@ import {
   addToMyTVShows,
   removeFromMyTVShows,
   rateTVShow,
+  mediaQualities,
 } from '../request/soap';
 
 import Tile from '../components/tile';
@@ -48,6 +51,9 @@ import Loader from '../components/loader';
 import Authorize from '../components/authorize';
 
 const { Promise } = TVDML;
+
+const { VIDEO_QUALITY } = settings.params;
+const { UHD } = settings.values[VIDEO_QUALITY];
 
 function calculateUnwatchedCount(season) {
   return season.unwatched || 0;
@@ -407,6 +413,7 @@ export default function tvShowRoute() {
 
                 const { schedule } = this.state;
 
+                const seasonHasPoster = !!this.state.seasons[i];
                 const seasonTitle = i18n('tvshow-season', { seasonNumber });
                 const unwatched = calculateUnwatchedCount(season);
 
@@ -421,6 +428,14 @@ export default function tvShowRoute() {
                     const episodeDate = moment(episode.date, 'DD.MM.YYYY');
                     return episodeDate > currentMoment;
                   });
+
+                const isUHD = seasonEpisodes
+                  .map(({ files }) => files)
+                  .filter(Boolean)
+                  .some(files => files.some(({ quality }) => {
+                    const mqCode = mediaQualities[quality];
+                    return mqCode === UHD;
+                  }));
 
                 let isWatched = !unwatched;
                 let dateTitle;
@@ -468,9 +483,10 @@ export default function tvShowRoute() {
                     key={seasonNumber}
                     title={seasonTitle}
                     route="season"
-                    poster={poster}
+                    poster={seasonHasPoster && poster}
                     counter={unwatched || dateTitle}
                     isWatched={isWatched}
+                    isUHD={isUHD}
                     payload={payload}
 
                     // eslint-disable-next-line react/jsx-no-bind
@@ -556,6 +572,7 @@ export default function tvShowRoute() {
                   covers: { big: poster },
                 } = tvshow;
 
+                const isUHD = !!tvshow['4k'];
                 const title = i18n('tvshow-title', tvshow);
 
                 return (
@@ -564,6 +581,7 @@ export default function tvShowRoute() {
                     title={title}
                     poster={poster}
                     route="tvshow"
+                    isUHD={isUHD}
                     payload={{ sid, title, poster }}
                   />
                 );

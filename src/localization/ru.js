@@ -200,6 +200,9 @@ export default {
   'all-group-title-completeness': 'Завершенности',
   'all-group-completeness-title': 'Завершенные',
 
+  'all-group-title-uhd': '4K (UHD)',
+  'all-group-uhd-title': 'A — Z',
+
   'search-latest': 'Новые сериалы',
   'search-popular': 'Популярные сериалы',
   'search-persons': 'Люди',

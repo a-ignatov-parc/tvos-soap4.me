@@ -14,6 +14,7 @@ import { deepEqualShouldUpdate } from '../utils/components';
 import Tile from '../components/tile';
 import Loader from '../components/loader';
 
+const UHD = 'uhd';
 const NAME = 'name';
 const DATE = 'date';
 const LIKES = 'likes';
@@ -152,6 +153,18 @@ const sections = {
   },
 };
 
+if (user.isExtended()) {
+  sections[UHD] = {
+    title: 'all-group-title-uhd',
+    reducer(list) {
+      return [{
+        title: i18n('all-group-uhd-title'),
+        items: list.filter(item => !!item['4k']),
+      }];
+    },
+  };
+}
+
 export default function allRoute() {
   return TVDML
     .createPipeline()
@@ -288,6 +301,7 @@ export default function allRoute() {
                           covers: { big: poster },
                         } = tvshow;
 
+                        const isUHD = !!tvshow['4k'];
                         const tvShowTitle = i18n('tvshow-title', tvshow);
 
                         return (
@@ -298,6 +312,7 @@ export default function allRoute() {
                             poster={poster}
                             counter={unwatched}
                             isWatched={watching > 0 && !unwatched}
+                            isUHD={isUHD}
                             payload={{
                               sid,
                               poster,

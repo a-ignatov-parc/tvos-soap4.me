@@ -7,6 +7,7 @@ export default function Tile({ key, attrs = {}, events = {} }) {
     poster,
     counter,
     subtitle,
+    isUHD,
     isWatched,
     payload = {},
     autoHighlight,
@@ -18,6 +19,9 @@ export default function Tile({ key, attrs = {}, events = {} }) {
     onHighlight,
     onHoldselect,
   } = events;
+
+  const showTopShadow = isUHD;
+  const showBottomShadow = counter || isWatched;
 
   return (
     <lockup
@@ -37,9 +41,12 @@ export default function Tile({ key, attrs = {}, events = {} }) {
           tv-placeholder: tv;
           tv-tint-color: linear-gradient(
             top,
-            0.4,
+            rgba(0, 0, 0, ${showTopShadow ? '0.5' : '0'})
+            0.2,
             transparent,
-            rgba(0, 0, 0, 0.5)
+            0.8,
+            transparent,
+            rgba(0, 0, 0, ${showBottomShadow ? '0.5' : '0'})
           );
         `}
       />
@@ -49,6 +56,18 @@ export default function Tile({ key, attrs = {}, events = {} }) {
       >{title}</title>
       <subtitle class="tile-subtitle">{subtitle}</subtitle>
       <overlay style="margin: 0; padding: 0;">
+        {isUHD && (
+          <badge
+            src="resource://4k"
+            style={`
+              margin: 12 10 0 0;
+              tv-align: right;
+              tv-position: top;
+              tv-tint-color: rgb(255, 255, 255);
+              tv-highlight-color: rgb(255, 255, 255);
+            `}
+          />
+        )}
         {!isWatched && counter && (
           <textBadge
             type="fill"
@@ -64,10 +83,18 @@ export default function Tile({ key, attrs = {}, events = {} }) {
           >{counter}</textBadge>
         )}
         {isWatched && (
-          <badge
-            style="tv-position: bottom-right;"
-            src="resource://overlay-checkmark"
-          />
+          <textBadge
+            type="fill"
+            style={`
+              font-size: 20;
+              border-radius: 30;
+              margin: 0 10 12 0;
+              padding: 1 5;
+              tv-align: right;
+              tv-position: bottom;
+              tv-tint-color: rgb(255, 255, 255);
+            `}
+          >✓</textBadge>
         )}
       </overlay>
     </lockup>
