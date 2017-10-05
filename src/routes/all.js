@@ -14,6 +14,7 @@ import { deepEqualShouldUpdate } from '../utils/components';
 import Tile from '../components/tile';
 import Loader from '../components/loader';
 
+const UHD = 'uhd';
 const NAME = 'name';
 const DATE = 'date';
 const LIKES = 'likes';
@@ -151,6 +152,18 @@ const sections = {
     },
   },
 };
+
+if (user.isExtended()) {
+  sections[UHD] = {
+    title: 'all-group-title-uhd',
+    reducer(list) {
+      return [{
+        title: i18n('all-group-uhd-title'),
+        items: list.filter(item => !!item['4k']),
+      }];
+    },
+  };
+}
 
 export default function allRoute() {
   return TVDML

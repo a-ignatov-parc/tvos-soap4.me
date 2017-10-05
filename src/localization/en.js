@@ -200,6 +200,9 @@ export default {
   'all-group-title-completeness': 'Completeness',
   'all-group-completeness-title': 'Completed',
 
+  'all-group-title-uhd': '4K (UHD)',
+  'all-group-uhd-title': 'A — Z',
+
   'search-latest': 'Latest TV Shows',
   'search-popular': 'Popular TV Shows',
   'search-persons': 'Persons',
