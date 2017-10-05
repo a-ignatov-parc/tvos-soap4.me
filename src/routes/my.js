@@ -204,6 +204,7 @@ export default function myRoute() {
                   covers: { big: poster },
                 } = tvshow;
 
+                const isUHD = !!tvshow['4k'];
                 const tvShowTitle = i18n('tvshow-title', tvshow);
                 const scheduleEpisode = scheduleDictionary[sid];
 
@@ -234,6 +235,7 @@ export default function myRoute() {
                     poster={poster}
                     counter={unwatched || dateTitle}
                     isWatched={isWatched}
+                    isUHD={isUHD}
                     payload={{
                       sid,
                       poster,

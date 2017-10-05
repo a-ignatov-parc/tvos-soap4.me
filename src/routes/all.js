@@ -288,6 +288,7 @@ export default function allRoute() {
                           covers: { big: poster },
                         } = tvshow;
 
+                        const isUHD = !!tvshow['4k'];
                         const tvShowTitle = i18n('tvshow-title', tvshow);
 
                         return (
@@ -298,6 +299,7 @@ export default function allRoute() {
                             poster={poster}
                             counter={unwatched}
                             isWatched={watching > 0 && !unwatched}
+                            isUHD={isUHD}
                             payload={{
                               sid,
                               poster,
