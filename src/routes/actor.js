@@ -70,6 +70,7 @@ export default function actorRoute(title) {
                       covers: { big: poster },
                     } = tvshow;
 
+                    const isUHD = !!tvshow['4k'];
                     const tvShowTitle = i18n('tvshow-title', tvshow);
 
                     return (
@@ -77,6 +78,7 @@ export default function actorRoute(title) {
                         title={tvShowTitle}
                         poster={poster}
                         route="tvshow"
+                        isUHD={isUHD}
                         payload={{
                           sid,
                           poster,
