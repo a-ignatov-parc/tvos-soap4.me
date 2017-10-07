@@ -41,12 +41,12 @@ export default function Tile({ key, attrs = {}, events = {} }) {
           tv-placeholder: tv;
           tv-tint-color: linear-gradient(
             top,
-            rgba(0, 0, 0, ${showTopShadow ? '0.5' : '0'})
+            rgba(0, 0, 0, ${showTopShadow ? '0.7' : '0'})
             0.2,
             transparent,
             0.8,
             transparent,
-            rgba(0, 0, 0, ${showBottomShadow ? '0.5' : '0'})
+            rgba(0, 0, 0, ${showBottomShadow ? '0.7' : '0'})
           );
         `}
       />

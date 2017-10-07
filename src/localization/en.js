@@ -116,6 +116,7 @@ export default {
   'tvshow-title-from-episode': ({ soap_en }) => soap_en,
   'tvshow-episode-title': ({ title_en }) => title_en,
   'tvshow-episode-airdate': ({ airdate }) => `Airdate ${airdate}`,
+  'tvshow-episode-menu-hint': '— press and hold to open episode menu',
   'tvshow-season': ({ seasonNumber }) => `Season ${seasonNumber}`,
 
   'tvshow-status': 'Status',
