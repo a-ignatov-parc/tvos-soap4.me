@@ -565,9 +565,15 @@ export default function seasonRoute() {
       },
 
       onPlayEpisode(episodeNumber) {
-        const { sid } = this.props;
-        const { episodes, poster, translation } = this.state;
-        const markAsWatched = this.onMarkAsWatched.bind(this);
+        const {
+          sid,
+        } = this.props;
+
+        const {
+          poster,
+          episodes,
+          translation,
+        } = this.state;
 
         const resolvers = {
           initial() {
@@ -584,12 +590,23 @@ export default function seasonRoute() {
           },
         };
 
+        let player;
+
+        function clearPlayerOverlay() {
+          if (player) player.interactiveOverlayDocument = undefined;
+        }
+
         TVDML
           .createPlayer({
+            uidResolver(item) {
+              return item.id;
+            },
+
             items(item, request) {
               const resolver = resolvers[request];
               const epNumber = resolver && resolver(item);
               const episode = getEpisode(epNumber, episodes);
+              clearPlayerOverlay();
               return getEpisodeItem(sid, episode, poster, translation);
             },
 
@@ -600,19 +617,47 @@ export default function seasonRoute() {
               return saveElapsedTime(eid, elapsedTime);
             },
 
-            markAsWatched(item) {
+            markAsWatched: item => {
               if (!getActiveDocument()) {
                 const [,, epNumber] = item.id.split('-');
-                return markAsWatched(epNumber);
+                const episode = getEpisode(epNumber, episodes);
+
+                TVDML
+                  .parseDocument((
+                    <document>
+                      <ratingTemplate>
+                        <title>
+                          {i18n('episode-rate')}
+                        </title>
+                        <ratingBadge
+                          onChange={event => {
+                            this.onRateChange(episode, event).then(() => {
+                              clearPlayerOverlay();
+                            });
+                          }}
+                        />
+                      </ratingTemplate>
+                    </document>
+                  ))
+                  .pipe(payload => {
+                    const {
+                      parsedDocument: document,
+                    } = payload;
+
+                    player.interactiveOverlayDocument = document;
+                  })
+                  .sink();
+
+                return this.onMarkAsWatched(epNumber);
               }
               return null;
             },
-
-            uidResolver(item) {
-              return item.id;
-            },
           })
-          .then(player => player.play());
+          .then(playerInstance => {
+            player = playerInstance;
+            player.interactiveOverlayDismissable = true;
+            player.play();
+          });
       },
 
       onShowMenu(episode) {
