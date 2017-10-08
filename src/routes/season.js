@@ -178,9 +178,13 @@ export default function seasonRoute() {
     }) => ({ sid, id, title, poster, episodeNumber, shouldPlayImmediately })))
     .pipe(TVDML.render(TVDML.createComponent({
       getInitialState() {
+        const {
+          episodeNumber,
+          shouldPlayImmediately,
+        } = this.props;
+
         const extended = user.isExtended();
         const authorized = user.isAuthorized();
-        const { shouldPlayImmediately } = this.props;
         const translation = settings.get(TRANSLATION);
 
         return {
@@ -189,6 +193,7 @@ export default function seasonRoute() {
           translation,
           loading: true,
           shouldPlayImmediately,
+          highlightEpisode: episodeNumber,
         };
       },
 
@@ -213,11 +218,15 @@ export default function seasonRoute() {
       shouldComponentUpdate: deepEqualShouldUpdate,
 
       loadData() {
-        const { sid, id } = this.props;
+        const {
+          id,
+          sid,
+        } = this.props;
 
         const {
           extended,
           translation,
+          highlightEpisode,
         } = this.state;
 
         return Promise
@@ -235,6 +244,10 @@ export default function seasonRoute() {
             } = payload;
 
             const episodes = season ? season.episodes : [];
+            const firstUnwatchedEp = episodes.find(({ watched }) => !watched);
+            const firstUnwatchedEpNumber = (firstUnwatchedEp || {}).episode;
+
+            const highlight = highlightEpisode || firstUnwatchedEpNumber;
 
             return {
               ...payload,
@@ -245,6 +258,7 @@ export default function seasonRoute() {
                 schedule,
                 translation,
               }, !extended),
+              highlightEpisode: highlight,
               episodesHasSubtitles: someEpisodesHasSubtitles(episodes),
             };
           });
@@ -288,6 +302,7 @@ export default function seasonRoute() {
           extended,
           episodes,
           translation,
+          highlightEpisode,
           episodesHasSubtitles,
         } = this.state;
 
@@ -300,8 +315,6 @@ export default function seasonRoute() {
 
         const title = i18n('tvshow-title', tvshow);
         const seasonTitle = i18n('tvshow-season', { seasonNumber });
-
-        let highlighted = false;
 
         return (
           <document>
@@ -389,7 +402,6 @@ export default function seasonRoute() {
                     const {
                       rating,
                       spoiler,
-                      watched,
                       date: begins,
                       episode: episodeNumber,
                     } = episode;
@@ -426,18 +438,11 @@ export default function seasonRoute() {
                     const isUHD = hasHD && mqCode === UHD;
                     const hasSubtitles = !!~subtitlesList.indexOf(mtCode);
 
-                    let highlight = false;
+                    const highlight = episodeNumber === highlightEpisode;
 
                     const epTitleCode = i18n('tvshow-episode-title', episode);
                     const epTitle = processEntitiesInString(epTitleCode);
                     const description = processEntitiesInString(spoiler);
-
-                    if (this.props.episodeNumber) {
-                      highlight = episodeNumber === this.props.episodeNumber;
-                    } else if (!highlighted && !watched) {
-                      highlight = true;
-                      highlighted = true;
-                    }
 
                     const epId = `eid-${episodeNumber}`;
 
@@ -610,10 +615,11 @@ export default function seasonRoute() {
               return getEpisodeItem(sid, episode, poster, translation);
             },
 
-            markAsStopped(item, elapsedTime) {
+            markAsStopped: (item, elapsedTime) => {
               const [,, epNumber] = item.id.split('-');
               const episode = getEpisode(epNumber, episodes);
               const { eid } = getEpisodeMedia(episode, translation);
+              this.setState({ highlightEpisode: epNumber });
               return saveElapsedTime(eid, elapsedTime);
             },
 
