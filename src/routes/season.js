@@ -31,6 +31,7 @@ import {
 import Loader from '../components/loader';
 
 import hand from '../assets/icons/hand.png';
+import hand2x from '../assets/icons/hand@2x.png';
 
 const { Promise } = TVDML;
 
@@ -515,8 +516,13 @@ export default function seasonRoute() {
                             <description class="item-desc">
                               <badge
                                 class="badge"
-                                style="margin: 0 0 -10"
-                                src={BASEURL + hand}
+                                style="margin: 0 0 -5"
+                                width="30"
+                                height="30"
+                                srcset={`
+                                  ${BASEURL + hand} 1x,
+                                  ${BASEURL + hand2x} 2x
+                                `}
                               />
                               {' '}
                               {i18n('tvshow-episode-menu-hint')}
