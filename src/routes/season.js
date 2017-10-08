@@ -337,6 +337,10 @@ export default function seasonRoute() {
                     margin: 60 75 0 0;
                   }
 
+                  .item-desc {
+                    margin: 40 0 0;
+                  }
+
                   .item--disabled {
                     color: rgba(0, 0, 0, 0.3);
                   }
@@ -505,10 +509,10 @@ export default function seasonRoute() {
                                 value={rating / 10}
                               />
                             </row>
-                            <description style="margin: 40 0 0">
+                            <description class="item-desc">
                               {description}
                             </description>
-                            <description style="margin: 40 0 0">
+                            <description class="item-desc">
                               <badge
                                 class="badge"
                                 style="margin: 0 0 -10"
