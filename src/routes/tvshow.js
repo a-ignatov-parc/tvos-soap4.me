@@ -696,9 +696,11 @@ export default function tvShowRoute() {
                   person_en: personName,
                   person_image_original: personImage,
                   character_en: characterName,
+                  character_image_original: characterImage,
                 } = actor;
 
                 const [firstName, lastName] = personName.split(' ');
+                const poster = personImage || characterImage;
 
                 return (
                   <monogramLockup
@@ -706,12 +708,12 @@ export default function tvShowRoute() {
                     onSelect={link('actor', {
                       id: personId,
                       actor: personName,
-                      poster: personImage,
+                      poster,
                     })}
                   >
                     <monogram
                       style="tv-placeholder: monogram;"
-                      src={getCroppedImageUrl(personImage, 250)}
+                      src={getCroppedImageUrl(poster, 250)}
                       firstName={firstName}
                       lastName={lastName}
                     />
