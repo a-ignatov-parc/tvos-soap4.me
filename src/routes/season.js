@@ -745,14 +745,23 @@ export default function seasonRoute() {
       },
 
       onMarkAsWatched(episodeNumber, addTVShowToSubscriptions) {
-        const { id, sid } = this.props;
+        const {
+          id,
+          sid,
+        } = this.props;
+
+        const {
+          tvshow,
+        } = this.state;
+
+        const addTvShowToWatched = addTVShowToSubscriptions && !tvshow.watching;
 
         this.setState({ [`eid-${episodeNumber}`]: true });
 
         return Promise
           .all([
             markEpisodeAsWatched(sid, id, episodeNumber),
-            addTVShowToSubscriptions ? addToMyTVShows(sid) : Promise.resolve(),
+            addTvShowToWatched ? addToMyTVShows(sid) : Promise.resolve(),
           ])
           .then(TVDML.removeModal);
       },
