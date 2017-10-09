@@ -636,9 +636,13 @@ export default function seasonRoute() {
             markAsWatched: item => {
               if (!getActiveDocument()) {
                 const [,, epNumber] = item.id.split('-');
-                const episode = getEpisode(epNumber, episodes);
+                // const episode = getEpisode(epNumber, episodes);
 
-                TVDML
+                /**
+                 * TODO: Find a better timing to show rating overlay.
+                 * Now it's to disturbing.
+                 */
+                /* TVDML
                   .parseDocument((
                     <document>
                       <ratingTemplate>
@@ -662,7 +666,7 @@ export default function seasonRoute() {
 
                     player.interactiveOverlayDocument = document;
                   })
-                  .sink();
+                  .sink(); */
 
                 return this.onMarkAsWatched(epNumber);
               }
