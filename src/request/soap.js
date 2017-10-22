@@ -1,7 +1,6 @@
 /* global Device */
 
 import md5 from 'blueimp-md5';
-import * as TVDML from 'tvdml';
 
 import config from '../../package.json';
 
