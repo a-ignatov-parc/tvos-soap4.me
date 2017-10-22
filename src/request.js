@@ -1,7 +1,5 @@
 /* global XMLHttpRequest */
 
-import { Promise } from 'tvdml';
-
 const GET = 'GET';
 const POST = 'POST';
 

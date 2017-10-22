@@ -10,8 +10,6 @@ import * as request from '../request';
 import * as settings from '../settings';
 import { genreToId, isQello } from '../utils';
 
-const { Promise } = TVDML;
-
 const { VIDEO_QUALITY, TRANSLATION } = settings.params;
 const { SD, HD, FULLHD, UHD } = settings.values[VIDEO_QUALITY];
 const { LOCALIZATION, SUBTITLES } = settings.values[TRANSLATION];

@@ -18,8 +18,6 @@ import {
 
 import Tile from '../components/tile';
 
-const { Promise } = TVDML;
-
 const THROTTLE_TIMEOUT = 500;
 
 export default function searchRoute() {

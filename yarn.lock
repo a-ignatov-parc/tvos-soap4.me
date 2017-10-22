@@ -4000,8 +4000,8 @@ tunnel-agent@^0.6.0:
     safe-buffer "^5.0.1"
 
 tvdml@^3.0.1:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/tvdml/-/tvdml-3.0.1.tgz#9951127e4c2638aaf2b030ed2c0b2d277f815726"
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/tvdml/-/tvdml-3.0.2.tgz#cd8d8e76e08bd8f11c5372e4818d4683290b7a18"
   dependencies:
     "@a-ignatov-parc/virtual-dom" "^2.2.0"
 

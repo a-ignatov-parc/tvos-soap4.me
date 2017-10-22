@@ -23,8 +23,6 @@ const flags = flagsContext
     return result;
   }, {});
 
-const { Promise } = TVDML;
-
 const fileSize = 10567604;
 
 function createLoader(id, file, resolver = noop()) {

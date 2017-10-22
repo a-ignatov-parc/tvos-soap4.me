@@ -33,8 +33,6 @@ import Loader from '../components/loader';
 import hand from '../assets/icons/hand.png';
 import hand2x from '../assets/icons/hand@2x.png';
 
-const { Promise } = TVDML;
-
 const { VIDEO_QUALITY, VIDEO_PLAYBACK, TRANSLATION } = settings.params;
 const { SD, UHD } = settings.values[VIDEO_QUALITY];
 const { BY_EPISODE } = settings.values[VIDEO_PLAYBACK];

@@ -50,8 +50,6 @@ import Tile from '../components/tile';
 import Loader from '../components/loader';
 import Authorize from '../components/authorize';
 
-const { Promise } = TVDML;
-
 const { VIDEO_QUALITY } = settings.params;
 const { UHD } = settings.values[VIDEO_QUALITY];
 
