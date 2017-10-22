@@ -78,6 +78,7 @@ export default {
   'speedtest-loading': 'Загрузка информации о серверах...',
   'speedtest-begin': 'Начать тест',
   'speedtest-testing': 'Тестируем скорость загрузки...',
+  'speedtest-footnote': 'Необходимо дождаться завершение теста иначе результаты не будут применимы',
 
   'speedtest-result': ({ speed }) => `${speed} Мб/с`,
   'speedtest-result-too-slow': 'Слишком медленно. Пропускаем...',

@@ -19,7 +19,7 @@ const flags = flagsContext
     const name = moduleName.replace(/^\.\/|\.png$/g, '');
 
     // eslint-disable-next-line no-param-reassign
-    result[name] = flagsContext(moduleName).default;
+    result[name] = flagsContext(moduleName);
     return result;
   }, {});
 
@@ -145,7 +145,11 @@ export default function speedTestRoute() {
                 <row style="tv-align: center">
                   {running ? (
                     <text
-                      style="tv-text-style: headline; color: rgb(84, 82, 80)"
+                      style={`
+                        height: 66;
+                        tv-text-style: headline;
+                        color: rgb(84, 82, 80);
+                      `}
                     >
                       {i18n('speedtest-testing')}
                     </text>
@@ -156,6 +160,13 @@ export default function speedTestRoute() {
                       </text>
                     </button>
                   )}
+                </row>
+                <row style="tv-align: center">
+                  <text
+                    style="tv-text-style: footnote; color: rgb(84, 82, 80)"
+                  >
+                    {i18n('speedtest-footnote')}
+                  </text>
                 </row>
               </collectionList>
             </stackTemplate>
@@ -222,6 +233,12 @@ export default function speedTestRoute() {
               progress: 0,
               running: false,
             });
+
+            const hasProperResults = Object
+              .keys(results)
+              .some(id => results[id] !== '1.00');
+
+            if (!hasProperResults) return Promise.reject();
             return results;
           })
           .then(saveSpeedTestResults);
