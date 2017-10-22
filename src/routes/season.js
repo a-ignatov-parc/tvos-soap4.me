@@ -1,4 +1,4 @@
-/* global getActiveDocument */
+/* global Player Playlist MediaItem */
 
 import moment from 'moment';
 import * as TVDML from 'tvdml';
@@ -33,9 +33,11 @@ import Loader from '../components/loader';
 import hand from '../assets/icons/hand.png';
 import hand2x from '../assets/icons/hand@2x.png';
 
+const MARK_AS_WATCHED_BREAKPOINT = 90;
+
 const { VIDEO_QUALITY, VIDEO_PLAYBACK, TRANSLATION } = settings.params;
 const { SD, UHD } = settings.values[VIDEO_QUALITY];
-const { BY_EPISODE } = settings.values[VIDEO_PLAYBACK];
+const { CONTINUES } = settings.values[VIDEO_PLAYBACK];
 const { LOCALIZATION, SUBTITLES } = settings.values[TRANSLATION];
 
 const subtitlesList = [
@@ -160,6 +162,16 @@ function getSeasonData(payload, isDemo) {
 
 function someEpisodesHasSubtitles(episodes) {
   return episodes.some(episodeHasSubtitles);
+}
+
+function createMediaItem(episodeItem) {
+  return Object
+    .keys(episodeItem)
+    .reduce((mediaItem, name) => {
+      // eslint-disable-next-line no-param-reassign
+      mediaItem[name] = episodeItem[name];
+      return mediaItem;
+    }, new MediaItem('video'));
 }
 
 export default function seasonRoute() {
@@ -472,7 +484,7 @@ export default function seasonRoute() {
 
                     const onSelectEpisode = extended
                       // eslint-disable-next-line react/jsx-no-bind
-                      ? this.onPlayEpisode.bind(this, episodeNumber)
+                      ? this.playEpisode.bind(this, episodeNumber)
                       : onSelectDesc;
 
                     const listItemRef = highlight
@@ -573,11 +585,11 @@ export default function seasonRoute() {
 
         if (this.state.shouldPlayImmediately) {
           this.setState({ shouldPlayImmediately: false });
-          this.onPlayEpisode(episodeNumber);
+          this.playEpisode(episodeNumber);
         }
       },
 
-      onPlayEpisode(episodeNumber) {
+      playEpisode(episodeNumber) {
         const {
           sid,
         } = this.props;
@@ -588,92 +600,105 @@ export default function seasonRoute() {
           translation,
         } = this.state;
 
-        const resolvers = {
-          initial() {
-            return episodeNumber;
-          },
+        const player = new Player();
+        const episode = getEpisode(episodeNumber, episodes);
 
-          next(item) {
-            if (settings.get(VIDEO_PLAYBACK) === BY_EPISODE) return null;
-            const [,, epNumber] = item.id.split('-');
-            const episode = getEpisode(epNumber, episodes);
-            const index = episodes.indexOf(episode);
-            const nextEpisode = ~index ? episodes[index + 1] : {};
-            return nextEpisode.episode || null;
-          },
-        };
+        player.playlist = new Playlist();
+        player.interactiveOverlayDismissable = false;
 
-        let player;
+        player.addEventListener('timeDidChange', event => {
+          const { time } = event;
 
-        function clearPlayerOverlay() {
-          if (player) player.interactiveOverlayDocument = undefined;
-        }
+          const {
+            currentMediaItem,
+            currentMediaItemDuration,
+          } = player;
 
-        TVDML
-          .createPlayer({
-            uidResolver(item) {
-              return item.id;
-            },
+          currentMediaItem.resumeTime = time;
 
-            items(item, request) {
-              const resolver = resolvers[request];
-              const epNumber = resolver && resolver(item);
-              const episode = getEpisode(epNumber, episodes);
-              clearPlayerOverlay();
-              return getEpisodeItem(sid, episode, poster, translation);
-            },
+          // eslint-disable-next-line no-mixed-operators
+          const watchedPercent = ~~(time * 100 / currentMediaItemDuration);
+          const passedBreakpoint = watchedPercent >= MARK_AS_WATCHED_BREAKPOINT;
 
-            markAsStopped: (item, elapsedTime) => {
-              const [,, epNumber] = item.id.split('-');
-              const episode = getEpisode(epNumber, episodes);
-              const { eid } = getEpisodeMedia(episode, translation);
-              this.setState({ highlightEpisode: epNumber });
-              return saveElapsedTime(eid, elapsedTime);
-            },
+          if (passedBreakpoint && !currentMediaItem.markedAsWatched) {
+            currentMediaItem.markedAsWatched = true;
 
-            markAsWatched: item => {
-              if (!getActiveDocument()) {
-                const [,, epNumber] = item.id.split('-');
-                // const episode = getEpisode(epNumber, episodes);
+            const [,, epNumber] = currentMediaItem.id.split('-');
+            const currentEpisode = getEpisode(epNumber, episodes);
+            const index = episodes.indexOf(currentEpisode);
+            const nextEpisodeNumber = (episodes[index + 1] || {}).episode;
 
-                /**
-                 * TODO: Find a better timing to show rating overlay.
-                 * Now it's to disturbing.
-                 */
-                /* TVDML
-                  .parseDocument((
-                    <document>
-                      <ratingTemplate>
-                        <title>
-                          {i18n('episode-rate')}
-                        </title>
-                        <ratingBadge
-                          onChange={event => {
-                            this.onRateChange(episode, event).then(() => {
-                              clearPlayerOverlay();
-                            });
-                          }}
-                        />
-                      </ratingTemplate>
-                    </document>
-                  ))
-                  .pipe(payload => {
-                    const {
-                      parsedDocument: document,
-                    } = payload;
+            this.onMarkAsWatched(episodeNumber);
+            this.setState({ highlightEpisode: nextEpisodeNumber });
 
-                    player.interactiveOverlayDocument = document;
-                  })
-                  .sink(); */
+            if (settings.get(VIDEO_PLAYBACK) === CONTINUES) {
+              const nextEpisode = getEpisode(nextEpisodeNumber, episodes);
 
-                return this.onMarkAsWatched(epNumber);
-              }
-              return null;
-            },
-          })
-          .then(playerInstance => {
-            player = playerInstance;
-            player.interactiveOverlayDismissable = true;
+              getEpisodeItem(sid, nextEpisode, poster, translation)
+                .then(createMediaItem)
+                .then(episodeMediaItem => {
+                  player.playlist.push(episodeMediaItem);
+                });
+            }
+          }
+        }, { interval: 1 });
+
+        player.addEventListener('stateWillChange', event => {
+          const { currentMediaItem } = player;
+          const isEnded = event.state === 'end';
+          const isPaused = event.state === 'paused';
+          const isProperState = isEnded || isPaused;
+          const shouldSaveTime = currentMediaItem
+            && !currentMediaItem.markedAsWatched
+            && isProperState;
+
+          if (shouldSaveTime) {
+            const { resumeTime } = currentMediaItem;
+            const [,, epNumber] = currentMediaItem.id.split('-');
+            const currentEpisode = getEpisode(epNumber, episodes);
+            const { eid } = getEpisodeMedia(currentEpisode, translation);
+            saveElapsedTime(eid, resumeTime);
+          }
+        });
+
+        player.addEventListener('mediaItemWillChange', () => {
+          const mediaItemIndex = player.playlist.length - 2;
+          const currentMediaItem = player.playlist.item(mediaItemIndex);
+
+          const [,, epNumber] = currentMediaItem.id.split('-');
+          const currentEpisode = getEpisode(epNumber, episodes);
+
+          player.pause();
+
+          TVDML
+            .parseDocument((
+              <document>
+                <ratingTemplate>
+                  <title>
+                    {i18n('episode-rate')}
+                  </title>
+                  <ratingBadge
+                    onChange={event => {
+                      this.onRateChange(currentEpisode, event).then(() => {
+                        player.interactiveOverlayDocument = null;
+                        player.play();
+                      });
+                    }}
+                  />
+                </ratingTemplate>
+              </document>
+            ))
+            .pipe(payload => {
+              const { parsedDocument: document } = payload;
+              player.interactiveOverlayDocument = document;
+            })
+            .sink();
+        });
+
+        getEpisodeItem(sid, episode, poster, translation)
+          .then(createMediaItem)
+          .then(episodeMediaItem => {
+            player.playlist.push(episodeMediaItem);
             player.play();
           });
       },
