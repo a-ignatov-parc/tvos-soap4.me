@@ -601,7 +601,6 @@ export default function seasonRoute() {
         } = this.state;
 
         const player = new Player();
-        const episode = getEpisode(episodeNumber, episodes);
 
         player.playlist = new Playlist();
         player.interactiveOverlayDismissable = false;
@@ -629,8 +628,14 @@ export default function seasonRoute() {
             const nextEpisodeNumber = (episodes[index + 1] || {}).episode;
 
             this.onMarkAsWatched(episodeNumber);
+
+            // Setting next episode as highlighted
             this.setState({ highlightEpisode: nextEpisodeNumber });
 
+            /**
+             * If user configured app for continues playback then loading next
+             * episode media file and adding it to current playlist.
+             */
             if (settings.get(VIDEO_PLAYBACK) === CONTINUES) {
               const nextEpisode = getEpisode(nextEpisodeNumber, episodes);
 
@@ -695,6 +700,9 @@ export default function seasonRoute() {
             .sink();
         });
 
+        const episode = getEpisode(episodeNumber, episodes);
+
+        // Loading initial episode and starting playback.
         getEpisodeItem(sid, episode, poster, translation)
           .then(createMediaItem)
           .then(episodeMediaItem => {
