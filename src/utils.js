@@ -2,7 +2,7 @@
 
 import url from 'url';
 
-import { Promise, navigate } from 'tvdml';
+import { navigate } from 'tvdml';
 
 export function promisedTimeout(timeout) {
   return () => new Promise(resolve => setTimeout(resolve, timeout));

@@ -17,8 +17,6 @@ import Loader from '../components/loader';
 
 import commonStyles from '../common/styles';
 
-const { Promise } = TVDML;
-
 export default function myRoute() {
   return TVDML
     .createPipeline()

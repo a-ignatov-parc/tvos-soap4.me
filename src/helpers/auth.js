@@ -10,8 +10,6 @@ import Loader from '../components/loader';
 
 import logo from '../assets/logo.png';
 
-const { Promise } = TVDML;
-
 const IDLE = 'idle';
 const LOGIN = 'login';
 const PASSWORD = 'password';

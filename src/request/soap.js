@@ -1,7 +1,6 @@
 /* global Device */
 
 import md5 from 'blueimp-md5';
-import * as TVDML from 'tvdml';
 
 import config from '../../package.json';
 
@@ -9,8 +8,6 @@ import { getToken } from '../user';
 import * as request from '../request';
 import * as settings from '../settings';
 import { genreToId, isQello } from '../utils';
-
-const { Promise } = TVDML;
 
 const { VIDEO_QUALITY, TRANSLATION } = settings.params;
 const { SD, HD, FULLHD, UHD } = settings.values[VIDEO_QUALITY];

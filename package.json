@@ -6,7 +6,7 @@
   "engine-strict": true,
   "engines": {
     "node": "^6.0.0",
-    "yarn": "^1.1.0"
+    "yarn": ">=1.0.0"
   },
   "scripts": {
     "install-deps": "npm run yarn:install && npm run yarn:install-deps",
@@ -38,25 +38,25 @@
   },
   "homepage": "https://github.com/a-ignatov-parc/tvos-soap4.me#readme",
   "dependencies": {
+    "blueimp-md5": "^2.3.0",
+    "moment": "^2.14.1",
+    "simple-format-number": "^0.1.2",
+    "tvdml": "^3.0.1"
+  },
+  "devDependencies": {
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-plugin-transform-react-jsx": "^6.24.1",
     "babel-preset-env": "^1.6.0",
-    "blueimp-md5": "^2.3.0",
-    "file-loader": "^1.1.5",
-    "moment": "^2.14.1",
-    "simple-format-number": "^0.1.2",
-    "tvdml": "^2.0.4",
-    "webpack": "^3.6.0",
-    "webpack-dev-server": "^2.9.1"
-  },
-  "devDependencies": {
     "eslint": "^4.8.0",
     "eslint-config-airbnb": "^15.1.0",
     "eslint-plugin-import": "^2.7.0",
     "eslint-plugin-jsx-a11y": "^5.1.1",
-    "eslint-plugin-react": "^7.4.0"
+    "eslint-plugin-react": "^7.4.0",
+    "file-loader": "^1.1.5",
+    "webpack": "^3.8.1",
+    "webpack-dev-server": "^2.9.1"
   }
 }

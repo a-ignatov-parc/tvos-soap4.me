@@ -78,6 +78,9 @@ export default {
   'speedtest-loading': 'Loading servers info...',
   'speedtest-begin': 'Begin test',
   'speedtest-testing': 'Testing download speed...',
+  'speedtest-footnote': 'You must wait until the test is over otherwise the results will not be applicable',
+  'speedtest-error-title': 'Something went wrong =(',
+  'speedtest-error-description': 'Please check your internet connection and try again',
 
   'speedtest-result': ({ speed }) => `${speed} Mb/s`,
   'speedtest-result-too-slow': 'Too slow. Skipped...',

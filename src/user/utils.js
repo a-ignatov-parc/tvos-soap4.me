@@ -1,5 +1,3 @@
-import { Promise } from 'tvdml';
-
 import * as user from '../user';
 import { getFamilyAccounts } from '../request/soap';
 
