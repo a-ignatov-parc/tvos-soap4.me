@@ -110,6 +110,7 @@ export default {
   'episode-mark-as-unwatched': 'Mark as Unwatched',
   'episode-speedtest': 'Speed test',
   'episode-rate': 'Rate episode',
+  'episode-rate-title': ({ timeout }) => `Rate episode${timeout ? ` or wait ${timeout} sec.` : ''}`,
 
   'season-title-more': 'More',
   'season-mark-as-watched': 'Mark Season as Watched',

@@ -715,27 +715,52 @@ export default function seasonRoute() {
            * as `interactiveOverlayDocument`.
            */
           TVDML
-            .parseDocument((
-              <document>
-                <ratingTemplate>
-                  <title>
-                    {i18n('episode-rate')}
-                  </title>
-                  <ratingBadge
-                    onChange={event => {
-                      this.onRateChange(currentEpisode, event).then(() => {
-                        /**
-                         * After saving rating removing screen and resuming
-                         * playback.
-                         */
-                        player.interactiveOverlayDocument = null;
-                        player.play();
-                      });
-                    }}
-                  />
-                </ratingTemplate>
-              </document>
-            ))
+            .parseDocument(TVDML.createComponent({
+              getInitialState() {
+                return {
+                  timeout: 10,
+                };
+              },
+
+              componentDidMount() {
+                this.timer = setInterval(() => {
+                  if (this.state.timeout > 1) {
+                    this.setState({
+                      timeout: this.state.timeout - 1,
+                    });
+                  } else {
+                    clearInterval(this.timer);
+                    this.resumePlayback();
+                  }
+                }, 1000);
+              },
+
+              resumePlayback() {
+                player.interactiveOverlayDocument = null;
+                player.play();
+              },
+
+              render() {
+                const { timeout } = this.state;
+
+                return (
+                  <document>
+                    <ratingTemplate>
+                      <title>
+                        {i18n('episode-rate-title', { timeout })}
+                      </title>
+                      <ratingBadge
+                        onChange={event => {
+                          this.onRateChange(currentEpisode, event).then(() => {
+                            this.resumePlayback();
+                          });
+                        }}
+                      />
+                    </ratingTemplate>
+                  </document>
+                );
+              },
+            }))
             .pipe(payload => {
               const { parsedDocument: document } = payload;
               player.interactiveOverlayDocument = document;

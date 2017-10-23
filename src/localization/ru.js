@@ -110,6 +110,7 @@ export default {
   'episode-mark-as-unwatched': 'Отметить непросмотренным',
   'episode-speedtest': 'Тест скорости',
   'episode-rate': 'Оценить эпизод',
+  'episode-rate-title': ({ timeout }) => `Оцените эпизод${timeout ? ` или подождите ${timeout} сек.` : ''}`,
 
   'season-title-more': 'Еще',
   'season-mark-as-watched': 'Отметить сезон как просмотренный',
