@@ -33,7 +33,8 @@ import Loader from '../components/loader';
 import hand from '../assets/icons/hand.png';
 import hand2x from '../assets/icons/hand@2x.png';
 
-const MARK_AS_WATCHED_BREAKPOINT = 90;
+const MARK_AS_WATCHED_PERCENTAGE = 90;
+const SHOW_RATING_PERCENTAGE = 50;
 
 const { VIDEO_QUALITY, VIDEO_PLAYBACK, TRANSLATION } = settings.params;
 const { SD, UHD } = settings.values[VIDEO_QUALITY];
@@ -615,11 +616,21 @@ export default function seasonRoute() {
 
           currentMediaItem.resumeTime = time;
 
-          // eslint-disable-next-line no-mixed-operators
-          const watchedPercent = ~~(time * 100 / currentMediaItemDuration);
-          const passedBreakpoint = watchedPercent >= MARK_AS_WATCHED_BREAKPOINT;
+          if (!currentMediaItem.duration) {
+            currentMediaItem.duration = currentMediaItemDuration;
+          }
 
-          if (passedBreakpoint && !currentMediaItem.markedAsWatched) {
+          if (!currentMediaItem.watchedTime) {
+            currentMediaItem.watchedTime = 0;
+          }
+
+          // Incrementing watched time by 1sec.
+          currentMediaItem.watchedTime += 1;
+
+          const watchedPercent = (time * 100) / currentMediaItemDuration;
+          const passedBoundary = watchedPercent >= MARK_AS_WATCHED_PERCENTAGE;
+
+          if (passedBoundary && !currentMediaItem.markedAsWatched) {
             currentMediaItem.markedAsWatched = true;
 
             const [,, epNumber] = currentMediaItem.id.split('-');
@@ -658,10 +669,15 @@ export default function seasonRoute() {
             && isProperState;
 
           if (shouldSaveTime) {
-            const { resumeTime } = currentMediaItem;
-            const [,, epNumber] = currentMediaItem.id.split('-');
+            const {
+              id,
+              resumeTime,
+            } = currentMediaItem;
+
+            const [,, epNumber] = id.split('-');
             const currentEpisode = getEpisode(epNumber, episodes);
             const { eid } = getEpisodeMedia(currentEpisode, translation);
+
             saveElapsedTime(eid, resumeTime);
           }
         });
@@ -670,11 +686,34 @@ export default function seasonRoute() {
           const mediaItemIndex = player.playlist.length - 2;
           const currentMediaItem = player.playlist.item(mediaItemIndex);
 
-          const [,, epNumber] = currentMediaItem.id.split('-');
+          const {
+            id,
+            duration,
+            watchedTime,
+          } = currentMediaItem;
+
+          const [,, epNumber] = id.split('-');
           const currentEpisode = getEpisode(epNumber, episodes);
 
+          const minimalWatchTime = (duration * SHOW_RATING_PERCENTAGE) / 100;
+
+          /**
+           * Don't show rating screen if watched time less than minimum allowed
+           * time. This means that user didn't watch episode enough to rate it.
+           */
+          if (watchedTime < minimalWatchTime) return;
+
+          /**
+           * Pausing player so we can show rating screen with blocked controls.
+           * All thanks to `player.interactiveOverlayDismissable`.
+           */
           player.pause();
 
+          /**
+           * Parsing document because we don't want to show rating screen
+           * as normal screen. It must be rendered
+           * as `interactiveOverlayDocument`.
+           */
           TVDML
             .parseDocument((
               <document>
@@ -685,6 +724,10 @@ export default function seasonRoute() {
                   <ratingBadge
                     onChange={event => {
                       this.onRateChange(currentEpisode, event).then(() => {
+                        /**
+                         * After saving rating removing screen and resuming
+                         * playback.
+                         */
                         player.interactiveOverlayDocument = null;
                         player.play();
                       });
