@@ -79,6 +79,8 @@ export default {
   'speedtest-begin': 'Начать тест',
   'speedtest-testing': 'Тестируем скорость загрузки...',
   'speedtest-footnote': 'Необходимо дождаться завершение теста иначе результаты не будут применимы',
+  'speedtest-error-title': 'Что-то пошло не так =(',
+  'speedtest-error-description': 'Пожалуйста проверьте свое интернет соединение и попробуйте еще раз',
 
   'speedtest-result': ({ speed }) => `${speed} Мб/с`,
   'speedtest-result-too-slow': 'Слишком медленно. Пропускаем...',

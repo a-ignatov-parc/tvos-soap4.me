@@ -241,7 +241,26 @@ export default function speedTestRoute() {
             if (!hasProperResults) return Promise.reject();
             return results;
           })
-          .then(saveSpeedTestResults);
+          .then(saveSpeedTestResults)
+          .catch(() => {
+            const promise = TVDML.renderModal((
+              <document>
+                <alertTemplate>
+                  <title>
+                    {i18n('speedtest-error-title')}
+                  </title>
+                  <description>
+                    {i18n('speedtest-error-description')}
+                  </description>
+                  <button onSelect={TVDML.removeModal}>
+                    <text>Ok</text>
+                  </button>
+                </alertTemplate>
+              </document>
+            ));
+
+            return promise.sink();
+          });
       },
     })));
 }
