@@ -115,7 +115,7 @@ function requestLogger(...params) {
 
 function headers() {
   const token = getToken();
-  const name = `soap4.me${isQello() ? '-qello' : ''}`;
+  const name = `soap4atv${isQello() ? '-qello' : ''}`;
   const userAgent = `ATV: ${name} ${version}`;
 
   return {
