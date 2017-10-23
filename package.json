@@ -6,7 +6,7 @@
   "engine-strict": true,
   "engines": {
     "node": "^6.0.0",
-    "yarn": "^1.1.0"
+    "yarn": ">=1.0.0"
   },
   "scripts": {
     "install-deps": "npm run yarn:install && npm run yarn:install-deps",
