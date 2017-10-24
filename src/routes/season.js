@@ -1,9 +1,9 @@
-/* global Player Playlist MediaItem */
+/* global Player Playlist */
 
 import moment from 'moment';
 import * as TVDML from 'tvdml';
 
-import { getStartParams } from '../utils';
+import { getStartParams, createMediaItem } from '../utils';
 import { processEntitiesInString } from '../utils/parser';
 import { deepEqualShouldUpdate } from '../utils/components';
 
@@ -164,16 +164,6 @@ function getSeasonData(payload, isDemo) {
 
 function someEpisodesHasSubtitles(episodes) {
   return episodes.some(episodeHasSubtitles);
-}
-
-function createMediaItem(episodeItem) {
-  return Object
-    .keys(episodeItem)
-    .reduce((mediaItem, name) => {
-      // eslint-disable-next-line no-param-reassign
-      mediaItem[name] = episodeItem[name];
-      return mediaItem;
-    }, new MediaItem('video'));
 }
 
 export default function seasonRoute() {

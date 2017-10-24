@@ -1,4 +1,4 @@
-/* global sessionStorage navigationDocument Device */
+/* global sessionStorage navigationDocument Device MediaItem */
 
 import url from 'url';
 
@@ -107,4 +107,14 @@ export function getCroppedImageUrl(targetUrl, size) {
   });
 
   return croppedUrl;
+}
+
+export function createMediaItem(episode) {
+  return Object
+    .keys(episode)
+    .reduce((mediaItem, name) => {
+      // eslint-disable-next-line no-param-reassign
+      mediaItem[name] = episode[name];
+      return mediaItem;
+    }, new MediaItem('video'));
 }

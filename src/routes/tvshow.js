@@ -1,3 +1,5 @@
+/* global Player Playlist */
+
 import moment from 'moment';
 import * as TVDML from 'tvdml';
 import formatNumber from 'simple-format-number';
@@ -13,6 +15,7 @@ import { defaultErrorHandlers } from '../helpers/auth/handlers';
 import {
   link,
   capitalizeText,
+  createMediaItem,
   getCroppedImageUrl,
   isMenuButtonPressNavigatedTo,
 } from '../utils';
@@ -870,18 +873,24 @@ export default function tvShowRoute() {
       },
 
       playTrailer(trailer) {
-        TVDML
-          .createPlayer({
-            items(item) {
-              if (!item) return getTrailerItem(trailer);
-              return null;
-            },
+        const player = new Player();
 
-            uidResolver(item) {
-              return item.id;
-            },
-          })
-          .then(player => player.play());
+        player.playlist = new Playlist();
+
+        getTrailerItem(trailer)
+          .then(createMediaItem)
+          .then(trailerMediaItem => {
+            // Adding available meta information about tvshow and trailer.
+            Object.assign(trailerMediaItem, {
+              title: i18n('tvshow-title', this.state.tvshow),
+              description: trailer.name,
+              artworkImageURL: this.props.poster,
+            });
+
+            // Adding to playlist and starting player.
+            player.playlist.push(trailerMediaItem);
+            player.play();
+          });
       },
 
       onAddToSubscriptions() {
