@@ -35,6 +35,7 @@ import hand2x from '../assets/icons/hand@2x.png';
 
 const MARK_AS_WATCHED_PERCENTAGE = 90;
 const SHOW_RATING_PERCENTAGE = 50;
+const RATING_SCREEN_TIMEOUT = 10;
 
 const { VIDEO_QUALITY, VIDEO_PLAYBACK, TRANSLATION } = settings.params;
 const { SD, UHD } = settings.values[VIDEO_QUALITY];
@@ -606,9 +607,7 @@ export default function seasonRoute() {
         player.playlist = new Playlist();
         player.interactiveOverlayDismissable = false;
 
-        player.addEventListener('timeDidChange', event => {
-          const { time } = event;
-
+        player.addEventListener('timeDidChange', ({ time }) => {
           const {
             currentMediaItem,
             currentMediaItemDuration,
@@ -627,21 +626,24 @@ export default function seasonRoute() {
           // Incrementing watched time by 1sec.
           currentMediaItem.watchedTime += 1;
 
+          const [,, currentEpisodeNumber] = currentMediaItem.id.split('-');
+          const currentEpisode = getEpisode(currentEpisodeNumber, episodes);
+
           const watchedPercent = (time * 100) / currentMediaItemDuration;
           const passedBoundary = watchedPercent >= MARK_AS_WATCHED_PERCENTAGE;
 
           if (passedBoundary && !currentMediaItem.markedAsWatched) {
             currentMediaItem.markedAsWatched = true;
 
-            const [,, epNumber] = currentMediaItem.id.split('-');
-            const currentEpisode = getEpisode(epNumber, episodes);
             const index = episodes.indexOf(currentEpisode);
             const nextEpisodeNumber = (episodes[index + 1] || {}).episode;
 
-            this.onMarkAsWatched(episodeNumber);
+            this.onMarkAsWatched(currentEpisodeNumber);
 
-            // Setting next episode as highlighted
-            this.setState({ highlightEpisode: nextEpisodeNumber });
+            // Setting next episode as highlighted if exist
+            if (nextEpisodeNumber) {
+              this.setState({ highlightEpisode: nextEpisodeNumber });
+            }
 
             /**
              * If user configured app for continues playback then loading next
@@ -656,6 +658,99 @@ export default function seasonRoute() {
                   player.playlist.push(episodeMediaItem);
                 });
             }
+          }
+
+          const {
+            duration,
+            watchedTime,
+          } = currentMediaItem;
+
+          /**
+           * Rounding time values to lower integer and checking if it's last
+           * second of the episode.
+           */
+          if (~~time === ~~duration) {
+            const minimalWatchTime = (duration * SHOW_RATING_PERCENTAGE) / 100;
+
+            /**
+             * Creating bound closure for rate method to be able to use in
+             * child component.
+             */
+            const onRateChange = this.onRateChange.bind(this);
+
+            /**
+             * Don't show rating screen if watched time less than minimum
+             * allowed time. This means that user didn't watch episode enough
+             * to rate it.
+             */
+            if (watchedTime < minimalWatchTime) return;
+
+            /**
+             * Pausing player so we can show rating screen with blocked
+             * controls.
+             * All thanks to `player.interactiveOverlayDismissable`.
+             */
+            player.pause();
+
+            /**
+             * Parsing document because we don't want to show rating screen
+             * as normal screen. It must be rendered
+             * as `interactiveOverlayDocument`.
+             */
+            TVDML
+              .parseDocument(TVDML.createComponent({
+                getInitialState() {
+                  return {
+                    timeout: RATING_SCREEN_TIMEOUT,
+                  };
+                },
+
+                componentDidMount() {
+                  this.timer = setInterval(() => {
+                    if (this.state.timeout > 1) {
+                      this.setState({
+                        timeout: this.state.timeout - 1,
+                      });
+                    } else {
+                      this.resumePlayback();
+                    }
+                  }, 1000);
+                },
+
+                resumePlayback() {
+                  if (this.timer) clearInterval(this.timer);
+                  player.interactiveOverlayDocument = null;
+                  player.play();
+                },
+
+                render() {
+                  const { timeout } = this.state;
+
+                  return (
+                    <document>
+                      <ratingTemplate
+                        style="background-color: rgba(0,0,0,0.8)"
+                      >
+                        <title>
+                          {i18n('episode-rate-title', { timeout })}
+                        </title>
+                        <ratingBadge
+                          onChange={event => {
+                            onRateChange(currentEpisode, event).then(() => {
+                              this.resumePlayback();
+                            });
+                          }}
+                        />
+                      </ratingTemplate>
+                    </document>
+                  );
+                },
+              }))
+              .pipe(payload => {
+                const { parsedDocument: document } = payload;
+                player.interactiveOverlayDocument = document;
+              })
+              .sink();
           }
         }, { interval: 1 });
 
@@ -674,98 +769,12 @@ export default function seasonRoute() {
               resumeTime,
             } = currentMediaItem;
 
-            const [,, epNumber] = id.split('-');
-            const currentEpisode = getEpisode(epNumber, episodes);
+            const [,, currentEpisodeNumber] = id.split('-');
+            const currentEpisode = getEpisode(currentEpisodeNumber, episodes);
             const { eid } = getEpisodeMedia(currentEpisode, translation);
 
             saveElapsedTime(eid, resumeTime);
           }
-        });
-
-        player.addEventListener('mediaItemWillChange', () => {
-          const mediaItemIndex = player.playlist.length - 2;
-          const currentMediaItem = player.playlist.item(mediaItemIndex);
-
-          const {
-            id,
-            duration,
-            watchedTime,
-          } = currentMediaItem;
-
-          const [,, epNumber] = id.split('-');
-          const currentEpisode = getEpisode(epNumber, episodes);
-
-          const minimalWatchTime = (duration * SHOW_RATING_PERCENTAGE) / 100;
-
-          /**
-           * Don't show rating screen if watched time less than minimum allowed
-           * time. This means that user didn't watch episode enough to rate it.
-           */
-          if (watchedTime < minimalWatchTime) return;
-
-          /**
-           * Pausing player so we can show rating screen with blocked controls.
-           * All thanks to `player.interactiveOverlayDismissable`.
-           */
-          player.pause();
-
-          /**
-           * Parsing document because we don't want to show rating screen
-           * as normal screen. It must be rendered
-           * as `interactiveOverlayDocument`.
-           */
-          TVDML
-            .parseDocument(TVDML.createComponent({
-              getInitialState() {
-                return {
-                  timeout: 10,
-                };
-              },
-
-              componentDidMount() {
-                this.timer = setInterval(() => {
-                  if (this.state.timeout > 1) {
-                    this.setState({
-                      timeout: this.state.timeout - 1,
-                    });
-                  } else {
-                    clearInterval(this.timer);
-                    this.resumePlayback();
-                  }
-                }, 1000);
-              },
-
-              resumePlayback() {
-                player.interactiveOverlayDocument = null;
-                player.play();
-              },
-
-              render() {
-                const { timeout } = this.state;
-
-                return (
-                  <document>
-                    <ratingTemplate>
-                      <title>
-                        {i18n('episode-rate-title', { timeout })}
-                      </title>
-                      <ratingBadge
-                        onChange={event => {
-                          this.onRateChange(currentEpisode, event).then(() => {
-                            this.resumePlayback();
-                          });
-                        }}
-                      />
-                    </ratingTemplate>
-                  </document>
-                );
-              },
-            }))
-            .pipe(payload => {
-              const { parsedDocument: document } = payload;
-              player.interactiveOverlayDocument = document;
-            })
-            .sink();
         });
 
         const episode = getEpisode(episodeNumber, episodes);
@@ -873,14 +882,14 @@ export default function seasonRoute() {
           tvshow,
         } = this.state;
 
-        const addTvShowToWatched = addTVShowToSubscriptions && !tvshow.watching;
+        const addShowToWatched = addTVShowToSubscriptions && !tvshow.watching;
 
         this.setState({ [`eid-${episodeNumber}`]: true });
 
         return Promise
           .all([
             markEpisodeAsWatched(sid, id, episodeNumber),
-            addTvShowToWatched ? addToMyTVShows(sid) : Promise.resolve(),
+            addShowToWatched ? addToMyTVShows(sid) : Promise.resolve(),
           ])
           .then(TVDML.removeModal);
       },
