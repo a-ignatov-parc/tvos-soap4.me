@@ -603,7 +603,7 @@ export default function seasonRoute() {
             currentMediaItemDuration,
           } = player;
 
-          currentMediaItem.resumeTime = time;
+          currentMediaItem.currentTime = time;
 
           if (!currentMediaItem.duration) {
             currentMediaItem.duration = currentMediaItemDuration;
@@ -653,13 +653,16 @@ export default function seasonRoute() {
           const {
             duration,
             watchedTime,
+            markedAsRated,
           } = currentMediaItem;
 
           /**
            * Rounding time values to lower integer and checking if it's last
            * second of the episode.
            */
-          if (~~time === ~~duration) {
+          if (~~time === ~~duration && !markedAsRated) {
+            currentMediaItem.markedAsRated = true;
+
             const minimalWatchTime = (duration * SHOW_RATING_PERCENTAGE) / 100;
 
             /**
@@ -756,14 +759,14 @@ export default function seasonRoute() {
           if (shouldSaveTime) {
             const {
               id,
-              resumeTime,
+              currentTime,
             } = currentMediaItem;
 
             const [,, currentEpisodeNumber] = id.split('-');
             const currentEpisode = getEpisode(currentEpisodeNumber, episodes);
             const { eid } = getEpisodeMedia(currentEpisode, translation);
 
-            saveElapsedTime(eid, resumeTime);
+            saveElapsedTime(eid, currentTime);
           }
         });
 
