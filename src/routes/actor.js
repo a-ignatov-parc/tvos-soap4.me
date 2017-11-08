@@ -4,7 +4,7 @@ import { get as i18n } from '../localization';
 
 import { getActorInfo } from '../request/soap';
 
-import { getCroppedImageUrl } from '../utils';
+import { getMonogramImageUrl } from '../utils';
 
 import Tile from '../components/tile';
 import Loader from '../components/loader';
@@ -46,7 +46,7 @@ export default function actorRoute(title) {
                   <monogramLockup disabled="true">
                     <monogram
                       style="tv-placeholder: monogram"
-                      src={getCroppedImageUrl(actorImage, 250)}
+                      src={getMonogramImageUrl(actorImage)}
                       firstName={firstName}
                       lastName={lastName}
                     />

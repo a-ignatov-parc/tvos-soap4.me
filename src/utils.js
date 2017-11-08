@@ -109,6 +109,12 @@ export function getCroppedImageUrl(targetUrl, size) {
   return croppedUrl;
 }
 
+export function getMonogramImageUrl(targetUrl) {
+  // Broken monogram element rendering will be fixed only on tvOS 11.2
+  if (parseFloat(Device.systemVersion) >= 11.2) return targetUrl;
+  return getCroppedImageUrl(targetUrl, 250);
+}
+
 export function createMediaItem(episode) {
   return Object
     .keys(episode)
