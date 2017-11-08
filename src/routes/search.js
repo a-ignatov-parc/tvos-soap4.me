@@ -5,7 +5,7 @@ import { get as i18n } from '../localization';
 import {
   link,
   prettifyEpisodeNum,
-  getCroppedImageUrl,
+  getMonogramImageUrl,
 } from '../utils';
 
 import { processEntitiesInString } from '../utils/parser';
@@ -181,7 +181,7 @@ export default function searchRoute() {
                   >
                     <monogram
                       style="tv-placeholder: monogram"
-                      src={getCroppedImageUrl(actorImage, 250)}
+                      src={getMonogramImageUrl(actorImage)}
                       firstName={firstName}
                       lastName={lastName}
                     />

@@ -16,7 +16,7 @@ import {
   link,
   capitalizeText,
   createMediaItem,
-  getCroppedImageUrl,
+  getMonogramImageUrl,
   isMenuButtonPressNavigatedTo,
 } from '../utils';
 
@@ -714,7 +714,7 @@ export default function tvShowRoute() {
                   >
                     <monogram
                       style="tv-placeholder: monogram;"
-                      src={getCroppedImageUrl(poster, 250)}
+                      src={getMonogramImageUrl(poster)}
                       firstName={firstName}
                       lastName={lastName}
                     />
