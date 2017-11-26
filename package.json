@@ -41,7 +41,7 @@
     "blueimp-md5": "^2.3.0",
     "moment": "^2.14.1",
     "simple-format-number": "^0.1.2",
-    "tvdml": "^3.0.1"
+    "tvdml": "^4.0.0"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",

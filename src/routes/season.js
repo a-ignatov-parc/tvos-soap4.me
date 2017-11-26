@@ -488,6 +488,7 @@ export default function seasonRoute() {
                       <listItemLockup
                         class="item"
                         ref={listItemRef}
+                        onPlay={onSelectEpisode}
                         onSelect={onSelectEpisode}
                         onHoldselect={onSelectDesc}
                         autoHighlight={highlight ? 'true' : undefined}
