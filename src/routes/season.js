@@ -137,7 +137,9 @@ function getSeasonExtendedData(season, schedule, translation, isDemo) {
     return !seasonEpsDictionary[episode];
   });
 
-  const episodes = filteredSeasonEps.concat(scheduleDiff);
+  const episodes = filteredSeasonEps
+    .concat(scheduleDiff)
+    .sort((a, b) => a.episode - b.episode);
 
   return episodes.reduce((result, { episode, watched }) => {
     // eslint-disable-next-line no-param-reassign
