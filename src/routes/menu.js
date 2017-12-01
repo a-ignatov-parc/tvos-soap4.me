@@ -34,7 +34,7 @@ export default function menuRoute(items) {
         return { nickname, authorized, isFamilyAccount, avatar };
       },
 
-      componentDidMount() {
+      componentWillMount() {
         this.languageChangeStream = localization.subscription();
         this.languageChangeStream.pipe(({ language }) => {
           this.setState({ language });
@@ -47,7 +47,9 @@ export default function menuRoute(items) {
 
         this.appResumeStream = TVDML.subscribe(TVDML.event.RESUME);
         this.appResumeStream.pipe(() => this.setState(this.getUserState()));
+      },
 
+      componentDidMount() {
         // eslint-disable-next-line react/no-did-mount-set-state
         this.setState({ rendered: true });
       },
