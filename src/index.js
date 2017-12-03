@@ -1,3 +1,5 @@
+/* global sessionStorage */
+
 import * as TVDML from 'tvdml';
 
 import * as user from './user';
@@ -24,7 +26,14 @@ import Loader from './components/loader';
 
 TVDML
   .subscribe(TVDML.event.LAUNCH)
-  .pipe(() => TVDML.navigate('get-token'));
+  .pipe(params => {
+    /**
+     * TODO: Need to save initial params in a better way then
+     * using `sessionStorage`. Maybe some in-memory storage.
+     */
+    sessionStorage.setItem('startParams', JSON.stringify(params));
+    return TVDML.navigate('get-token');
+  });
 
 TVDML
   .handleRoute('get-token')
