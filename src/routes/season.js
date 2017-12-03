@@ -715,6 +715,12 @@ export default function seasonRoute() {
 
                 resumePlayback() {
                   if (this.timer) clearInterval(this.timer);
+
+                  /**
+                   * Also we need to manually unmount previously created
+                   * document.
+                   */
+                  player.interactiveOverlayDocument.destroyComponent();
                   player.interactiveOverlayDocument = null;
                   player.play();
                 },
@@ -745,6 +751,13 @@ export default function seasonRoute() {
               .pipe(payload => {
                 const { parsedDocument: document } = payload;
                 player.interactiveOverlayDocument = document;
+
+                /**
+                 * Because we created document bypassing normal rendering
+                 * pipeline we need to mount document manually by invoking
+                 * `didMount` method.
+                 */
+                document.didMount();
               })
               .sink();
           }
