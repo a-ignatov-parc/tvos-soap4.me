@@ -144,31 +144,74 @@ export default function myRoute() {
           return item.status > 0 && !item.unwatched;
         });
 
+        const newEpisodesSoon = schedule
+          .map(({ sid }) => sid)
+          .filter((sid, i, list) => list.indexOf(sid) === i)
+          .map(sid => series.find(serie => serie.sid === sid))
+          .filter(Boolean);
+
+        const sections = [
+          {
+            title: i18n('my-new-episodes'),
+            count: unwatched.length,
+            content: this.renderSectionGrid(unwatched),
+          },
+          {
+            title: i18n('my-new-episodes-soon'),
+            count: newEpisodesSoon.length,
+            content: this.renderSectionGrid(newEpisodesSoon, schedule),
+          },
+          {
+            title: i18n('my-watched'),
+            count: watched.length,
+            content: this.renderSectionGrid(watched, schedule),
+          },
+          {
+            title: i18n('my-closed'),
+            count: closed.length,
+            content: this.renderSectionGrid(closed),
+          },
+          {
+            title: i18n('my-all'),
+            count: series.length,
+            content: this.renderSectionGrid(series, schedule),
+          },
+        ];
+
         return (
           <document>
-            <stackTemplate>
+            <catalogTemplate>
               <banner>
                 <title>
                   {i18n('my-caption')}
                 </title>
               </banner>
-              <collectionList>
-                {unwatched.length && (
-                  this.renderSectionGrid(unwatched, 'my-new-episodes')
-                )}
-                {watched.length && (
-                  this.renderSectionGrid(watched, 'my-watched', schedule)
-                )}
-                {closed.length && (
-                  this.renderSectionGrid(closed, 'my-closed')
-                )}
-              </collectionList>
-            </stackTemplate>
+              <list>
+                <section>
+                  {sections
+                    .filter(({ count }) => count)
+                    .map(({ title, count, content }) => (
+                      <listItemLockup key={title}>
+                        <title>
+                          {title}
+                        </title>
+                        <decorationLabel>
+                          {count}
+                        </decorationLabel>
+                        <relatedContent>
+                          {content}
+                        </relatedContent>
+                      </listItemLockup>
+                    ))
+                  }
+                </section>
+              </list>
+            </catalogTemplate>
           </document>
         );
       },
 
-      renderSectionGrid(collection, title, schedule = []) {
+      renderSectionGrid(collection, schedule = []) {
         const scheduleDictionary = schedule.reduce((result, item) => {
           // eslint-disable-next-line no-param-reassign
           result[item.sid] = item;
@@ -187,13 +230,6 @@ export default function myRoute() {
 
         return (
           <grid>
-            {title && (
-              <header>
-                <title>
-                  {i18n(title)}
-                </title>
-              </header>
-            )}
             <section>
               {collection.map(tvshow => {
                 const {
