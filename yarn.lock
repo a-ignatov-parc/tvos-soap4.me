@@ -3821,9 +3821,9 @@ tunnel-agent@^0.6.0:
   dependencies:
     safe-buffer "^5.0.1"
 
-tvdml@^5.1.0:
-  version "5.1.0"
-  resolved "https://registry.yarnpkg.com/tvdml/-/tvdml-5.1.0.tgz#6609fa27866bbd68b597e922e8db37af702da488"
+tvdml@^5.1.1:
+  version "5.1.1"
+  resolved "https://registry.yarnpkg.com/tvdml/-/tvdml-5.1.1.tgz#6a75549c82a626f8ac9ed696c0bb3c6a4472ed7d"
   dependencies:
     "@a-ignatov-parc/virtual-dom" "^2.2.0"
 
