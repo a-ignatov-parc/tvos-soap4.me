@@ -1,10 +1,25 @@
 import * as TVDML from 'tvdml';
 
-import lifecycle from 'recompose/lifecycle';
+import { createStore } from 'redux';
+import { connect, Provider } from 'react-redux';
 
 import { link } from './utils';
 
-function Hello(props) {
+function counter(state = 1, action) {
+  switch (action.type) {
+    case 'INCREMENT':
+      return state + 1;
+    case 'DECREMENT':
+      return state - 1;
+    default:
+      return state;
+  }
+}
+
+const store = createStore(counter);
+
+
+function Screen1(props) {
   const name = props.name || 'Human';
   const counter = props.counter || 0;
 
@@ -35,37 +50,48 @@ function Hello(props) {
   );
 }
 
-const HelloCounter = lifecycle({
-  componentWillMount() {
-    this.setState({ counter: 0 });
-  },
+function Screen2(props) {
+  const counter = props.counter || 0;
 
-  componentDidMount() {
-    this.timer = setInterval(() => {
-      this.setState({ counter: this.state.counter + 1 });
-    }, 5000);
-  },
+  return (
+    <document>
+      <alertTemplate>
+        <title style='tv-text-style: title1'>💃</title>
+        <text>And here is a global counter!</text>
+        <text style='tv-text-style: title2'>
+          {counter}
+        </text>
+        <button onSelect={() => navigationDocument.popDocument()}>
+          <text>🚗</text>
+        </button>
+      </alertTemplate>
+    </document>
+  );
+}
 
-  componentWillUnmount() {
-    this.timer && clearInterval(this.timer);
-  },
-})(Hello);
+const withCounter = connect(state => ({ counter: state }));
+
+const ConnectedScreen1 = withCounter(Screen1);
+const ConnectedScreen2 = withCounter(Screen2);
 
 TVDML
   .subscribe(TVDML.event.LAUNCH)
+  .pipe(TVDML.passthrough(() => {
+    setInterval(() => {
+      store.dispatch({ type: 'INCREMENT' });
+    }, 5000);
+  }))
   .pipe(TVDML.renderReact(payload => (
-    <HelloCounter name='Developer' />
+    <Provider store={store}>
+      <ConnectedScreen1 name='Developer' />
+    </Provider>
   )));
 
 
 TVDML
   .handleRoute('next-page')
   .pipe(TVDML.renderReact(payload => (
-    <document>
-      <loadingTemplate>
-        <activityIndicator>
-          <title style='tv-text-style: title1'>💃</title>
-        </activityIndicator>
-      </loadingTemplate>
-    </document>
+    <Provider store={store}>
+      <ConnectedScreen2 />
+    </Provider>
   )));
