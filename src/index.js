@@ -5,12 +5,12 @@ import { connect, Provider } from 'react-redux';
 
 import { link } from './utils';
 
-function counter(state = 1, action) {
+const INCREMENT = 'increment';
+
+function counter(state = 0, action) {
   switch (action.type) {
-    case 'INCREMENT':
+    case INCREMENT:
       return state + 1;
-    case 'DECREMENT':
-      return state - 1;
     default:
       return state;
   }
@@ -18,6 +18,20 @@ function counter(state = 1, action) {
 
 const store = createStore(counter);
 
+function showMessage() {
+  TVDML
+    .renderModal(payload => (
+      <document>
+        <alertTemplate>
+          <title>😯</title>
+          <button onSelect={TVDML.removeModal}>
+            <text>Close</text>
+          </button>
+        </alertTemplate>
+      </document>
+    ))
+    .sink();
+}
 
 function Screen1(props) {
   const name = props.name || 'Human';
@@ -38,7 +52,7 @@ function Screen1(props) {
         <button onSelect={link('next-page')}>
           <text>🎉</text>
         </button>
-        <button>
+        <button onSelect={showMessage}>
           <text>🍸</text>
         </button>
         <text>And a small counter for your pleasure!</text>
@@ -76,12 +90,24 @@ const ConnectedScreen2 = withCounter(Screen2);
 
 TVDML
   .subscribe(TVDML.event.LAUNCH)
+  .pipe(TVDML.render(payload => (
+    <document>
+      <loadingTemplate>
+        <activityIndicator>
+          <title>🤔</title>
+        </activityIndicator>
+      </loadingTemplate>
+    </document>
+  )))
   .pipe(TVDML.passthrough(() => {
-    setInterval(() => {
-      store.dispatch({ type: 'INCREMENT' });
-    }, 5000);
+    return new Promise(resolve => {
+      setInterval(() => {
+        store.dispatch({ type: INCREMENT });
+        resolve();
+      }, 5000);
+    });
   }))
-  .pipe(TVDML.renderReact(payload => (
+  .pipe(TVDML.render(payload => (
     <Provider store={store}>
       <ConnectedScreen1 name='Developer' />
     </Provider>
@@ -90,7 +116,7 @@ TVDML
 
 TVDML
   .handleRoute('next-page')
-  .pipe(TVDML.renderReact(payload => (
+  .pipe(TVDML.render(payload => (
     <Provider store={store}>
       <ConnectedScreen2 />
     </Provider>
