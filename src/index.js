@@ -49,7 +49,7 @@ function Screen1(props) {
       <alertTemplate>
         <title class='title'>Hello {name}!</title>
         <description>Nice to see you 😸</description>
-        <button onSelect={link('next-page')}>
+        <button onSelect={link('page2')}>
           <text>🎉</text>
         </button>
         <button onSelect={showMessage}>
@@ -75,7 +75,7 @@ function Screen2(props) {
         <text style='tv-text-style: title2'>
           {counter}
         </text>
-        <button onSelect={() => navigationDocument.popDocument()}>
+        <button onSelect={showMessage}>
           <text>🚗</text>
         </button>
       </alertTemplate>
@@ -99,14 +99,29 @@ TVDML
       </loadingTemplate>
     </document>
   )))
-  .pipe(TVDML.passthrough(() => {
-    return new Promise(resolve => {
-      setInterval(() => {
-        store.dispatch({ type: INCREMENT });
-        resolve();
-      }, 5000);
-    });
-  }))
+  .pipe(TVDML.passthrough(() => new Promise(resolve => {
+    setInterval(() => {
+      store.dispatch({ type: INCREMENT });
+      resolve();
+    }, 5000);
+  })))
+  .pipe(TVDML.render(payload => (
+    <document>
+      <menuBarTemplate>
+        <menuBar>
+          <menuItem route='page1'>
+            <title>Page1</title>
+          </menuItem>
+          <menuItem route='page2'>
+            <title>Page2</title>
+          </menuItem>
+        </menuBar>
+      </menuBarTemplate>
+    </document>
+  )));
+
+TVDML
+  .handleRoute('page1')
   .pipe(TVDML.render(payload => (
     <Provider store={store}>
       <ConnectedScreen1 name='Developer' />
@@ -115,7 +130,7 @@ TVDML
 
 
 TVDML
-  .handleRoute('next-page')
+  .handleRoute('page2')
   .pipe(TVDML.render(payload => (
     <Provider store={store}>
       <ConnectedScreen2 />
