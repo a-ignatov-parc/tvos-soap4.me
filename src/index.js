@@ -115,6 +115,9 @@ TVDML
           <menuItem route='page2' autoHighlight>
             <title>Page2</title>
           </menuItem>
+          <menuItem route='page3'>
+            <title>Page3</title>
+          </menuItem>
         </menuBar>
       </menuBarTemplate>
     </document>
@@ -135,4 +138,58 @@ TVDML
     <Provider store={store}>
       <ConnectedScreen2 />
     </Provider>
+  )));
+
+const mockData = [
+  {
+    title: 'Arrow, Season 1',
+    url: 'http://is2.mzstatic.com/image/thumb/Music6/v4/e9/bb/9b/e9bb9bbb-16c0-d946-063d-15632dd78a76/source/600x600bb.jpg',
+  },
+  {
+    title: 'Arrow, Season 2',
+    url: 'http://is1.mzstatic.com/image/thumb/Music3/v4/bb/87/84/bb8784ca-7e31-0cc1-b56d-9243624863d3/source/600x600bb.jpg',
+  },
+  {
+    title: 'Arrow, Season 3',
+    url: 'http://is2.mzstatic.com/image/thumb/Video62/v4/ec/ca/78/ecca78a3-5bb0-0b32-954c-f7fd966582ab/source/600x600bb.jpg',
+  },
+];
+
+TVDML
+  .handleRoute('page3')
+  .pipe(TVDML.render(payload => (
+    <document>
+      <stackTemplate>
+        <banner>
+          <title>TV Shows</title>
+        </banner>
+        <collectionList>
+          <shelf>
+            <prototypes>
+              <lockup prototype='tvshow'>
+                <img
+                  binding='@src:{url};'
+                  width='300'
+                  height='300'
+                />
+                <title binding='textContent:{title};' />
+              </lockup>
+            </prototypes>
+            <section
+              binding='items:{tvshows};'
+              dataItem={{
+                tvshows: mockData.map((cover, i) => {
+                  const item = new DataItem('tvshow', i);
+
+                  item.url = cover.url;
+                  item.title = cover.title;
+
+                  return item;
+                }),
+              }}
+            />
+          </shelf>
+        </collectionList>
+      </stackTemplate>
+    </document>
   )));
