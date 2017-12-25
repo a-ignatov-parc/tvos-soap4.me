@@ -56,7 +56,7 @@ function Screen1(props) {
           <text>🍸</text>
         </button>
         <text>And a small counter for your pleasure!</text>
-        <text style='tv-text-style: title2'>
+        <text style={{ tvTextStyle: 'title2' }}>
           {counter}
         </text>
       </alertTemplate>
@@ -70,9 +70,9 @@ function Screen2(props) {
   return (
     <document>
       <alertTemplate>
-        <title style='tv-text-style: title1'>💃</title>
+        <title style={{ tvTextStyle: 'title1' }}>💃</title>
         <text>And here is a global counter!</text>
-        <text style='tv-text-style: title2'>
+        <text style={{ tvTextStyle: 'title2' }}>
           {counter}
         </text>
         <button onSelect={showMessage}>
