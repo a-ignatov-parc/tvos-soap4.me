@@ -112,7 +112,7 @@ TVDML
           <menuItem route='page1'>
             <title>Page1</title>
           </menuItem>
-          <menuItem route='page2'>
+          <menuItem route='page2' autoHighlight>
             <title>Page2</title>
           </menuItem>
         </menuBar>
