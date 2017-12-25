@@ -1,7 +1,7 @@
 const path = require('path');
 
 const webpack = require('webpack');
-const MinifyPlugin = require('babel-minify-webpack-plugin');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 function resolveFromRoot(dir) {
   return path.resolve(__dirname, dir);
@@ -22,12 +22,13 @@ const rules = [
     use: {
       loader: 'babel-loader',
       options: {
+        presets: [
+          'react',
+        ],
         plugins: [
-          ['transform-react-jsx', {
-            pragma: 'pragma.jsx',
-          }],
           'transform-class-properties',
           'transform-object-rest-spread',
+          'react-require',
         ],
         cacheDirectory: true,
       },
@@ -55,18 +56,26 @@ const plugins = [
   new webpack.EnvironmentPlugin({
     NODE_ENV: DEVELOPMENT,
   }),
-
-  new webpack.ProvidePlugin({
-    pragma: resolveFromRoot('./src/pragma'),
-  }),
 ];
 
 if (isProd) {
   plugins.push(...[
+    new webpack.optimize.ModuleConcatenationPlugin(),
     new webpack.optimize.OccurrenceOrderPlugin(),
-    new MinifyPlugin({
-      keepFnName: true,
-      keepClassName: true,
+    new UglifyJsPlugin({
+      uglifyOptions: {
+        compress: {
+          keep_fnames: true,
+          warnings: false,
+        },
+        output: {
+          comments: false,
+        },
+        mangle: {
+          keep_fnames: true,
+        },
+      },
+      sourceMap: true,
     }),
   ]);
 }
