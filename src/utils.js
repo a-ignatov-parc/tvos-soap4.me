@@ -2,12 +2,12 @@ import * as TVDML from 'tvdml';
 
 import StoreProvider from './components/StoreProvider';
 
-export function renderWithRuntime(Component) {
+export function renderWithRuntime(renderFactory) {
   return TVDML
     .createPipeline()
-    .pipe(TVDML.render(() => (
+    .pipe(TVDML.render(payload => (
       <StoreProvider>
-        <Component />
+        {renderFactory(payload)}
       </StoreProvider>
     )));
 }
