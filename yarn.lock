@@ -3875,8 +3875,8 @@ tunnel-agent@^0.6.0:
     safe-buffer "^5.0.1"
 
 tvdml@^6.0.0-0:
-  version "6.0.0-2"
-  resolved "https://registry.yarnpkg.com/tvdml/-/tvdml-6.0.0-2.tgz#9da36e36280fb49ce0959e7b71de3c240cdd935f"
+  version "6.0.0-3"
+  resolved "https://registry.yarnpkg.com/tvdml/-/tvdml-6.0.0-3.tgz#0bc45a0a9a4d735ade95e742d7b32c99fe3c8f78"
   dependencies:
     react-reconciler "^0.7.0"
 
