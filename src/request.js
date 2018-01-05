@@ -17,7 +17,7 @@ export function request(url, params = {}) {
 
   return Promise
     .resolve(new XMLHttpRequest())
-    .then(XHR => {
+    .then((XHR) => {
       XHR.open(method, url);
 
       if (method === POST) {
@@ -35,7 +35,7 @@ export function request(url, params = {}) {
       XHR.addEventListener('timeout', result(reject));
 
       if (typeof progress === 'function') {
-        XHR.addEventListener('progress', event => {
+        XHR.addEventListener('progress', (event) => {
           if (event.lengthComputable) {
             progress(event.loaded / event.total);
           }
@@ -52,7 +52,7 @@ export function request(url, params = {}) {
 
       XHR.send(requestBody);
     }))
-    .then(xhr => {
+    .then((xhr) => {
       const { status } = xhr;
 
       // eslint-disable-next-line no-mixed-operators
