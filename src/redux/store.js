@@ -4,11 +4,24 @@ import {
   applyMiddleware,
 } from 'redux';
 
+import app from './molecules/app';
+import account from './molecules/account';
+import support from './molecules/support';
+
 const reducer = combineReducers({
-  app: appReducer,
-  counter: counterReducer,
+  app,
+  account,
+  support,
 });
 
-const middlewares = applyMiddleware(counterMiddleware);
+const middlewares = applyMiddleware(
+  app,
+  account,
+  support,
+);
 
-export default createStore(reducer, middlewares);
+const store = createStore(reducer, middlewares);
+
+store.subscribe(() => console.log('store update', store.getState()));
+
+export default store;

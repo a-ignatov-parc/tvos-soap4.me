@@ -3,6 +3,8 @@ const path = require('path');
 const webpack = require('webpack');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
+const config = require('./package.json');
+
 function resolveFromRoot(dir) {
   return path.resolve(__dirname, dir);
 }
@@ -55,6 +57,7 @@ const stats = {
 const plugins = [
   new webpack.EnvironmentPlugin({
     NODE_ENV: DEVELOPMENT,
+    APP_VERSION: config.version,
   }),
 ];
 
