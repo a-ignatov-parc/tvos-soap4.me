@@ -1,12 +1,12 @@
 import * as TVDML from 'tvdml';
 
+import store from './redux/store';
+
 import {
   launchApp,
   resumeApp,
   suspendApp,
 } from './redux/molecules/app';
-
-import store from './redux/store';
 
 import { renderWithRuntime } from './utils';
 

@@ -122,10 +122,10 @@ class Main extends PureComponent {
     const {
       account,
       children,
-      accountIsLoading,
+      fetchingAccount,
     } = this.props;
 
-    if (accountIsLoading) {
+    if (fetchingAccount) {
       return (
         <Loader title='Checking authorization...' />
       );

@@ -4,18 +4,13 @@ import { DATA_PENDING } from '../redux/constants';
 
 export default connect(state => {
   const {
-    token,
-    logged,
-    extended,
+    entities,
+    tvshowsIds,
     fetchStatus,
-  } = state.account;
+  } = state.tvshows;
 
   return {
-    fetchingAccount: fetchStatus === DATA_PENDING,
-    account: {
-      token,
-      logged,
-      extended,
-    },
+    fetchingTvshows: fetchStatus === DATA_PENDING,
+    tvshows: tvshowsIds.map(sid => entities[sid]),
   };
 });

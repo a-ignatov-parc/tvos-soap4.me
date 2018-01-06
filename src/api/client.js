@@ -2,7 +2,7 @@ import * as request from '../request';
 
 import store from '../redux/store';
 
-function emptyOrErrorsResolvers(defaults) {
+function emptyOrErrors(defaults) {
   return [
     // eslint-disable-next-line no-confusing-arrow
     response => response != null ? response : defaults,
@@ -68,4 +68,12 @@ export function post(url, parameters) {
 
 export function checkSession() {
   return get('https://api.soap4.me/v2/auth/check/');
+}
+
+export function getAllTVShows() {
+  return get('https://api.soap4.me/v2/soap/');
+}
+
+export function getMyTVShows() {
+  return get('https://api.soap4.me/v2/soap/my/').then(...emptyOrErrors([]));
 }
