@@ -17,6 +17,8 @@ import Main, {
   MenuItem,
 } from './screens/Main';
 
+import All from './screens/All';
+
 TVDML
   .subscribe(TVDML.event.LAUNCH)
   .pipe(params => store.dispatch(launchApp(params)));
@@ -55,4 +57,20 @@ TVDML
         </MenuItem>
       </Menu>
     </Main>
+  )));
+
+TVDML
+  .handleRoute('all')
+  .pipe(renderWithRuntime(() => (
+    <All />
+  )));
+
+TVDML
+  .handleRoute('search')
+  .pipe(renderWithRuntime(() => (
+    <document>
+      <alertTemplate>
+        <title>Search</title>
+      </alertTemplate>
+    </document>
   )));
