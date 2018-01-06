@@ -1,3 +1,5 @@
+/* global localStorage */
+
 import curry from 'curry';
 
 import { checkSession } from '../../api/client';
@@ -16,12 +18,14 @@ import {
 const UPDATE = Symbol('account/update');
 const ERROR = Symbol('account/error');
 
+const TOKEN_STORAGE_KEY = 'soap4atv-user-token';
+
 const isAppStartedEvent = curry(isEventWithName)('appStarted');
 
 const defaultState = {
   meta: { status: DATA_PENDING },
+  token: localStorage.getItem(TOKEN_STORAGE_KEY),
   activeUserId: undefined,
-  token: undefined,
   till: undefined,
   extended: false,
   logged: false,
@@ -74,6 +78,10 @@ const middleware = store => next => action => {
     checkSession()
       .then(response => store.dispatch(updateAccount(response)))
       .catch(error => store.dispatch(handleError(error)));
+  }
+
+  if (action.type === UPDATE && action.data.token) {
+    localStorage.setItem(TOKEN_STORAGE_KEY, action.data.token);
   }
 
   return next(action);

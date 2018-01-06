@@ -10,7 +10,12 @@ import store from './redux/store';
 
 import { renderWithRuntime } from './utils';
 
-import Main, {Menu, MenuItem} from './screens/Main';
+import Main, {
+  USER,
+  GUEST,
+  Menu,
+  MenuItem,
+} from './screens/Main';
 
 TVDML
   .subscribe(TVDML.event.LAUNCH)
@@ -29,8 +34,24 @@ TVDML
   .pipe(renderWithRuntime(() => (
     <Main>
       <Menu>
-        <MenuItem route='page1'>
-          Page1
+        <MenuItem route='search'>
+          Search
+        </MenuItem>
+        <MenuItem
+          route='my'
+          activeFor={USER}
+          hiddenFor={GUEST}
+        >
+          My
+        </MenuItem>
+        <MenuItem
+          route='all'
+          activeFor={GUEST}
+        >
+          All
+        </MenuItem>
+        <MenuItem route='settings'>
+          Settings
         </MenuItem>
       </Menu>
     </Main>

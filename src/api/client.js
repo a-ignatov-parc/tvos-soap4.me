@@ -30,19 +30,19 @@ function requestLogger(...params) {
 }
 
 function headers() {
-  console.log(111, store.getState());
+  const { app, account } = store.getState();
 
-  return {};
+  const { token } = account;
+  const { isQello, version } = app;
 
-  /*const token = getToken();
-  const name = `soap4atv${isQello() ? '-qello' : ''}`;
-  const userAgent = `ATV: ${name} ${version}`;
+  const name = `soap4atv${isQello ? '-qello' : ''}`;
+  const userAgent = `ATV: ${name} v${version}`;
 
   return {
     'X-Api-Token': token,
     'X-User-Agent': userAgent,
     'User-Agent': userAgent,
-  };*/
+  };
 }
 
 function addHeaders(dict) {
