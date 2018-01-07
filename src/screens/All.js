@@ -10,14 +10,13 @@ import withTvshows from '../hocs/withTvshows';
 
 import Tile from '../components/Tile';
 import Loader from '../components/Loader';
+import TilePrototypes from '../components/TilePrototypes';
 
 function All(props) {
   const {
     tvshows,
     fetchingTvshows,
   } = props;
-
-  console.log(666, props);
 
   if (fetchingTvshows) {
     return (
@@ -35,36 +34,54 @@ function All(props) {
         </banner>
         <collectionList>
           <grid>
-            <section>
-              {tvshows.map(tvshow => {
-                const {
-                  sid,
-                  watching,
-                  unwatched,
-                  covers: { big: poster },
-                } = tvshow;
+            <prototypes>
+              <TilePrototypes />
+            </prototypes>
+            <section
+              binding='items:{tvshows}'
+              onSelect={event => console.log(event.target.dataItem)}
+              dataItem={{
+                tvshows: tvshows.map(tvshow => {
+                  const {
+                    sid,
+                    watching,
+                    unwatched,
+                    covers: { big: poster },
+                  } = tvshow;
 
-                const isUHD = !!tvshow['4k'];
-                const tvShowTitle = tvshow.title;
+                  const tvShowTitle = tvshow.title;
 
-                return (
-                  <Tile
-                    key={sid}
-                    title={tvShowTitle}
-                    route='tvshow'
-                    poster={poster}
-                    counter={unwatched}
-                    isWatched={watching > 0 && !unwatched}
-                    isUHD={isUHD}
-                    payload={{
-                      sid,
-                      poster,
-                      title: tvShowTitle,
-                    }}
-                  />
-                );
-              })}
-            </section>
+                  const isUHD = !!tvshow['4k'];
+                  const isWatched = watching > 0 && !unwatched;
+
+                  const prototypeNameParts = [
+                    'tvshow-tile',
+                    isUHD ? 'uhd' : 'hd',
+                  ];
+
+                  if (!isWatched && unwatched) {
+                    prototypeNameParts.push('watched-count');
+                  } else if (isWatched) {
+                    prototypeNameParts.push('watched-all');
+                  } else {
+                    prototypeNameParts.push('not-watched');
+                  }
+
+                  const prototypeName = prototypeNameParts
+                    .filter(Boolean)
+                    .join('-');
+
+                  const item = new DataItem(prototypeName, sid);
+
+                  item.sid = sid;
+                  item.poster = poster;
+                  item.title = tvShowTitle;
+                  item.count = unwatched;
+
+                  return item;
+                }),
+              }}
+            />
           </grid>
         </collectionList>
       </stackTemplate>

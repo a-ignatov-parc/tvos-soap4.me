@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 export default function Poster(props) {
   const {
     src,
-    binding,
+    useBinding,
     showTopShadow,
     showBottomShadow,
   } = props;
@@ -11,7 +11,7 @@ export default function Poster(props) {
   return (
     <img
       binding='@src:{poster}'
-      src={binding ? undefined : src}
+      src={useBinding ? undefined : src}
       width='250'
       height='250'
       class='tile-img'
@@ -33,13 +33,13 @@ export default function Poster(props) {
 
 Poster.propTypes = {
   src: PropTypes.string,
-  binding: PropTypes.bool,
+  useBinding: PropTypes.bool,
   showTopShadow: PropTypes.bool,
   showBottomShadow: PropTypes.bool,
 };
 
 Poster.defaultProps = {
-  binding: false,
+  useBinding: false,
   showTopShadow: false,
   showBottomShadow: false,
 };

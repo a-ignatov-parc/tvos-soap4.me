@@ -8,12 +8,20 @@ import BadgeUHD from './Tile/BadgeUHD';
 import BadgeWatchedAll from './Tile/BadgeWatchedAll';
 import BadgeWatchedCount from './Tile/BadgeWatchedCount';
 
+/**
+ * Don't forget to update `TilePrototypes` component if you add or change some
+ * presentation. It's not very convenient but rendering with `DataItem` api is
+ * the most performant way to render huge amount of items.
+ *
+ * More info here:
+ * https://goo.gl/bWv4Dh
+ */
 export default function Tile(props) {
   const {
     isUHD,
     title,
+    count,
     poster,
-    counter,
     subtitle,
     isWatched,
     ...otherProps,
@@ -24,7 +32,7 @@ export default function Tile(props) {
       <Poster
         src={poster}
         showTopShadow={isUHD}
-        showBottomShadow={counter || isWatched}
+        showBottomShadow={count || isWatched}
       />
       <Title>{title}</Title>
       <Subtitle>{subtitle}</Subtitle>
@@ -32,8 +40,8 @@ export default function Tile(props) {
         {isUHD && (
           <BadgeUHD />
         )}
-        {!isWatched && counter && (
-          <BadgeWatchedCount count={counter} />
+        {!isWatched && count && (
+          <BadgeWatchedCount count={count} />
         )}
         {isWatched && (
           <BadgeWatchedAll />
@@ -46,10 +54,10 @@ export default function Tile(props) {
 Tile.propTypes = {
   title: PropTypes.string.isRequired,
   poster: PropTypes.string.isRequired,
+  count: PropTypes.number,
+  subtitle: PropTypes.string,
   isUHD: PropTypes.bool,
   isWatched: PropTypes.bool,
-  counter: PropTypes.number,
-  subtitle: PropTypes.string,
 };
 
 Tile.defaultProps = {

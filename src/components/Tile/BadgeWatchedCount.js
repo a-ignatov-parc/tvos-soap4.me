@@ -1,8 +1,14 @@
 import PropTypes from 'prop-types';
 
-export default function BadgeWatchedCount({ count }) {
+export default function BadgeWatchedCount(props) {
+  const {
+    count,
+    useBinding,
+  } = props;
+
   return (
     <textBadge
+      binding='textContent:{count}'
       type='fill'
       style={{
         fontSize: 20,
@@ -13,11 +19,16 @@ export default function BadgeWatchedCount({ count }) {
         tvPosition: 'bottom',
         tvTintColor: 'rgb(255, 255, 255)',
       }}
-      children={count}
+      children={useBinding ? undefined : count}
     />
   );
 }
 
 BadgeWatchedCount.propTypes = {
   count: PropTypes.number,
+  useBinding: PropTypes.bool,
+};
+
+BadgeWatchedCount.defaultProps = {
+  useBinding: false,
 };

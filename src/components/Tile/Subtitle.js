@@ -2,24 +2,24 @@ import PropTypes from 'prop-types';
 
 export default function Subtitle(props) {
   const {
-    binding,
     children,
+    useBinding,
   } = props;
 
   return (
     <subtitle
       binding='textContent:{subtitle}'
-      children={binding ? undefined : children}
+      children={useBinding ? undefined : children}
       class='tile-subtitle'
     />
   );
 }
 
 Subtitle.propTypes = {
-  binding: PropTypes.bool,
   children: PropTypes.string,
+  useBinding: PropTypes.bool,
 };
 
 Subtitle.defaultProps = {
-  binding: false,
+  useBinding: false,
 };

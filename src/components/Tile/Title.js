@@ -2,24 +2,24 @@ import PropTypes from 'prop-types';
 
 export default function Title(props) {
   const {
-    binding,
     children,
+    useBinding,
   } = props;
 
   return (
     <title
       binding='textContent:{title}'
-      children={binding ? undefined : children}
+      children={useBinding ? undefined : children}
       class='tile-title'
     />
   );
 }
 
 Title.propTypes = {
-  binding: PropTypes.bool,
   children: PropTypes.string,
+  useBinding: PropTypes.bool,
 };
 
 Title.defaultProps = {
-  binding: false,
+  useBinding: false,
 };
