@@ -1,3 +1,5 @@
+import * as TVDML from 'tvdml';
+
 import compose from 'recompose/compose';
 import mapProps from 'recompose/mapProps';
 import lifecycle from 'recompose/lifecycle';
@@ -8,9 +10,24 @@ import { getAllTvShows } from '../redux/molecules/tvshows';
 
 import withTvshows from '../hocs/withTvshows';
 
+import Text from '../components/Text';
 import Tile from '../components/Tile';
 import Loader from '../components/Loader';
 import TilePrototypes from '../components/TilePrototypes';
+
+function onTileSelect(event) {
+  const {
+    sid,
+    title,
+    poster,
+  } = event.target.dataItem;
+
+  TVDML.navigate('tvshow', {
+    sid,
+    title,
+    poster,
+  });
+}
 
 function All(props) {
   const {
@@ -29,7 +46,7 @@ function All(props) {
       <stackTemplate>
         <banner>
           <title>
-            All
+            <Text i18n='all-caption' />
           </title>
         </banner>
         <collectionList>
@@ -39,7 +56,7 @@ function All(props) {
             </prototypes>
             <section
               binding='items:{tvshows}'
-              onSelect={event => console.log(event.target.dataItem)}
+              onSelect={onTileSelect}
               dataItem={{
                 tvshows: tvshows.map(tvshow => {
                   const {
@@ -71,6 +88,10 @@ function All(props) {
                     .filter(Boolean)
                     .join('-');
 
+                  /**
+                   * All available `Tile` prototypes can be found
+                   * in `TilePrototypes` component.
+                   */
                   const item = new DataItem(prototypeName, sid);
 
                   item.sid = sid;

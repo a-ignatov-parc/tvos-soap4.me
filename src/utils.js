@@ -11,3 +11,7 @@ export function renderWithRuntime(renderFactory) {
       </StoreProvider>
     )));
 }
+
+export function link(route, payload) {
+  return () => TVDML.navigate(route, payload);
+}

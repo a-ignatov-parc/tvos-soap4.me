@@ -5,22 +5,25 @@ import {
 } from 'redux';
 
 import app from './molecules/app';
+import device from './molecules/device';
 import account from './molecules/account';
-import support from './molecules/support';
 import tvshows from './molecules/tvshows';
+import settings from './molecules/settings';
 
 const reducer = combineReducers({
   app,
+  device,
   account,
-  support,
   tvshows,
+  settings,
 });
 
 const middlewares = applyMiddleware(
   app,
+  device,
   account,
-  support,
   tvshows,
+  settings,
 );
 
 const store = createStore(reducer, middlewares);

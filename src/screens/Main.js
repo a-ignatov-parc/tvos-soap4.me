@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 
 import withAccount from '../hocs/withAccount';
 
+import Text from '../components/Text';
 import Loader from '../components/Loader';
 
 export const USER = Symbol('menu/user');
@@ -50,7 +51,7 @@ MenuRenderer.propTypes = {
   userStatus: PropTypes.oneOf([USER, GUEST]),
   systemItems: PropTypes.arrayOf(PropTypes.shape({
     route: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired,
+    title: PropTypes.node.isRequired,
   })),
 };
 
@@ -90,7 +91,7 @@ MenuItem.contextTypes = {
 
 MenuItem.propTypes = {
   route: PropTypes.string.isRequired,
-  children: PropTypes.string.isRequired,
+  children: PropTypes.node.isRequired,
   activeFor: PropTypes.oneOf([USER, GUEST]),
   hiddenFor: PropTypes.oneOf([USER, GUEST]),
 };
@@ -127,7 +128,9 @@ class Main extends PureComponent {
 
     if (fetchingAccount) {
       return (
-        <Loader title='Checking authorization...' />
+        <Loader>
+          <Text i18n='auth-checking' />
+        </Loader>
       );
     }
 
@@ -140,8 +143,10 @@ class Main extends PureComponent {
     console.log(777, account);
 
     const accountItem = {
-      title: 'Account',
-      route: 'user',
+      route: 'account',
+      title: (
+        <Text i18n='menu-account' />
+      ),
     };
 
     return (

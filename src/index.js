@@ -19,6 +19,8 @@ import Main, {
 
 import All from './screens/All';
 
+import Text from './components/Text';
+
 TVDML
   .subscribe(TVDML.event.LAUNCH)
   .pipe(params => store.dispatch(launchApp(params)));
@@ -37,23 +39,23 @@ TVDML
     <Main>
       <Menu>
         <MenuItem route='search'>
-          Search
+          <Text i18n='menu-search' />
         </MenuItem>
         <MenuItem
           route='my'
           activeFor={USER}
           hiddenFor={GUEST}
         >
-          My
+          <Text i18n='menu-my' />
         </MenuItem>
         <MenuItem
           route='all'
           activeFor={GUEST}
         >
-          All
+          <Text i18n='menu-all' />
         </MenuItem>
         <MenuItem route='settings'>
-          Settings
+          <Text i18n='menu-settings' />
         </MenuItem>
       </Menu>
     </Main>

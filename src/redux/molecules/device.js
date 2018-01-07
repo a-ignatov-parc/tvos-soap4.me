@@ -1,10 +1,11 @@
-/* global Device */
+/* global Device, Settings */
 
 import stateReducer from '../reduce';
 import createMolecule from '../molecule';
 
 const defaultState = {
-  UHD: Device.productType !== 'AppleTV5,3',
+  supportUHD: Device.productType !== 'AppleTV5,3',
+  systemLanguage: Settings.language,
 };
 
 const reducer = stateReducer(defaultState);

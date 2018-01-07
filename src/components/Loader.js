@@ -1,6 +1,11 @@
 import PropTypes from 'prop-types';
 
-export default function Loader({ title, heroImg }) {
+export default function Loader(props) {
+  const {
+    heroImg,
+    children,
+  } = props;
+
   return (
     <document>
       <loadingTemplate>
@@ -10,7 +15,7 @@ export default function Loader({ title, heroImg }) {
           </banner>
         )}
         <activityIndicator>
-          <title>{title}</title>
+          <title>{children}</title>
         </activityIndicator>
       </loadingTemplate>
     </document>
@@ -18,6 +23,6 @@ export default function Loader({ title, heroImg }) {
 }
 
 Loader.propTypes = {
-  title: PropTypes.string,
   heroImg: PropTypes.string,
+  children: PropTypes.node,
 };
