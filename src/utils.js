@@ -12,6 +12,16 @@ export function renderWithRuntime(renderFactory) {
     )));
 }
 
+export function renderModalWithRuntime(renderFactory) {
+  return TVDML
+    .createPipeline()
+    .pipe(TVDML.renderModal(payload => (
+      <StoreProvider>
+        {renderFactory(payload)}
+      </StoreProvider>
+    )));
+}
+
 export function link(route, payload) {
   return () => TVDML.navigate(route, payload);
 }

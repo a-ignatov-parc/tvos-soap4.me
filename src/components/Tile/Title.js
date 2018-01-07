@@ -11,6 +11,7 @@ export default function Title(props) {
       binding='textContent:{title}'
       children={useBinding ? undefined : children}
       class='tile-title'
+      style={{ tvTextHighlightStyle: 'marquee-on-highlight' }}
     />
   );
 }

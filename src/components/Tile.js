@@ -35,7 +35,9 @@ export default function Tile(props) {
         showBottomShadow={count || isWatched}
       />
       <Title>{title}</Title>
-      <Subtitle>{subtitle}</Subtitle>
+      {subtitle && (
+        <Subtitle>{subtitle}</Subtitle>
+      )}
       <Overlay>
         {isUHD && (
           <BadgeUHD />

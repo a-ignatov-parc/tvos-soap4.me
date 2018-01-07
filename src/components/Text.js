@@ -10,8 +10,8 @@ import i18n from '../i18n';
 function Text(props) {
   const {
     lang,
+    payload,
     i18n: key,
-    ...payload,
   } = props;
 
   return i18n(lang, key, payload);
@@ -20,6 +20,7 @@ function Text(props) {
 Text.propTypes = {
   lang: PropTypes.string.isRequired,
   i18n: PropTypes.string.isRequired,
+  payload: PropTypes.object,
 };
 
 export default compose(

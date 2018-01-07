@@ -1,4 +1,5 @@
 import { Fragment } from 'react';
+import PropTypes from 'prop-types';
 
 import Title from './Tile/Title';
 import Poster from './Tile/Poster';
@@ -15,19 +16,25 @@ import BadgeWatchedCount from './Tile/BadgeWatchedCount';
  * This prototypes mirrors all possible states of `Tile` component with
  * available data bindings.
  */
-export default function TilePrototypes() {
+export default function TilePrototypes(props) {
+  const { withSubtitle } = props;
+
   return (
     <Fragment>
       <lockup prototype='tvshow-tile-hd-not-watched'>
         <Poster useBinding />
         <Title useBinding />
-        <Subtitle useBinding />
+        {withSubtitle && (
+          <Subtitle useBinding />
+        )}
         <Overlay />
       </lockup>
       <lockup prototype='tvshow-tile-uhd-not-watched'>
         <Poster useBinding showTopShadow />
         <Title useBinding />
-        <Subtitle useBinding />
+        {withSubtitle && (
+          <Subtitle useBinding />
+        )}
         <Overlay>
           <BadgeUHD />
         </Overlay>
@@ -35,7 +42,9 @@ export default function TilePrototypes() {
       <lockup prototype='tvshow-tile-hd-watched-count'>
         <Poster useBinding showBottomShadow />
         <Title useBinding />
-        <Subtitle useBinding />
+        {withSubtitle && (
+          <Subtitle useBinding />
+        )}
         <Overlay>
           <BadgeWatchedCount useBinding />
         </Overlay>
@@ -43,7 +52,9 @@ export default function TilePrototypes() {
       <lockup prototype='tvshow-tile-uhd-watched-count'>
         <Poster useBinding showTopShadow showBottomShadow />
         <Title useBinding />
-        <Subtitle useBinding />
+        {withSubtitle && (
+          <Subtitle useBinding />
+        )}
         <Overlay>
           <BadgeUHD />
           <BadgeWatchedCount useBinding />
@@ -52,7 +63,9 @@ export default function TilePrototypes() {
       <lockup prototype='tvshow-tile-hd-watched-all'>
         <Poster useBinding showBottomShadow />
         <Title useBinding />
-        <Subtitle useBinding />
+        {withSubtitle && (
+          <Subtitle useBinding />
+        )}
         <Overlay>
           <BadgeWatchedAll />
         </Overlay>
@@ -60,7 +73,9 @@ export default function TilePrototypes() {
       <lockup prototype='tvshow-tile-uhd-watched-all'>
         <Poster useBinding showTopShadow showBottomShadow />
         <Title useBinding />
-        <Subtitle useBinding />
+        {withSubtitle && (
+          <Subtitle useBinding />
+        )}
         <Overlay>
           <BadgeUHD />
           <BadgeWatchedAll />
@@ -69,3 +84,11 @@ export default function TilePrototypes() {
     </Fragment>
   );
 }
+
+TilePrototypes.propTypes = {
+  withSubtitle: PropTypes.bool,
+};
+
+TilePrototypes.defaultProps = {
+  withSubtitle: false,
+};
