@@ -2,7 +2,7 @@ import { connect } from 'react-redux';
 
 import { DATA_PENDING } from '../redux/constants';
 
-import * as exports from '../redux/molecules/tvshows';
+import * as exports from '../redux/molecules/dictionaries';
 
 const actions = Object
   .keys(exports)
@@ -13,13 +13,14 @@ const actions = Object
 
 export default connect(state => {
   const {
-    entities,
-    tvshowsIds,
+    genres,
+    countries,
     fetchStatus,
-  } = state.tvshows;
+  } = state.dictionaries;
 
   return {
-    fetchingTvshows: fetchStatus === DATA_PENDING,
-    tvshows: tvshowsIds.map(sid => entities[sid]),
+    genres,
+    countries,
+    fetchingDictionaries: fetchStatus === DATA_PENDING,
   };
 }, actions);

@@ -18,6 +18,7 @@ import Main, {
 } from './screens/Main';
 
 import All from './screens/All';
+import Auth from './screens/Auth';
 
 import Text from './components/Text';
 
@@ -65,6 +66,12 @@ TVDML
   .handleRoute('all')
   .pipe(renderWithRuntime(() => (
     <All />
+  )));
+
+TVDML
+  .handleRoute('tvshow')
+  .pipe(renderWithRuntime(() => (
+    <Auth />
   )));
 
 TVDML

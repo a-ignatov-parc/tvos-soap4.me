@@ -9,6 +9,7 @@ import device from './molecules/device';
 import account from './molecules/account';
 import tvshows from './molecules/tvshows';
 import settings from './molecules/settings';
+import dictionaries from './molecules/dictionaries';
 
 const reducer = combineReducers({
   app,
@@ -16,6 +17,7 @@ const reducer = combineReducers({
   account,
   tvshows,
   settings,
+  dictionaries,
 });
 
 const middlewares = applyMiddleware(
@@ -24,6 +26,7 @@ const middlewares = applyMiddleware(
   account,
   tvshows,
   settings,
+  dictionaries,
 );
 
 const store = createStore(reducer, middlewares);

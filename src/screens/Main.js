@@ -9,6 +9,8 @@ import Loader from '../components/Loader';
 export const USER = Symbol('menu/user');
 export const GUEST = Symbol('menu/guest');
 
+let initiallyFocused = false;
+
 function MenuRenderer(props, context) {
   const {
     userStatus,
@@ -18,7 +20,11 @@ function MenuRenderer(props, context) {
   const items = []
     .concat(context.menu.getItems(), systemItems)
     .filter(Boolean)
-    .filter(({ hiddenFor }) => hiddenFor !== userStatus)
+    .filter(({ hiddenFor }) => hiddenFor !== userStatus);
+
+  const shouldFocus = !initiallyFocused;
+
+  initiallyFocused = true;
 
   console.log(888, items, props);
 
@@ -30,7 +36,7 @@ function MenuRenderer(props, context) {
             <menuItem
               key={item.route}
               route={item.route}
-              autoHighlight={item.activeFor === userStatus}
+              autoHighlight={shouldFocus && item.activeFor === userStatus}
             >
               <title>{item.title}</title>
             </menuItem>
@@ -119,6 +125,10 @@ class Main extends PureComponent {
     };
   }
 
+  componentDidMount() {
+    this.props.checkAuthorization();
+  }
+
   render() {
     const {
       account,
@@ -139,8 +149,6 @@ class Main extends PureComponent {
      * It's idempotent side effect.
      */
     this.menuItems.length = 0;
-
-    console.log(777, account);
 
     const accountItem = {
       route: 'account',

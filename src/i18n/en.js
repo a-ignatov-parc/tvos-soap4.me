@@ -218,18 +218,18 @@ export default {
   'authorize-tvshow-description': 'If you would like to track your subscriptions and sync them with your online account at soap4.me you need to be authorized',
   'authorize-control-trigger': 'Authorize',
 
-  'login-step1-caption': 'Enter user login (not e-mail)',
-  'login-step1-placeholder': 'Login',
-  'login-step1-button': 'Next',
+  'authorize-login-title': `Enter login`,
+  'authorize-login-description': `User's login is not e-mail`,
+  'authorize-login-placeholder': 'Login',
 
-  'login-step2-caption': 'Enter account password (minimum 6 symbols)',
-  'login-step2-placeholder': 'Password',
-  'login-step2-button': 'Authorize',
+  'authorize-password-title': `Enter password`,
+  'authorize-password-description': `Account password has minimum 6 symbols`,
+  'authorize-password-placeholder': 'Password',
 
-  'login-step3-caption': 'Authorizing...',
+  'authorize-process': 'Authorizing...',
 
-  'login-error-wrong-login': 'Incorrect login or password',
-  'login-error-something-went-wrong': 'Something went wrong =(',
+  'authorize-error-wrong-login': 'Incorrect login or password',
+  'authorize-error-something-went-wrong': 'Something went wrong =(',
 
   'translation-localization': 'Localization',
   'translation-subtitles': 'Subtitles',

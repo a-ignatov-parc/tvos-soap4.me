@@ -4,13 +4,10 @@ import compose from 'recompose/compose';
 import withState from 'recompose/withState';
 import lifecycle from 'recompose/lifecycle';
 
-import store from '../redux/store';
-
-import { getAllTvShows } from '../redux/molecules/tvshows';
-
 import { renderModalWithRuntime } from '../utils';
 
 import withTvshows from '../hocs/withTvshows';
+import withDictionaries from '../hocs/withDictionaries';
 
 import Text from '../components/Text';
 import Tile from '../components/Tile';
@@ -18,6 +15,7 @@ import Loader from '../components/Loader';
 import TextIndent from '../components/TextIndent';
 import TilePrototypes from '../components/TilePrototypes';
 
+// TODO: Don't forget to show `UHD` section for authorized users.
 const UHD = 'uhd';
 const NAME = 'name';
 const DATE = 'date';
@@ -151,14 +149,14 @@ const sections = {
 
   [COUNTRY]: {
     title: <Text i18n='all-group-title-country' />,
-    reducer(list, { contries }) {
+    reducer(list, { countries }) {
       const collection = list.reduce((result, item) => {
         if (!result[item.country]) result[item.country] = [];
         result[item.country].push(item);
         return result;
       }, {});
 
-      return contries.map(country => ({
+      return countries.map(country => ({
         title: country.full,
         items: collection[country.short],
       }));
@@ -223,19 +221,21 @@ function onGroupSelect(activeGroupId, setActiveGroupId) {
 function All(props) {
   const {
     tvshows,
+    countries,
     activeGroupId,
-    fetchingTvshows,
     setActiveGroupId,
+    fetchingTvshows,
+    fetchingDictionaries,
   } = props;
 
-  if (fetchingTvshows) {
+  if (fetchingTvshows || fetchingDictionaries) {
     return (
       <Loader />
     );
   }
 
   const activeGroup = sections[activeGroupId];
-  const listItems = activeGroup.reducer(tvshows, { contries: [] });
+  const listItems = activeGroup.reducer(tvshows, { countries });
 
   return (
     <document>
@@ -333,7 +333,7 @@ function All(props) {
                             item.sid = sid;
                             item.poster = poster;
                             item.title = tvShowTitle;
-                            item.count = unwatched;
+                            item.count = `${unwatched}`;
 
                             return item;
                           }),
@@ -352,11 +352,13 @@ function All(props) {
 }
 
 export default compose(
+  withTvshows,
+  withDictionaries,
   lifecycle({
     componentDidMount() {
-      store.dispatch(getAllTvShows());
+      this.props.getAllTvShows();
+      this.props.getAllDictionaries();
     },
   }),
-  withTvshows,
   withState('activeGroupId', 'setActiveGroupId', NAME),
 )(All);

@@ -1,13 +1,13 @@
 /* global localStorage */
 
-import curry from 'curry';
-
-import { checkSession } from '../../api/client';
+import {
+  logout,
+  authorize,
+  checkSession,
+} from '../../api/client';
 
 import stateReducer from '../reduce';
 import createMolecule from '../molecule';
-
-import { isEventWithName } from '../utils';
 
 import {
   DATA_ERROR,
@@ -15,68 +15,131 @@ import {
   DATA_PENDING,
 } from '../constants';
 
+const LOGOUT = Symbol('tvshows/logout');
+const AUTHORIZE = Symbol('tvshows/authorize');
+const CHECK_SESSION = Symbol('tvshows/check_session');
+
 const RESOLVE = Symbol('account/resolve');
-const ERROR = Symbol('account/error');
 
 const TOKEN_STORAGE_KEY = 'soap4atv-user-token';
-
-const isAppStartedEvent = curry(isEventWithName)('appStarted');
 
 const defaultState = {
   token: localStorage.getItem(TOKEN_STORAGE_KEY),
   till: undefined,
+  login: undefined,
   extended: false,
   logged: false,
+  authStatus: DATA_PENDING,
   fetchStatus: DATA_PENDING,
 };
 
-function resolveResponse(response) {
-  return { type: RESOLVE, data: response };
+export function checkAuthorization() {
+  return { type: CHECK_SESSION };
 }
 
-function handleError(error) {
-  return { type: ERROR, meta: { error } };
+export function deleteAuthorization() {
+  return { type: LOGOUT };
+}
+
+export function authorizeWithCredentials(login, password) {
+  return { type: AUTHORIZE, data: { login, password } };
 }
 
 const reducer = stateReducer(defaultState, {
-  [RESOLVE]: (state, { data }) => {
+  [LOGOUT]: () => ({
+    authStatus: DATA_PENDING,
+  }),
+
+  [AUTHORIZE]: () => ({
+    authStatus: DATA_PENDING,
+  }),
+
+  [CHECK_SESSION]: () => ({
+    authStatus: DATA_PENDING,
+    fetchStatus: DATA_PENDING,
+  }),
+
+  [RESOLVE]: (state, { data, meta }) => {
     const {
+      till,
+      login,
       token,
       logged,
     } = data;
 
-    console.log(444, data);
+    const { action } = meta;
 
-    if (logged > 0) {
+    console.log(444, data, action);
+
+    if (action.type === LOGOUT) {
       return {
-        token,
+        ...defaultState,
+        token: undefined,
+        authStatus: DATA_LOADED,
+        fetchStatus: DATA_LOADED,
+      };
+    }
+
+    if (logged > 0 || action.type === AUTHORIZE) {
+      return {
+        ...token && { token },
+        till,
+        login,
         logged: true,
+        extended: Date.now() / 1000 < till,
+        authStatus: DATA_LOADED,
         fetchStatus: DATA_LOADED,
       };
     }
 
     return {
-      token,
+      ...token && { token },
       till: null,
+      login: null,
       logged: false,
       extended: false,
+      authStatus: DATA_LOADED,
       fetchStatus: DATA_LOADED,
     };
   },
 });
 
 const middleware = store => next => action => {
-  if (isAppStartedEvent(action)) {
-    checkSession()
-      .then(response => store.dispatch(resolveResponse(response)))
-      .catch(error => store.dispatch(handleError(error)));
+  const result = next(action);
+
+  if (action.type === CHECK_SESSION) {
+    checkSession().then(response => store.dispatch({
+      type: RESOLVE,
+      data: response,
+      meta: { action },
+    }));
   }
 
-  if (action.type === RESOLVE && action.data.token) {
-    localStorage.setItem(TOKEN_STORAGE_KEY, action.data.token);
+  if (action.type === AUTHORIZE) {
+    authorize(action.data).then(response => store.dispatch({
+      type: RESOLVE,
+      data: response,
+      meta: { action },
+    }));
   }
 
-  return next(action);
+  if (action.type === LOGOUT) {
+    logout().then(response => store.dispatch({
+      type: RESOLVE,
+      data: response,
+      meta: { action },
+    }));
+  }
+
+  if (action.type === RESOLVE) {
+    if (action.data.token) {
+      localStorage.setItem(TOKEN_STORAGE_KEY, action.data.token);
+    } else if (action.meta.action.type === LOGOUT) {
+      localStorage.removeItem(TOKEN_STORAGE_KEY);
+    }
+  }
+
+  return result;
 };
 
 export default createMolecule({ reducer, middleware });

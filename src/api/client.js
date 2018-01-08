@@ -70,10 +70,32 @@ export function checkSession() {
   return get('https://api.soap4.me/v2/auth/check/');
 }
 
+export function authorize({ login, password }) {
+  return post('https://api.soap4.me/v2/auth/', { login, password })
+    .catch(xhr => {
+      if (xhr.status === 403) {
+        return request.toJSON()(xhr);
+      }
+      return Promise.reject(xhr);
+    });
+}
+
+export function logout() {
+  return post('https://api.soap4.me/v2/auth/logout/');
+}
+
 export function getAllTVShows() {
   return get('https://api.soap4.me/v2/soap/');
 }
 
 export function getMyTVShows() {
   return get('https://api.soap4.me/v2/soap/my/').then(...emptyOrErrors([]));
+}
+
+export function getCountriesList() {
+  return get('https://api.soap4.me/v2/soap/countrys/');
+}
+
+export function getGenresList() {
+  return get('https://api.soap4.me/v2/soap/genres/');
 }
