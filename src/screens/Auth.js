@@ -40,9 +40,7 @@ function Auth(props) {
 
   if (authorizingAccount) {
     return (
-      <Loader>
-        <Text i18n='authorize-process' />
-      </Loader>
+      <Loader />
     );
   }
 

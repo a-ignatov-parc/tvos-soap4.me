@@ -1,9 +1,14 @@
+import curry from 'curry';
+
 import { getAllTVShows } from '../../api/client';
 
 import stateReducer from '../reduce';
 import createMolecule from '../molecule';
 
+import { isEventWithName } from '../utils';
+
 import {
+  TYPE_EVENT,
   DATA_ERROR,
   DATA_LOADED,
   DATA_PENDING,
@@ -13,6 +18,8 @@ const GETALL = Symbol('tvshows/getall');
 
 const ERROR = Symbol('tvshows/error');
 const RESOLVE = Symbol('tvshows/resolve');
+
+const isAccountStatusChanged = curry(isEventWithName)('accountStatusChanged');
 
 const defaultState = {
   myIds: [],
@@ -53,6 +60,10 @@ const middleware = store => next => action => {
     getAllTVShows()
       .then(response => store.dispatch(resolveResponse(response)))
       .catch(error => store.dispatch(handleError(error)));
+  }
+
+  if (isAccountStatusChanged(action)) {
+    store.dispatch(getAllTvShows());
   }
 
   return next(action);

@@ -69,7 +69,7 @@ TVDML
   )));
 
 TVDML
-  .handleRoute('tvshow')
+  .handleRoute('account')
   .pipe(renderWithRuntime(() => (
     <Auth />
   )));

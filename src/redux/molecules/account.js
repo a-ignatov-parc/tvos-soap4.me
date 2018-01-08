@@ -10,6 +10,7 @@ import stateReducer from '../reduce';
 import createMolecule from '../molecule';
 
 import {
+  TYPE_EVENT,
   DATA_ERROR,
   DATA_LOADED,
   DATA_PENDING,
@@ -136,6 +137,15 @@ const middleware = store => next => action => {
       localStorage.setItem(TOKEN_STORAGE_KEY, action.data.token);
     } else if (action.meta.action.type === LOGOUT) {
       localStorage.removeItem(TOKEN_STORAGE_KEY);
+    }
+
+    const resolvedAction = action.meta.action.type;
+
+    if (resolvedAction === AUTHORIZE || resolvedAction === LOGOUT) {
+      store.dispatch({
+        type: TYPE_EVENT,
+        meta: { name: 'accountStatusChanged' },
+      });
     }
   }
 

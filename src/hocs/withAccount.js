@@ -13,7 +13,7 @@ const actions = Object
 
 export default connect(state => {
   const {
-    token,
+    login,
     logged,
     extended,
     authStatus,
@@ -24,7 +24,7 @@ export default connect(state => {
     fetchingAccount: fetchStatus === DATA_PENDING,
     authorizingAccount: authStatus === DATA_PENDING,
     account: {
-      token,
+      login,
       logged,
       extended,
     },

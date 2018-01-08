@@ -59,6 +59,9 @@ const plugins = [
     NODE_ENV: DEVELOPMENT,
     APP_VERSION: config.version,
   }),
+
+  // Hack to include only needed locales.
+  new webpack.ContextReplacementPlugin(/moment[\\\/]locale$/, /^\.\/(ru|en)$/),
 ];
 
 if (isProd) {

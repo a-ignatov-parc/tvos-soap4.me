@@ -1,5 +1,6 @@
 import { Fragment, PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import moment from 'moment';
 
 import withAccount from '../hocs/withAccount';
 
@@ -10,6 +11,31 @@ export const USER = Symbol('menu/user');
 export const GUEST = Symbol('menu/guest');
 
 let initiallyFocused = false;
+
+const datePattern = 'DD-MM-YYYY';
+
+function currentDateIs(date) {
+  return moment().isSame(moment(date, datePattern));
+}
+
+function currentDateIsBetween(start, end) {
+  const startMoment = moment(start, datePattern);
+  const endMoment = moment(end, datePattern);
+  return moment().isBetween(startMoment, endMoment);
+}
+
+function getUserIcon() {
+  if (moment().isSame(moment('01-01', datePattern).add(256, 'days'))) {
+    return '👨‍💻';
+  }
+  if (currentDateIsBetween('01-01', '07-01')) return '🎅';
+  if (currentDateIs('31-10')) return '🎃';
+  if (currentDateIs('14-02')) return '❤️';
+  if (currentDateIs('01-03')) return '🌹';
+  if (currentDateIs('01-06')) return '🌻';
+  if (currentDateIs('09-07')) return '🦄';
+  return '👱';
+}
 
 function MenuRenderer(props, context) {
   const {
@@ -152,9 +178,9 @@ class Main extends PureComponent {
 
     const accountItem = {
       route: 'account',
-      title: (
-        <Text i18n='menu-account' />
-      ),
+      title: account.logged
+        ? `${getUserIcon()} ${account.login}`
+        : <Text i18n='menu-account' />,
     };
 
     return (
