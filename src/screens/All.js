@@ -333,6 +333,8 @@ function All(props) {
                             item.sid = sid;
                             item.poster = poster;
                             item.title = tvShowTitle;
+
+                            // Data bindings can't work with numbers.
                             item.count = `${unwatched}`;
 
                             return item;
