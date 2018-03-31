@@ -1,107 +1,85 @@
-/* global sessionStorage */
-
 import * as TVDML from 'tvdml';
 
-import * as user from './user';
-import { processFamilyAccount } from './user/utils';
+import store from './redux/store';
 
-import { get as i18n } from './localization';
-import { checkSession } from './request/soap';
+import {
+  launchApp,
+  resumeApp,
+  suspendApp,
+} from './redux/molecules/app';
 
-import myRoute from './routes/my';
-import allRoute from './routes/all';
-import menuRoute from './routes/menu';
-import userRoute from './routes/user';
-import actorRoute from './routes/actor';
-import seasonRoute from './routes/season';
-import tvShowRoute from './routes/tvshow';
-import searchRoute from './routes/search';
-import genresRoute from './routes/genres';
-import settingsRoute from './routes/settings';
-import speedTestRoute from './routes/speedtest';
+import { renderWithRuntime } from './utils';
 
-import { AUTH, GUEST } from './routes/menu/constants';
+import Main, {
+  USER,
+  GUEST,
+  Menu,
+  MenuItem,
+} from './screens/Main';
 
-import Loader from './components/loader';
+import All from './screens/All';
+import Auth from './screens/Auth';
+
+import Text from './components/Text';
 
 TVDML
   .subscribe(TVDML.event.LAUNCH)
-  .pipe(params => {
-    /**
-     * TODO: Need to save initial params in a better way then
-     * using `sessionStorage`. Maybe some in-memory storage.
-     */
-    sessionStorage.setItem('startParams', JSON.stringify(params));
-    return TVDML.navigate('get-token');
-  });
+  .pipe(params => store.dispatch(launchApp(params)));
 
 TVDML
-  .handleRoute('get-token')
-  .pipe(TVDML.render(<Loader title={i18n('auth-checking')} />))
-  .pipe(checkSession)
-  .pipe(payload => {
-    const { logged, token, till } = payload;
-    user.set({ logged, token, till });
-    return payload;
-  })
-  .pipe(({ login }) => processFamilyAccount(login))
-  .pipe(() => TVDML.redirect('main'));
+  .subscribe(TVDML.event.SUSPEND)
+  .pipe(() => store.dispatch(suspendApp()));
 
 TVDML
-  .handleRoute('main')
-  .pipe(menuRoute([
-    {
-      route: 'search',
-    }, {
-      route: 'my',
-      active: AUTH,
-      hidden: GUEST,
-    }, {
-      route: 'all',
-      active: GUEST,
-    }, {
-      route: 'genres',
-    }, {
-      route: 'settings',
-    },
-  ]));
+  .subscribe(TVDML.event.RESUME)
+  .pipe(() => store.dispatch(resumeApp()));
 
 TVDML
-  .handleRoute('my')
-  .pipe(myRoute());
+  .subscribe(TVDML.event.LAUNCH)
+  .pipe(renderWithRuntime(() => (
+    <Main>
+      <Menu>
+        <MenuItem route='search'>
+          <Text i18n='menu-search' />
+        </MenuItem>
+        <MenuItem
+          route='my'
+          activeFor={USER}
+          hiddenFor={GUEST}
+        >
+          <Text i18n='menu-my' />
+        </MenuItem>
+        <MenuItem
+          route='all'
+          activeFor={GUEST}
+        >
+          <Text i18n='menu-all' />
+        </MenuItem>
+        <MenuItem route='settings'>
+          <Text i18n='menu-settings' />
+        </MenuItem>
+      </Menu>
+    </Main>
+  )));
 
 TVDML
   .handleRoute('all')
-  .pipe(allRoute());
+  .pipe(renderWithRuntime(() => (
+    <All />
+  )));
+
+TVDML
+  .handleRoute('account')
+  .pipe(renderWithRuntime(() => (
+    <Auth />
+  )));
 
 TVDML
   .handleRoute('search')
-  .pipe(searchRoute());
-
-TVDML
-  .handleRoute('settings')
-  .pipe(settingsRoute());
-
-TVDML
-  .handleRoute('tvshow')
-  .pipe(tvShowRoute());
-
-TVDML
-  .handleRoute('season')
-  .pipe(seasonRoute());
-
-TVDML
-  .handleRoute('actor')
-  .pipe(actorRoute());
-
-TVDML
-  .handleRoute('speedtest')
-  .pipe(speedTestRoute());
-
-TVDML
-  .handleRoute('user')
-  .pipe(userRoute());
-
-TVDML
-  .handleRoute('genres')
-  .pipe(genresRoute());
+  .pipe(renderWithRuntime(() => (
+    <document>
+      <alertTemplate>
+        <title>Search</title>
+      </alertTemplate>
+    </document>
+  )));
