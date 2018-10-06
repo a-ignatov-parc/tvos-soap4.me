@@ -9,7 +9,20 @@
 /* Begin PBXBuildFile section */
 		135F90921D2D887B006ACB5B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 135F90911D2D887B006ACB5B /* AppDelegate.swift */; };
 		135F90961D2D887B006ACB5B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 135F90951D2D887B006ACB5B /* Assets.xcassets */; };
+		20C243FE2166C2CB0055C35F /* TVServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20C243FD2166C2CB0055C35F /* TVServices.framework */; };
+		20C244012166C2CB0055C35F /* ServiceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20C244002166C2CB0055C35F /* ServiceProvider.swift */; };
+		20C244052166C2CB0055C35F /* TopShelf.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 20C243FB2166C2CB0055C35F /* TopShelf.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		20C244032166C2CB0055C35F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 135F90861D2D887B006ACB5B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 20C243FA2166C2CB0055C35F;
+			remoteInfo = TopShelf;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		137C11AB1D35971000514062 /* Embed Frameworks */ = {
@@ -22,6 +35,17 @@
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		20C244092166C2CB0055C35F /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				20C244052166C2CB0055C35F /* TopShelf.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -29,6 +53,12 @@
 		135F90911D2D887B006ACB5B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		135F90951D2D887B006ACB5B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		135F90971D2D887B006ACB5B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		20C243FB2166C2CB0055C35F /* TopShelf.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TopShelf.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		20C243FD2166C2CB0055C35F /* TVServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = TVServices.framework; path = System/Library/Frameworks/TVServices.framework; sourceTree = SDKROOT; };
+		20C244002166C2CB0055C35F /* ServiceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceProvider.swift; sourceTree = "<group>"; };
+		20C244022166C2CB0055C35F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		20C2440A2166CAF50055C35F /* soap4.me.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = soap4.me.entitlements; sourceTree = "<group>"; };
+		20C2440B2166DCC50055C35F /* TopShelf.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TopShelf.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -39,6 +69,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		20C243F82166C2CB0055C35F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				20C243FE2166C2CB0055C35F /* TVServices.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -46,6 +84,8 @@
 			isa = PBXGroup;
 			children = (
 				135F90901D2D887B006ACB5B /* soap4.me */,
+				20C243FF2166C2CB0055C35F /* TopShelf */,
+				20C243FC2166C2CB0055C35F /* Frameworks */,
 				135F908F1D2D887B006ACB5B /* Products */,
 			);
 			sourceTree = "<group>";
@@ -54,6 +94,7 @@
 			isa = PBXGroup;
 			children = (
 				135F908E1D2D887B006ACB5B /* soap4.me.app */,
+				20C243FB2166C2CB0055C35F /* TopShelf.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -61,11 +102,30 @@
 		135F90901D2D887B006ACB5B /* soap4.me */ = {
 			isa = PBXGroup;
 			children = (
+				20C2440A2166CAF50055C35F /* soap4.me.entitlements */,
 				135F90911D2D887B006ACB5B /* AppDelegate.swift */,
 				135F90951D2D887B006ACB5B /* Assets.xcassets */,
 				135F90971D2D887B006ACB5B /* Info.plist */,
 			);
 			path = soap4.me;
+			sourceTree = "<group>";
+		};
+		20C243FC2166C2CB0055C35F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				20C243FD2166C2CB0055C35F /* TVServices.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		20C243FF2166C2CB0055C35F /* TopShelf */ = {
+			isa = PBXGroup;
+			children = (
+				20C2440B2166DCC50055C35F /* TopShelf.entitlements */,
+				20C244002166C2CB0055C35F /* ServiceProvider.swift */,
+				20C244022166C2CB0055C35F /* Info.plist */,
+			);
+			path = TopShelf;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -79,15 +139,34 @@
 				135F908B1D2D887B006ACB5B /* Frameworks */,
 				135F908C1D2D887B006ACB5B /* Resources */,
 				137C11AB1D35971000514062 /* Embed Frameworks */,
+				20C244092166C2CB0055C35F /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				20C244042166C2CB0055C35F /* PBXTargetDependency */,
 			);
 			name = soap4.me;
 			productName = soap4.me;
 			productReference = 135F908E1D2D887B006ACB5B /* soap4.me.app */;
 			productType = "com.apple.product-type.application";
+		};
+		20C243FA2166C2CB0055C35F /* TopShelf */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 20C244062166C2CB0055C35F /* Build configuration list for PBXNativeTarget "TopShelf" */;
+			buildPhases = (
+				20C243F72166C2CB0055C35F /* Sources */,
+				20C243F82166C2CB0055C35F /* Frameworks */,
+				20C243F92166C2CB0055C35F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TopShelf;
+			productName = TopShelf;
+			productReference = 20C243FB2166C2CB0055C35F /* TopShelf.appex */;
+			productType = "com.apple.product-type.tv-app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -95,7 +174,7 @@
 		135F90861D2D887B006ACB5B /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 0730;
+				LastSwiftUpdateCheck = 0920;
 				LastUpgradeCheck = 0800;
 				ORGANIZATIONNAME = "Anton Ignatov";
 				TargetAttributes = {
@@ -103,6 +182,21 @@
 						CreatedOnToolsVersion = 7.3.1;
 						DevelopmentTeam = AKP92H339F;
 						LastSwiftMigration = 0820;
+						SystemCapabilities = {
+							com.apple.ApplicationGroups.iOS = {
+								enabled = 1;
+					};
+				};
+			};
+					20C243FA2166C2CB0055C35F = {
+						CreatedOnToolsVersion = 9.2;
+						DevelopmentTeam = AKP92H339F;
+						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.ApplicationGroups.iOS = {
+								enabled = 1;
+							};
+						};
 					};
 				};
 			};
@@ -119,6 +213,7 @@
 			projectRoot = "";
 			targets = (
 				135F908D1D2D887B006ACB5B /* soap4.me */,
+				20C243FA2166C2CB0055C35F /* TopShelf */,
 			);
 		};
 /* End PBXProject section */
@@ -129,6 +224,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				135F90961D2D887B006ACB5B /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		20C243F92166C2CB0055C35F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -143,7 +245,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		20C243F72166C2CB0055C35F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				20C244012166C2CB0055C35F /* ServiceProvider.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		20C244042166C2CB0055C35F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 20C243FA2166C2CB0055C35F /* TopShelf */;
+			targetProxy = 20C244032166C2CB0055C35F /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		135F90981D2D887B006ACB5B /* Debug */ = {
@@ -237,8 +355,10 @@
 		135F909B1D2D887B006ACB5B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_ENTITLEMENTS = soap4.me/soap4.me.entitlements;
 				DEVELOPMENT_TEAM = AKP92H339F;
 				INFOPLIST_FILE = soap4.me/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -253,8 +373,10 @@
 		135F909C1D2D887B006ACB5B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_ENTITLEMENTS = soap4.me/soap4.me.entitlements;
 				DEVELOPMENT_TEAM = AKP92H339F;
 				INFOPLIST_FILE = soap4.me/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -263,6 +385,63 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 3.0;
 				TVOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
+		20C244072166C2CB0055C35F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = TopShelf/TopShelf.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = AKP92H339F;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = TopShelf/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.antonignatov.soap4me.TopShelf;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_VERSION = 4.0;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 11.2;
+			};
+			name = Debug;
+		};
+		20C244082166C2CB0055C35F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = TopShelf/TopShelf.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = AKP92H339F;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = TopShelf/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.antonignatov.soap4me.TopShelf;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 4.0;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 11.2;
 			};
 			name = Release;
 		};
@@ -283,6 +462,15 @@
 			buildConfigurations = (
 				135F909B1D2D887B006ACB5B /* Debug */,
 				135F909C1D2D887B006ACB5B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		20C244062166C2CB0055C35F /* Build configuration list for PBXNativeTarget "TopShelf" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				20C244072166C2CB0055C35F /* Debug */,
+				20C244082166C2CB0055C35F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
