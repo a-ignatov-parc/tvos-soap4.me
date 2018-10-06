@@ -201,6 +201,21 @@ export default function allRoute() {
         });
 
         this.loadData().then(payload => {
+          const topShelf = JSON.stringify({
+            sections: [{
+              id: 'all',
+              title: 'All Shows',
+              items: payload.series.slice(10).map(i => ({
+                id: i.sid,
+                title: i18n('tvshow-title', i),
+                imageSrc: i.covers.big,
+              })),
+            }],
+          });
+          // eslint-disable-next-line
+          StoreInUserDefaults('topShelf', topShelf);
+          // eslint-disable-next-line
+          console.log('!!!!! set top shelf', topShelf);
           this.setState({ loading: false, ...payload });
         });
       },
