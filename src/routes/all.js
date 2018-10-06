@@ -1,6 +1,7 @@
 import * as TVDML from 'tvdml';
 
 import * as user from '../user';
+import * as topShelf from '../helpers/topShelf';
 import { get as i18n } from '../localization';
 
 import {
@@ -201,21 +202,6 @@ export default function allRoute() {
         });
 
         this.loadData().then(payload => {
-          const topShelf = JSON.stringify({
-            sections: [{
-              id: 'all',
-              title: 'All Shows',
-              items: payload.series.slice(10).map(i => ({
-                id: i.sid,
-                title: i18n('tvshow-title', i),
-                imageSrc: i.covers.big,
-              })),
-            }],
-          });
-          // eslint-disable-next-line
-          StoreInUserDefaults('topShelf', topShelf);
-          // eslint-disable-next-line
-          console.log('!!!!! set top shelf', topShelf);
           this.setState({ loading: false, ...payload });
         });
       },
@@ -245,7 +231,18 @@ export default function allRoute() {
             getAllTVShows(),
             getCountriesList(),
           ])
-          .then(([series, contries]) => ({ series, contries }));
+          .then(([series, contries]) => {
+            if (!user.isAuthorized()) {
+              topShelf.set({
+                sections: [{
+                  id: 'all_shows',
+                  title: i18n('all-caption'),
+                  items: series.slice(0, 10).map(topShelf.mapSeries),
+                }],
+              });
+            }
+            return { series, contries };
+          });
       },
 
       render() {

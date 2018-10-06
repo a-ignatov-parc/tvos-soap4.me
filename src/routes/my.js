@@ -2,6 +2,7 @@ import moment from 'moment';
 import * as TVDML from 'tvdml';
 
 import * as user from '../user';
+import * as topShelf from '../helpers/topShelf';
 import { get as i18n } from '../localization';
 
 import {
@@ -91,7 +92,29 @@ export default function myRoute() {
             getMyTVShows(),
             getMySchedule(),
           ])
-          .then(([series, schedule]) => ({ series, schedule }));
+          .then(([series, schedule]) => {
+            const { unwatched, watched, closed } = this.getSections(series);
+            topShelf.set({
+              sections: [
+                {
+                  id: 'unwatched',
+                  title: i18n('my-new-episodes'),
+                  items: unwatched.map(topShelf.mapSeries),
+                },
+                {
+                  id: 'watched',
+                  title: i18n('my-watched'),
+                  items: watched.map(topShelf.mapSeries),
+                },
+                {
+                  id: 'unwatched',
+                  title: i18n('my-closed'),
+                  items: closed.map(topShelf.mapSeries),
+                },
+              ],
+            });
+            return { series, schedule };
+          });
       },
 
       render() {
@@ -128,21 +151,7 @@ export default function myRoute() {
           );
         }
 
-        const watching = series.filter(item => item.watching > 0);
-
-        // eslint-disable-next-line arrow-body-style
-        const ongoing = watching.filter(item => {
-          // eslint-disable-next-line eqeqeq
-          return item.status == 0 || item.unwatched > 0;
-        });
-
-        const unwatched = ongoing.filter(item => item.unwatched > 0);
-        const watched = ongoing.filter(item => !item.unwatched);
-
-        // eslint-disable-next-line arrow-body-style
-        const closed = watching.filter(item => {
-          return item.status > 0 && !item.unwatched;
-        });
+        const { unwatched, watched, closed } = this.getSections(series);
 
         return (
           <document>
@@ -166,6 +175,26 @@ export default function myRoute() {
             </stackTemplate>
           </document>
         );
+      },
+
+      getSections(series) {
+        const watching = series.filter(item => item.watching > 0);
+
+        // eslint-disable-next-line arrow-body-style
+        const ongoing = watching.filter(item => {
+          // eslint-disable-next-line eqeqeq
+          return item.status == 0 || item.unwatched > 0;
+        });
+
+        const unwatched = ongoing.filter(item => item.unwatched > 0);
+        const watched = ongoing.filter(item => !item.unwatched);
+
+        // eslint-disable-next-line arrow-body-style
+        const closed = watching.filter(item => {
+          return item.status > 0 && !item.unwatched;
+        });
+
+        return { unwatched, watched, closed };
       },
 
       renderSectionGrid(collection, title, schedule = []) {

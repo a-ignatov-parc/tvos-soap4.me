@@ -24,30 +24,47 @@ class ServiceProvider: NSObject, TVTopShelfProvider {
 
     var topShelfItems: [TVContentItem] {
         var SectionsItems = [TVContentItem]();
+
         do {
-            let topShelfJSON = UserDefaults(suiteName: "group.com.antonignatov.soap4me")!
-                .string(forKey: "topShelf")!
-                .data(using: String.Encoding.utf8, allowLossyConversion: false)
-
-            let topShelf = try JSONSerialization.jsonObject(with: topShelfJSON!) as! [String: Any]
             
-            for sectionData in topShelf["sections"] as! [[String: Any]] {
-                let sectionItem = TVContentItem(contentIdentifier: TVContentIdentifier(identifier: sectionData["id"] as! String, container: nil)!)
+            if let userDefaults = UserDefaults(suiteName: "group.com.antonignatov.soap4me"),
+                let topShelfString = userDefaults.string(forKey: "topShelf"),
+                let topShelfData = topShelfString.data(using: String.Encoding.utf8, allowLossyConversion: false),
+                let topShelf = try JSONSerialization.jsonObject(with: topShelfData) as? [String: Any] {
 
-                var sectionTopShelfItems = [TVContentItem]();
-                for itemData in sectionData["items"] as! [[String: Any]] {
-                    let contentItem = TVContentItem(contentIdentifier: TVContentIdentifier(identifier: itemData["id"] as! String, container: nil)!)
-
-                    contentItem!.imageURL = URL(string: (itemData["imageURL"] as? String)!)
-                    contentItem!.imageShape = .square
-                    contentItem!.displayURL = URL(string: (itemData["displayURL"] as? String)!);
-                    contentItem!.title = itemData["title"] as? String
-                    sectionTopShelfItems.append(contentItem!)
+                for sectionData in topShelf["sections"] as! [[String: Any]] {
+                    let sectionItem = TVContentItem(contentIdentifier: TVContentIdentifier(identifier: sectionData["id"] as! String, container: nil)!)
+                    
+                    var sectionTopShelfItems = [TVContentItem]();
+                    for itemData in sectionData["items"] as! [[String: Any]] {
+                        let contentItem = TVContentItem(contentIdentifier: TVContentIdentifier(identifier: itemData["id"] as! String, container: nil)!)
+                        
+                        if let imageURLString = itemData["imageURL"] as? String,
+                            let imageURL = URL(string: imageURLString) {
+                            if #available(tvOSApplicationExtension 11.0, *) {
+                                contentItem!.setImageURL(imageURL, forTraits: .userInterfaceStyleLight)
+                                contentItem!.setImageURL(imageURL, forTraits: .userInterfaceStyleDark)
+                            } else {
+                                contentItem!.imageURL = imageURL
+                            }
+                        }
+                        
+                        if let displayURLString = itemData["displayURL"] as? String,
+                            let displayURL = URL(string: displayURLString) {
+                            contentItem!.displayURL = displayURL;
+                        }
+                        contentItem!.imageShape = .square
+                        contentItem!.title = itemData["title"] as? String
+                        sectionTopShelfItems.append(contentItem!)
+                    }
+                    
+                    sectionItem!.title = sectionData["title"] as? String
+                    
+                    if sectionTopShelfItems.count > 0 {
+                        sectionItem!.topShelfItems = sectionTopShelfItems
+                        SectionsItems.append(sectionItem!)
+                    }
                 }
-                
-                sectionItem!.title = sectionData["title"] as? String
-                sectionItem!.topShelfItems = sectionTopShelfItems
-                SectionsItems.append(sectionItem!)
             }
         } catch {
             print("Error processing data: \(error)")
