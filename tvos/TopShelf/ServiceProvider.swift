@@ -24,41 +24,33 @@ class ServiceProvider: NSObject, TVTopShelfProvider {
 
     var topShelfItems: [TVContentItem] {
         var SectionsItems = [TVContentItem]();
-        let defaults = UserDefaults(suiteName: "group.com.antonignatov.soap4me")
         do {
-            if let topShelfJSONString = defaults?.string(forKey: "topShelf") {
-                print("!!! " + topShelfJSONString)
-            }
-            if let topShelfJSONString = defaults?.string(forKey: "topShelf"),
-                let topShelfJSON = topShelfJSONString.data(using: String.Encoding.utf8, allowLossyConversion: false),
-                let json = try JSONSerialization.jsonObject(with: topShelfJSON) as? [String: Any],
-                let sections = json["sections"] as? [[String: Any]] {
-                for section in sections {
-                    if let sectionId = section["id"] as? String,
-                       let sectionTitle = section["title"] as? String {
-                        let sectionItem = TVContentItem(contentIdentifier: TVContentIdentifier(identifier: sectionId, container: nil)!)
-                        sectionItem!.title = sectionTitle
+            let topShelfJSON = UserDefaults(suiteName: "group.com.antonignatov.soap4me")!
+                .string(forKey: "topShelf")!
+                .data(using: String.Encoding.utf8, allowLossyConversion: false)
 
-                        var contentItems = [TVContentItem]();
-                        if let items = section["items"] as? [[String: Any]] {
-                            for item in items {
-                                let contentItem = TVContentItem(contentIdentifier: TVContentIdentifier(identifier: item["id"] as! String, container: nil)!)
+            let topShelf = try JSONSerialization.jsonObject(with: topShelfJSON!) as! [String: Any]
+            
+            for sectionData in topShelf["sections"] as! [[String: Any]] {
+                let sectionItem = TVContentItem(contentIdentifier: TVContentIdentifier(identifier: sectionData["id"] as! String, container: nil)!)
 
-                                contentItem!.imageURL = URL(string: (item["imageSrc"] as? String)!)
-                                contentItem!.imageShape = .poster
-//                                contentItem!.displayURL = URL(string: "soap2atv:///" + (item["id"] as? String)!);
-                                contentItem!.title = item["title"] as? String
-                                contentItems.append(contentItem!)
-                            }
-                            sectionItem!.topShelfItems = contentItems
-                        }
+                var sectionTopShelfItems = [TVContentItem]();
+                for itemData in sectionData["items"] as! [[String: Any]] {
+                    let contentItem = TVContentItem(contentIdentifier: TVContentIdentifier(identifier: itemData["id"] as! String, container: nil)!)
 
-                        SectionsItems.append(sectionItem!)
-                    }
+                    contentItem!.imageURL = URL(string: (itemData["imageURL"] as? String)!)
+                    contentItem!.imageShape = .square
+                    contentItem!.displayURL = URL(string: (itemData["displayURL"] as? String)!);
+                    contentItem!.title = itemData["title"] as? String
+                    sectionTopShelfItems.append(contentItem!)
                 }
+                
+                sectionItem!.title = sectionData["title"] as? String
+                sectionItem!.topShelfItems = sectionTopShelfItems
+                SectionsItems.append(sectionItem!)
             }
         } catch {
-            print("Error deserializing JSON: \(error)")
+            print("Error processing data: \(error)")
         }
         return SectionsItems
     }
