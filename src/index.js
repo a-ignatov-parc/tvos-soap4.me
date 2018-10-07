@@ -25,9 +25,9 @@ import { AUTH, GUEST } from './routes/menu/constants';
 
 import Loader from './components/loader';
 
-global.openURLHandler = openURL => {
+function openURLHandler(openURL) {
   TVDML.navigate(...getOpenURLParams(openURL));
-};
+}
 
 TVDML
   .subscribe(TVDML.event.LAUNCH)
@@ -51,11 +51,15 @@ TVDML
   })
   .pipe(({ login }) => processFamilyAccount(login))
   .pipe(() => {
+    TVDML.redirect('main');
+
+    // register openURLHandler after "main" screen goes on top of the stack
+    // and call it synchronously if app opened with url
+    // to instantly show proper screen
+    global.openURLHandler = openURLHandler;
     const { openURL } = getStartParams();
     if (openURL) {
-      return TVDML.redirect(...getOpenURLParams(openURL));
-    } else {
-      return TVDML.redirect('main');
+      global.openURLHandler(openURL);
     }
   });
 
