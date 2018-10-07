@@ -109,6 +109,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TVApplicationControllerDe
         }
         jsContext.setObject(unsafeBitCast(StoreInUserDefaults, to: AnyObject.self), forKeyedSubscript: "StoreInUserDefaults" as (NSCopying & NSObjectProtocol)!)
     }
+    
+    func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey: Any] = [:]) -> Bool {
+        appController?.evaluate(inJavaScriptContext: { (context: JSContext) in
+            let globalObject : JSValue = context.globalObject
+
+            if globalObject.hasProperty("openURLHandler") {
+                globalObject.invokeMethod("openURLHandler", withArguments: [url.absoluteString])
+            } else {
+                print("no openURLHandler in js global object")
+            }
+        })
+        return true
+    }
 
     func appController(_ appController: TVApplicationController, didFinishLaunching options: [String: Any]?) {
         print("\(#function) invoked with options: \(options ?? [:])")

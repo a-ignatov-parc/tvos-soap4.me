@@ -7,6 +7,7 @@ import { processFamilyAccount } from './user/utils';
 
 import { get as i18n } from './localization';
 import { checkSession } from './request/soap';
+import { getStartParams, getOpenURLParams } from './utils';
 
 import myRoute from './routes/my';
 import allRoute from './routes/all';
@@ -23,6 +24,10 @@ import speedTestRoute from './routes/speedtest';
 import { AUTH, GUEST } from './routes/menu/constants';
 
 import Loader from './components/loader';
+
+global.openURLHandler = openURL => {
+  TVDML.navigate(...getOpenURLParams(openURL));
+};
 
 TVDML
   .subscribe(TVDML.event.LAUNCH)
@@ -45,7 +50,14 @@ TVDML
     return payload;
   })
   .pipe(({ login }) => processFamilyAccount(login))
-  .pipe(() => TVDML.redirect('main'));
+  .pipe(() => {
+    const { openURL } = getStartParams();
+    if (openURL) {
+      return TVDML.redirect(...getOpenURLParams(openURL));
+    } else {
+      return TVDML.redirect('main');
+    }
+  });
 
 TVDML
   .handleRoute('main')
