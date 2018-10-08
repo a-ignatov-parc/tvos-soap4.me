@@ -48,13 +48,28 @@ class ServiceProvider: NSObject, TVTopShelfProvider {
                                 contentItem!.imageURL = imageURL
                             }
                         }
-                        
                         if let displayURLString = itemData["displayURL"] as? String,
                             let displayURL = URL(string: displayURLString) {
                             contentItem!.displayURL = displayURL;
                         }
+                        if let playURLString = itemData["playURL"] as? String,
+                            let playURL = URL(string: playURLString) {
+                            contentItem!.playURL = playURL;
+                        }
+
                         contentItem!.imageShape = .square
                         contentItem!.title = itemData["title"] as? String
+
+                        // Seems that now there is no support for theese properties in TopShelf
+                        // but TVContentItem consumes it, so why not. All of them are optional
+                        contentItem!.creationDate = iso8601ToDate(string: itemData["creationDate"] as? String)
+                        contentItem!.expirationDate = iso8601ToDate(string: itemData["expirationDate"] as? String)
+                        contentItem!.lastAccessedDate = iso8601ToDate(string: itemData["lastAccessedDate"] as? String)
+                        contentItem!.badgeCount = itemData["badgeCount"] as? NSNumber
+                        contentItem!.duration = itemData["duration"] as? NSNumber
+                        contentItem!.currentPosition = itemData["currentPosition"] as? NSNumber
+                        contentItem!.hasPlayedToEnd = itemData["hasPlayedToEnd"] as? NSNumber
+
                         sectionTopShelfItems.append(contentItem!)
                     }
                     
@@ -70,6 +85,16 @@ class ServiceProvider: NSObject, TVTopShelfProvider {
             print("Error processing data: \(error)")
         }
         return SectionsItems
+    }
+    
+    func iso8601ToDate(string: String?) -> Date? {
+        if (string != nil) {
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+            return dateFormatter.date(from: string!)
+        } else {
+            return nil
+        }
     }
 
 }
