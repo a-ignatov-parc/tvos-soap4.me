@@ -102,14 +102,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TVApplicationControllerDe
     // MARK: TVApplicationControllerDelegate
 
     func appController(_ appController: TVApplicationController, evaluateAppJavaScriptIn jsContext: JSContext){
-        let defaults = UserDefaults(suiteName: "group.com.antonignatov.soap4me")
+        let defaults = UserDefaults(suiteName: "group.com.antonignatov.soap4atv")
         let StoreInUserDefaults : @convention(block) (String, String) -> Void = {
             (key, value) -> Void in
             defaults?.set(value, forKey: key)
         }
         jsContext.setObject(unsafeBitCast(StoreInUserDefaults, to: AnyObject.self), forKeyedSubscript: "StoreInUserDefaults" as (NSCopying & NSObjectProtocol)!)
     }
-    
+
     func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey: Any] = [:]) -> Bool {
         appController?.evaluate(inJavaScriptContext: { (context: JSContext) in
             let globalObject : JSValue = context.globalObject
