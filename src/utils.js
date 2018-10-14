@@ -124,3 +124,9 @@ export function createMediaItem(episode) {
       return mediaItem;
     }, new MediaItem('video'));
 }
+
+export function getOpenURLParams(str) {
+  const { query, pathname } = url.parse(str, true);
+  const route = pathname.slice(1);
+  return [route, query];
+}

@@ -7,6 +7,7 @@ import { processFamilyAccount } from './user/utils';
 
 import { get as i18n } from './localization';
 import { checkSession } from './request/soap';
+import { getStartParams, getOpenURLParams } from './utils';
 
 import myRoute from './routes/my';
 import allRoute from './routes/all';
@@ -23,6 +24,10 @@ import speedTestRoute from './routes/speedtest';
 import { AUTH, GUEST } from './routes/menu/constants';
 
 import Loader from './components/loader';
+
+function openURLHandler(openURL) {
+  TVDML.navigate(...getOpenURLParams(openURL));
+}
 
 TVDML
   .subscribe(TVDML.event.LAUNCH)
@@ -45,7 +50,18 @@ TVDML
     return payload;
   })
   .pipe(({ login }) => processFamilyAccount(login))
-  .pipe(() => TVDML.redirect('main'));
+  .pipe(() => {
+    TVDML.redirect('main');
+
+    // register openURLHandler after "main" screen goes on top of the stack
+    // and call it synchronously if app opened with url
+    // to instantly show proper screen
+    global.openURLHandler = openURLHandler;
+    const { openURL } = getStartParams();
+    if (openURL) {
+      global.openURLHandler(openURL);
+    }
+  });
 
 TVDML
   .handleRoute('main')
