@@ -209,7 +209,7 @@ export function getMyTVShows() {
   return get('https://api.soap4.me/v2/soap/my/')
     .then(...emptyOrErrorsResolvers([]))
     .then(series => {
-      if (isAuthorized()) {
+      if (isAuthorized() && !isQello()) {
         const { unwatched, watched, closed } = groupSeriesByCategory(series);
         const sections = [];
 
@@ -249,7 +249,7 @@ export function getMyTVShows() {
 export function getAllTVShows() {
   return get('https://api.soap4.me/v2/soap/')
     .then(series => {
-      if (!isAuthorized()) {
+      if (!isAuthorized() && !isQello()) {
         const latest = getLatest(series);
 
         topShelf.set({
