@@ -5,16 +5,9 @@ import * as TVDML from 'tvdml';
 import * as user from './user';
 import { processFamilyAccount } from './user/utils';
 
-import * as topShelf from './helpers/topShelf';
-
 import { get as i18n } from './localization';
-import { checkSession, getMyTVShows, getLatestTVShows } from './request/soap';
-import {
-  isQello,
-  getStartParams,
-  getOpenURLParams,
-  groupSeriesByCategory,
-} from './utils';
+import { checkSession } from './request/soap';
+import { getStartParams, getOpenURLParams, isQello } from './utils';
 
 import myRoute from './routes/my';
 import allRoute from './routes/all';
@@ -31,8 +24,6 @@ import speedTestRoute from './routes/speedtest';
 import { AUTH, GUEST } from './routes/menu/constants';
 
 import Loader from './components/loader';
-
-const TOP_SHELF_MIN_ITEMS = 4;
 
 function openURLHandler(openURL) {
   TVDML.navigate(...getOpenURLParams(openURL));
@@ -73,55 +64,7 @@ TVDML
       if (openURL) {
         global.openURLHandler(openURL);
       }
-
-      if (user.isAuthorized()) {
-        return getMyTVShows().then(series => {
-          const { unwatched, watched, closed } = groupSeriesByCategory(series);
-
-          const sections = [];
-
-          if (unwatched.length) {
-            sections.push({
-              id: 'unwatched',
-              title: i18n('my-new-episodes'),
-              items: unwatched.map(topShelf.mapSeries),
-            });
-          }
-
-          if (unwatched.length < TOP_SHELF_MIN_ITEMS && watched.length) {
-            sections.push({
-              id: 'watched',
-              title: i18n('my-watched'),
-              items: watched.map(topShelf.mapSeries),
-            });
-          }
-
-          if (unwatched.length + watched.length < TOP_SHELF_MIN_ITEMS) {
-            if (closed.length) {
-              sections.push({
-                id: 'closed',
-                title: i18n('my-closed'),
-                items: closed.map(topShelf.mapSeries),
-              });
-            }
-          }
-        });
-      }
-
-      return getLatestTVShows().then(series => {
-        topShelf.set({
-          sections: [
-            {
-              id: 'latest',
-              title: i18n('search-latest'),
-              items: series.map(topShelf.mapSeries),
-            },
-          ],
-        });
-      });
     }
-
-    return null;
   });
 
 TVDML

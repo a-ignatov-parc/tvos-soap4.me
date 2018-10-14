@@ -4,14 +4,24 @@ import md5 from 'blueimp-md5';
 
 import config from '../../package.json';
 
-import { getToken } from '../user';
+import { getToken, isAuthorized } from '../user';
 import * as request from '../request';
 import * as settings from '../settings';
-import { genreToId, isQello } from '../utils';
+import * as topShelf from '../helpers/topShelf';
+import { get as i18n } from '../localization';
+import { genreToId, isQello, groupSeriesByCategory } from '../utils';
 
 const { VIDEO_QUALITY, TRANSLATION } = settings.params;
 const { SD, HD, FULLHD, UHD } = settings.values[VIDEO_QUALITY];
 const { LOCALIZATION, SUBTITLES } = settings.values[TRANSLATION];
+
+const TOP_SHELF_MIN_ITEMS = 4;
+
+function getLatest(tvshows, count = 10) {
+  return tvshows
+    .sort(({ sid: a }, { sid: b }) => b - a)
+    .slice(0, count);
+}
 
 export const supportUHD = Device.productType !== 'AppleTV5,3';
 
@@ -196,17 +206,67 @@ export function logout() {
 
 export function getMyTVShows() {
   // eslint-disable-next-line max-len
-  return get('https://api.soap4.me/v2/soap/my/').then(...emptyOrErrorsResolvers([]));
+  return get('https://api.soap4.me/v2/soap/my/')
+    .then(...emptyOrErrorsResolvers([]))
+    .then(series => {
+      if (isAuthorized()) {
+        const { unwatched, watched, closed } = groupSeriesByCategory(series);
+        const sections = [];
+
+        if (unwatched.length) {
+          sections.push({
+            id: 'unwatched',
+            title: i18n('my-new-episodes'),
+            items: unwatched.map(topShelf.mapSeries),
+          });
+        }
+
+        if (unwatched.length < TOP_SHELF_MIN_ITEMS && watched.length) {
+          sections.push({
+            id: 'watched',
+            title: i18n('my-watched'),
+            items: watched.map(topShelf.mapSeries),
+          });
+        }
+
+        if (unwatched.length + watched.length < TOP_SHELF_MIN_ITEMS) {
+          if (closed.length) {
+            sections.push({
+              id: 'closed',
+              title: i18n('my-closed'),
+              items: closed.map(topShelf.mapSeries),
+            });
+          }
+        }
+      }
+
+      return series;
+    });
 }
 
 export function getAllTVShows() {
-  return get('https://api.soap4.me/v2/soap/');
+  return get('https://api.soap4.me/v2/soap/')
+    .then(series => {
+      if (!isAuthorized()) {
+        const latest = getLatest(series);
+
+        topShelf.set({
+          sections: [
+            {
+              id: 'latest',
+              title: i18n('search-latest'),
+              items: latest.map(topShelf.mapSeries),
+            },
+          ],
+        });
+      }
+
+      return series;
+    });
 }
 
 export function getLatestTVShows(count = 10) {
-  return getAllTVShows().then(tvshows => tvshows
-    .sort(({ sid: a }, { sid: b }) => b - a)
-    .slice(0, count));
+  return getAllTVShows().then(tvshows => getLatest(tvshows, count));
 }
 
 export function getPopularTVShows(count = 10) {
