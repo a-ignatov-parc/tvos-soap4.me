@@ -130,3 +130,22 @@ export function getOpenURLParams(str) {
   const route = pathname.slice(1);
   return [route, query];
 }
+
+export function groupSeriesByCategory(series) {
+  const watching = series.filter(item => item.watching > 0);
+
+  // eslint-disable-next-line arrow-body-style
+  const ongoing = watching.filter(item => {
+    // eslint-disable-next-line eqeqeq
+    return item.status == 0 || item.unwatched > 0;
+  });
+  const unwatched = ongoing.filter(item => item.unwatched > 0);
+  const watched = ongoing.filter(item => !item.unwatched);
+
+  // eslint-disable-next-line arrow-body-style
+  const closed = watching.filter(item => {
+    return item.status > 0 && !item.unwatched;
+  });
+
+  return { unwatched, watched, closed };
+}

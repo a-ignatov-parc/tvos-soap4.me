@@ -101,11 +101,13 @@ jobs:
             git checkout gh-pages
             git clean -d -f
             git merge origin/gh-pages
-            mkdir -p $SOAP4ATV_TARGET_DIR
-            cp -r ~/tmp/apps/soap4atv/* $SOAP4ATV_TARGET_DIR
-            mkdir -p $QELLO_TARGET_DIR
-            cp -r ~/tmp/apps/qello/* $QELLO_TARGET_DIR
-            git add $SOAP4ATV_TARGET_DIR $QELLO_TARGET_DIR
+            SOAP4ATV_RELEASE_DIR=./1.2
+            QELLO_RELEASE_DIR=./qello/tvml
+            mkdir -p $SOAP4ATV_RELEASE_DIR
+            cp -r ~/tmp/apps/soap4atv/* $SOAP4ATV_RELEASE_DIR
+            mkdir -p $QELLO_RELEASE_DIR
+            cp -r ~/tmp/apps/qello/* $QELLO_RELEASE_DIR
+            git add $SOAP4ATV_RELEASE_DIR $QELLO_RELEASE_DIR
             git commit -m "$CIRCLE_TAG release for soap4atv and qello"
             git push origin gh-pages
 
