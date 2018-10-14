@@ -7,7 +7,7 @@ import { processFamilyAccount } from './user/utils';
 
 import { get as i18n } from './localization';
 import { checkSession } from './request/soap';
-import { getStartParams, getOpenURLParams } from './utils';
+import { getStartParams, getOpenURLParams, isQello } from './utils';
 
 import myRoute from './routes/my';
 import allRoute from './routes/all';
@@ -53,13 +53,17 @@ TVDML
   .pipe(() => {
     TVDML.redirect('main');
 
-    // register openURLHandler after "main" screen goes on top of the stack
-    // and call it synchronously if app opened with url
-    // to instantly show proper screen
-    global.openURLHandler = openURLHandler;
-    const { openURL } = getStartParams();
-    if (openURL) {
-      global.openURLHandler(openURL);
+    if (!isQello()) {
+      // register openURLHandler after "main" screen goes on top of the stack
+      // and call it synchronously if app opened with url
+      // to instantly show proper screen
+      global.openURLHandler = openURLHandler;
+
+      const { openURL } = getStartParams();
+
+      if (openURL) {
+        global.openURLHandler(openURL);
+      }
     }
   });
 

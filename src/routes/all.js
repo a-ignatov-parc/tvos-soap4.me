@@ -1,7 +1,6 @@
 import * as TVDML from 'tvdml';
 
 import * as user from '../user';
-import * as topShelf from '../helpers/topShelf';
 import { get as i18n } from '../localization';
 
 import {
@@ -231,18 +230,7 @@ export default function allRoute() {
             getAllTVShows(),
             getCountriesList(),
           ])
-          .then(([series, contries]) => {
-            if (!user.isAuthorized()) {
-              topShelf.set({
-                sections: [{
-                  id: 'all_shows',
-                  title: i18n('all-caption'),
-                  items: series.slice(0, 10).map(topShelf.mapSeries),
-                }],
-              });
-            }
-            return { series, contries };
-          });
+          .then(([series, contries]) => ({ series, contries }));
       },
 
       render() {

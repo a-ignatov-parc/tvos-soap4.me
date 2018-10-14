@@ -12,7 +12,6 @@
     "max-len": ["error", 80],
     "arrow-parens": ["error", "as-needed"],
     "no-return-assign": ["error", "except-parens"],
-    "no-console": ["error", { "allow": ["info", "warn", "error"] }],
-    "no-else-return": ["off"]
+    "no-console": ["error", { "allow": ["info", "warn", "error"] }]
   }
 }
