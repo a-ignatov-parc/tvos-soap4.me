@@ -238,6 +238,8 @@ export function getMyTVShows() {
             });
           }
         }
+
+        topShelf.set({ sections });
       }
 
       return series;
