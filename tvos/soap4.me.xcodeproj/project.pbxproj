@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		133820192173BD1E00F5F20A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 135F90911D2D887B006ACB5B /* AppDelegate.swift */; };
 		135F90921D2D887B006ACB5B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 135F90911D2D887B006ACB5B /* AppDelegate.swift */; };
 		135F90961D2D887B006ACB5B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 135F90951D2D887B006ACB5B /* Assets.xcassets */; };
 		20C243FE2166C2CB0055C35F /* TVServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20C243FD2166C2CB0055C35F /* TVServices.framework */; };
@@ -185,9 +186,9 @@
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.iOS = {
 								enabled = 1;
+							};
+						};
 					};
-				};
-			};
 					20C243FA2166C2CB0055C35F = {
 						CreatedOnToolsVersion = 9.2;
 						DevelopmentTeam = AKP92H339F;
@@ -249,6 +250,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				133820192173BD1E00F5F20A /* AppDelegate.swift in Sources */,
 				20C244012166C2CB0055C35F /* ServiceProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
