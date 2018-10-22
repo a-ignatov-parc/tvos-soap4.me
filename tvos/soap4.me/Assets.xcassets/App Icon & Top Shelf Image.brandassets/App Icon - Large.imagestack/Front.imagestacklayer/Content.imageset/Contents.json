@@ -2,8 +2,13 @@
   "images" : [
     {
       "idiom" : "tv",
-      "filename" : "front.png",
+      "filename" : "Front.png",
       "scale" : "1x"
+    },
+    {
+      "idiom" : "tv",
+      "filename" : "Front@2x.png",
+      "scale" : "2x"
     }
   ],
   "info" : {
