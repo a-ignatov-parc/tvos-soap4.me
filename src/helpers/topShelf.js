@@ -22,5 +22,15 @@ export function mapSeries(item) {
       },
       pathname: '/tvshow',
     }),
+    playURL: url.format({
+      protocol: 'soap4atv:',
+      query: {
+        sid: item.sid,
+        title,
+        poster: item.covers.big,
+        continueWatchingAndPlay: 1,
+      },
+      pathname: '/tvshow',
+    }),
   };
 }
