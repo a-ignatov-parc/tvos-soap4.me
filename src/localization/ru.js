@@ -173,11 +173,13 @@ export default {
   'new-season-day': 'Сезон в течение дня',
   'new-season-custom-date': ({ date }) => `Сезон ${date}`,
 
-  'my-caption': 'Мои',
+  'my-caption': 'Мои сериалы',
 
+  'my-all': 'Все',
   'my-closed': 'Завершенные',
   'my-watched': 'Просмотренные',
-  'my-new-episodes': 'С новыми эпизодами',
+  'my-new-episodes': 'Новые эпизоды',
+  'my-new-episodes-soon': 'Скоро выходят',
 
   'my-empty-list-title': 'У тебя нет никаких подписок',
   'my-empty-list-description': 'Ты можешь начать с добавления каких-нибудь сериалов из раздела "Сериалы"',

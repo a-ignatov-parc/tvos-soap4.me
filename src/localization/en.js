@@ -173,11 +173,13 @@ export default {
   'new-season-day': 'Season in a day',
   'new-season-custom-date': ({ date }) => `Season ${date}`,
 
-  'my-caption': 'My',
+  'my-caption': 'My TV Shows',
 
+  'my-all': 'All',
   'my-closed': 'Closed',
   'my-watched': 'Watched',
   'my-new-episodes': 'New episodes',
+  'my-new-episodes-soon': 'New episodes soon',
 
   'my-empty-list-title': 'You don\'t have any subscriptions',
   'my-empty-list-description': 'You can start from adding some tv series from "TV Shows" sections',
