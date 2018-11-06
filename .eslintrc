@@ -1,5 +1,5 @@
 {
-  "extends": "airbnb",
+  "extends": ["airbnb", "prettier"],
   "rules": {
     "react/prop-types": ["off"],
     "react/style-prop-object": ["off"],
@@ -9,7 +9,6 @@
     "jsx-a11y/alt-text": ["off"],
     "jsx-a11y/accessible-emoji": ["off"],
     "no-bitwise": ["off"],
-    "max-len": ["error", 80],
     "arrow-parens": ["error", "as-needed"],
     "no-return-assign": ["error", "except-parens"],
     "no-console": ["error", { "allow": ["info", "warn", "error"] }]
