@@ -77,8 +77,9 @@ export default function tvShowRoute() {
         sid,
         title,
         poster,
+        continueWatchingAndPlay,
       },
-    }) => ({ sid, title, poster })))
+    }) => ({ sid, title, poster, continueWatchingAndPlay: continueWatchingAndPlay === '1' })))
     .pipe(TVDML.render(TVDML.createComponent({
       getInitialState() {
         const extended = user.isExtended();
@@ -119,7 +120,15 @@ export default function tvShowRoute() {
 
         Promise
           .all([this.loadData(), waitForAnimations])
-          .then(([payload]) => this.setState({ loading: false, ...payload }));
+          .then(([payload]) => {
+            this.setState({ loading: false, ...payload });
+            if (
+              this.props.continueWatchingAndPlay
+              && this.canContinueWatching()
+            ) {
+              this.onContinueWatchingAndPlay(null);
+            }
+          });
       },
 
       componentWillUnmount() {
@@ -247,10 +256,7 @@ export default function tvShowRoute() {
       },
 
       renderInfo() {
-        const {
-          likes,
-          extended,
-        } = this.state;
+        const { likes } = this.state;
 
         const {
           description,
@@ -330,7 +336,7 @@ export default function tvShowRoute() {
         if (this.state.watching) {
           buttons = (
             <row>
-              {this.state.continueWatching && extended && continueWatchingBtn}
+              {this.canContinueWatching() && continueWatchingBtn}
               {hasTrailers && showTrailerBtn}
               {this.state.authorized && stopWatchingBtn}
               {this.state.authorized && rateBtn}
@@ -811,6 +817,10 @@ export default function tvShowRoute() {
           if (!result && calculateUnwatchedCount(season)) return season;
           return result;
         }, null);
+      },
+
+      canContinueWatching() {
+        return this.state.continueWatching && this.state.extended;
       },
 
       onContinueWatchingAndPlay(event) {
