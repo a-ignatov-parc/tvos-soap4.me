@@ -1,4 +1,3 @@
-/* eslint max-len: "off" */
 /* eslint camelcase: "off" */
 
 import { supportUHD } from '../request/soap';
@@ -20,10 +19,12 @@ export default {
 
   'user-account-active': 'Active',
   'user-turn-on-family-account-button': 'Turn On Family Account',
-  'user-turn-on-family-account-title': 'Are you sure you want to turn on Family Account?',
+  'user-turn-on-family-account-title':
+    'Are you sure you want to turn on Family Account?',
   'user-turn-on-family-account-action_button': 'Turn On',
   'user-turn-off-family-account-button': 'Turn Off Family Account',
-  'user-turn-off-family-account-title': 'Are you sure you want to turn off Family Account?',
+  'user-turn-off-family-account-title':
+    'Are you sure you want to turn off Family Account?',
   'user-turn-off-family-account-action_button': 'Turn Off',
   'user-switch-family-account-cancel_button': 'Cancel',
 
@@ -58,9 +59,13 @@ export default {
   'settings-labels-speedtest': 'Speed test',
   'settings-labels-version': 'Version',
 
-  'settings-descriptions-video_quality': `Prefered video quality that will be used if available.\n4K (UHD) video is${supportUHD ? ' ' : ' not '}supported on this device.`,
-  'settings-descriptions-translation': 'To be able to use subtitles special option must be activated in account preferences on soap4.me site. Until this will be done only localized episodes will be shown.',
-  'settings-descriptions-video_playback': 'Configure player playback mode. Should it play all episodes in season or just one.',
+  'settings-descriptions-video_quality': `Prefered video quality that will be used if available.\n4K (UHD) video is${
+    supportUHD ? ' ' : ' not '
+  }supported on this device.`,
+  'settings-descriptions-translation':
+    'To be able to use subtitles special option must be activated in account preferences on soap4.me site. Until this will be done only localized episodes will be shown.',
+  'settings-descriptions-video_playback':
+    'Configure player playback mode. Should it play all episodes in season or just one.',
 
   'settings-values-sd': 'SD',
   'settings-values-hd': 'HD',
@@ -78,9 +83,11 @@ export default {
   'speedtest-loading': 'Loading servers info...',
   'speedtest-begin': 'Begin test',
   'speedtest-testing': 'Testing download speed...',
-  'speedtest-footnote': 'You must wait until the test is over otherwise the results will not be applicable',
+  'speedtest-footnote':
+    'You must wait until the test is over otherwise the results will not be applicable',
   'speedtest-error-title': 'Something went wrong =(',
-  'speedtest-error-description': 'Please check your internet connection and try again',
+  'speedtest-error-description':
+    'Please check your internet connection and try again',
 
   'speedtest-result': ({ speed }) => `${speed} Mb/s`,
   'speedtest-result-too-slow': 'Too slow. Skipped...',
@@ -110,7 +117,8 @@ export default {
   'episode-mark-as-unwatched': 'Mark as Unwatched',
   'episode-speedtest': 'Speed test',
   'episode-rate': 'Rate episode',
-  'episode-rate-title': ({ timeout }) => `Rate episode${timeout ? ` or wait ${timeout} sec.` : ''}`,
+  'episode-rate-title': ({ timeout }) =>
+    `Rate episode${timeout ? ` or wait ${timeout} sec.` : ''}`,
 
   'season-title-more': 'More',
   'season-mark-as-watched': 'Mark Season as Watched',
@@ -120,7 +128,7 @@ export default {
   'tvshow-title-from-episode': ({ soap_en }) => soap_en,
   'tvshow-episode-title': ({ title_en }) => title_en,
   'tvshow-episode-airdate': ({ airdate }) => `Airdate ${airdate}`,
-  'tvshow-episode-menu-hint': 'press and hold to open episode\'s menu',
+  'tvshow-episode-menu-hint': "press and hold to open episode's menu",
   'tvshow-season': ({ seasonNumber }) => `Season ${seasonNumber}`,
 
   'tvshow-status': 'Status',
@@ -145,9 +153,12 @@ export default {
   'tvshow-mark-as-watched': 'Mark TV Show as Watched',
   'tvshow-mark-as-unwatched': 'Mark TV Show as Unwatched',
 
-  'tvshow-average-imdb': ({ amount }) => `Average of ${amount} IMDB user ratings.`,
-  'tvshow-average-kinopoisk': ({ amount }) => `Average of ${amount} Kinopoisk user ratings.`,
-  'tvshow-average-soap': ({ amount }) => `Average of ${amount} soap4.me user ratings.`,
+  'tvshow-average-imdb': ({ amount }) =>
+    `Average of ${amount} IMDB user ratings.`,
+  'tvshow-average-kinopoisk': ({ amount }) =>
+    `Average of ${amount} Kinopoisk user ratings.`,
+  'tvshow-average-soap': ({ amount }) =>
+    `Average of ${amount} soap4.me user ratings.`,
 
   'tvshow-liked-by': 'Liked by',
   'tvshow-liked-by-people': ({ likes }) => `${likes} people`,
@@ -179,8 +190,9 @@ export default {
   'my-watched': 'Watched',
   'my-new-episodes': 'New episodes',
 
-  'my-empty-list-title': 'You don\'t have any subscriptions',
-  'my-empty-list-description': 'You can start from adding some tv series from "TV Shows" sections',
+  'my-empty-list-title': "You don't have any subscriptions",
+  'my-empty-list-description':
+    'You can start from adding some tv series from "TV Shows" sections',
   'my-empty-list-button': 'Go to "TV Shows"',
 
   'all-caption': 'TV Shows',
@@ -218,9 +230,12 @@ export default {
   'actor-title': 'Actor',
 
   'authorize-caption': 'Authorization',
-  'authorize-description': 'You need to be authorized in order to see your subscriptions or watch content',
-  'authorize-user-description': 'If you want your tv to be in sync with your online account at soap4.me you need to be authorized.\n\nAuthorization is also required to manage your subscriptions and rate tv shows with episodes from tv.',
-  'authorize-tvshow-description': 'If you would like to track your subscriptions and sync them with your online account at soap4.me you need to be authorized',
+  'authorize-description':
+    'You need to be authorized in order to see your subscriptions or watch content',
+  'authorize-user-description':
+    'If you want your tv to be in sync with your online account at soap4.me you need to be authorized.\n\nAuthorization is also required to manage your subscriptions and rate tv shows with episodes from tv.',
+  'authorize-tvshow-description':
+    'If you would like to track your subscriptions and sync them with your online account at soap4.me you need to be authorized',
   'authorize-control-trigger': 'Authorize',
 
   'login-step1-caption': 'Enter user login (not e-mail)',

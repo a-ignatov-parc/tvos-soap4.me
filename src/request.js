@@ -15,48 +15,51 @@ export function request(url, params = {}) {
     progress,
   } = params;
 
-  return Promise
-    .resolve(new XMLHttpRequest())
+  return Promise.resolve(new XMLHttpRequest())
     .then(XHR => {
       XHR.open(method, url);
 
       if (method === POST) {
-        // eslint-disable-next-line max-len
-        XHR.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        XHR.setRequestHeader(
+          'Content-Type',
+          'application/x-www-form-urlencoded',
+        );
       }
 
       return XHR;
     })
     .then(prepare)
-    .then(XHR => new Promise((resolve, reject) => {
-      XHR.addEventListener('load', result(resolve));
-      XHR.addEventListener('error', result(reject));
-      XHR.addEventListener('abort', result(reject));
-      XHR.addEventListener('timeout', result(reject));
+    .then(
+      XHR =>
+        new Promise((resolve, reject) => {
+          XHR.addEventListener('load', result(resolve));
+          XHR.addEventListener('error', result(reject));
+          XHR.addEventListener('abort', result(reject));
+          XHR.addEventListener('timeout', result(reject));
 
-      if (typeof progress === 'function') {
-        XHR.addEventListener('progress', event => {
-          if (event.lengthComputable) {
-            progress(event.loaded / event.total);
+          if (typeof progress === 'function') {
+            XHR.addEventListener('progress', event => {
+              if (event.lengthComputable) {
+                progress(event.loaded / event.total);
+              }
+            });
           }
-        });
-      }
 
-      const requestBody = Object
-        .keys(data)
-        .reduce((list, key) => {
-          list.push(`${key}=${encodeURIComponent(data[key])}`);
-          return list;
-        }, [])
-        .join('&');
+          const requestBody = Object.keys(data)
+            .reduce((list, key) => {
+              list.push(`${key}=${encodeURIComponent(data[key])}`);
+              return list;
+            }, [])
+            .join('&');
 
-      XHR.send(requestBody);
-    }))
+          XHR.send(requestBody);
+        }),
+    )
     .then(xhr => {
       const { status } = xhr;
 
       // eslint-disable-next-line no-mixed-operators
-      if (status >= 200 && status < 300 || status === 304) {
+      if ((status >= 200 && status < 300) || status === 304) {
         return xhr;
       }
       return Promise.reject(xhr);

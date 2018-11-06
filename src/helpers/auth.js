@@ -44,66 +44,61 @@ function createForm(params = {}) {
     validate: customValidate = defaultValidate,
   } = params;
 
-  return TVDML.render(TVDML.createComponent({
-    getInitialState() {
-      return {
-        value: '',
-        placeholder: '',
-        valid: false,
-        button: 'Submit',
-        ...params,
-      };
-    },
+  return TVDML.render(
+    TVDML.createComponent({
+      getInitialState() {
+        return {
+          value: '',
+          placeholder: '',
+          valid: false,
+          button: 'Submit',
+          ...params,
+        };
+      },
 
-    componentDidMount() {
-      const keyboard = this.textField.getFeature('Keyboard');
-      keyboard.onTextChange = () => this.validate(keyboard.text);
-    },
+      componentDidMount() {
+        const keyboard = this.textField.getFeature('Keyboard');
+        keyboard.onTextChange = () => this.validate(keyboard.text);
+      },
 
-    validate(value) {
-      this.setState({
-        value,
-        valid: customValidate(value),
-      });
-    },
+      validate(value) {
+        this.setState({
+          value,
+          valid: customValidate(value),
+        });
+      },
 
-    render() {
-      const { BASEURL } = getStartParams();
+      render() {
+        const { BASEURL } = getStartParams();
 
-      return (
-        <document>
-          <formTemplate>
-            <banner>
-              <img src={BASEURL + logo} width="218" height="218" />
-              <description>
-                {this.state.description}
-              </description>
-            </banner>
-            <textField
-              secure={this.state.secure}
-              ref={node => (this.textField = node)}
-            >
-              {this.state.placeholder}
-            </textField>
-            <footer>
-              <button
-                onSelect={this.onSubmit}
-                disabled={!this.state.valid}
+        return (
+          <document>
+            <formTemplate>
+              <banner>
+                <img src={BASEURL + logo} width="218" height="218" />
+                <description>{this.state.description}</description>
+              </banner>
+              <textField
+                secure={this.state.secure}
+                ref={node => (this.textField = node)}
               >
-                <text>
-                  {this.state.button}
-                </text>
-              </button>
-            </footer>
-          </formTemplate>
-        </document>
-      );
-    },
+                {this.state.placeholder}
+              </textField>
+              <footer>
+                <button onSelect={this.onSubmit} disabled={!this.state.valid}>
+                  <text>{this.state.button}</text>
+                </button>
+              </footer>
+            </formTemplate>
+          </document>
+        );
+      },
 
-    onSubmit() {
-      onSubmit(this.state.value);
-    },
-  }));
+      onSubmit() {
+        onSubmit(this.state.value);
+      },
+    }),
+  );
 }
 
 export default function auth(options = {}) {
@@ -113,10 +108,7 @@ export default function auth(options = {}) {
     password: '',
   };
 
-  const {
-    onError = noop(),
-    onSuccess = noop(),
-  } = options;
+  const { onError = noop(), onSuccess = noop() } = options;
 
   let menuButtonPressStream = null;
   let state = IDLE;
@@ -135,13 +127,8 @@ export default function auth(options = {}) {
         menuButtonPressStream = TVDML.subscribe('menu-button-press');
         menuButtonPressStream.pipe(payload => {
           const {
-            from: {
-              modal,
-              route: routeFrom,
-            },
-            to: {
-              route: routeTo,
-            },
+            from: { modal, route: routeFrom },
+            to: { route: routeTo },
           } = payload;
 
           if (routeFrom === getLoginRouteName(id) && !modal) {
@@ -200,22 +187,25 @@ export default function auth(options = {}) {
     },
   };
 
-  TVDML
-    .handleRoute(getLoginRouteName(id))
-    .pipe(TVDML.passthrough(() => {
-      state = LOGIN;
-      return state;
-    }))
-    .pipe(createForm({
-      description: i18n('login-step1-caption'),
-      placeholder: i18n('login-step1-placeholder'),
-      button: i18n('login-step1-button'),
+  TVDML.handleRoute(getLoginRouteName(id))
+    .pipe(
+      TVDML.passthrough(() => {
+        state = LOGIN;
+        return state;
+      }),
+    )
+    .pipe(
+      createForm({
+        description: i18n('login-step1-caption'),
+        placeholder: i18n('login-step1-placeholder'),
+        button: i18n('login-step1-button'),
 
-      onSubmit(login) {
-        envelope.login = login;
-        TVDML.navigate(getPasswordRouteName(id));
-      },
-    }))
+        onSubmit(login) {
+          envelope.login = login;
+          TVDML.navigate(getPasswordRouteName(id));
+        },
+      }),
+    )
     .pipe(({ document }) => {
       let target = document.prevRouteDocument;
 
@@ -225,28 +215,28 @@ export default function auth(options = {}) {
       }
     });
 
-  TVDML
-    .handleRoute(getPasswordRouteName(id))
+  TVDML.handleRoute(getPasswordRouteName(id))
     .pipe(TVDML.passthrough(() => (state = PASSWORD)))
     .pipe(TVDML.render(<Loader />))
-    .pipe(createForm({
-      description: i18n('login-step2-caption'),
-      placeholder: i18n('login-step2-placeholder'),
-      button: i18n('login-step2-button'),
-      secure: true,
+    .pipe(
+      createForm({
+        description: i18n('login-step2-caption'),
+        placeholder: i18n('login-step2-placeholder'),
+        button: i18n('login-step2-button'),
+        secure: true,
 
-      validate(value) {
-        return value.length > 5;
-      },
+        validate(value) {
+          return value.length > 5;
+        },
 
-      onSubmit(password) {
-        envelope.password = password;
-        TVDML.navigate(getAuthorizingRouteName(id));
-      },
-    }));
+        onSubmit(password) {
+          envelope.password = password;
+          TVDML.navigate(getAuthorizingRouteName(id));
+        },
+      }),
+    );
 
-  TVDML
-    .handleRoute(getAuthorizingRouteName(id))
+  TVDML.handleRoute(getAuthorizingRouteName(id))
     .pipe(TVDML.passthrough(() => (state = AUTHORIZING)))
     .pipe(TVDML.render(<Loader title={i18n('login-step3-caption')} />))
     .pipe(() => {

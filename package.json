@@ -16,6 +16,7 @@
     "serve": "webpack-dev-server",
     "dist": "NODE_ENV=production webpack --progress",
     "lint": "eslint webpack.config.js src",
+    "prettier": "prettier --write webpack.config.js src/**/*.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -37,6 +38,18 @@
     "url": "https://github.com/a-ignatov-parc/tvos-soap4.me/issues"
   },
   "homepage": "https://github.com/a-ignatov-parc/tvos-soap4.me#readme",
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint",
+      "prettier --write",
+      "git add"
+    ]
+  },
   "dependencies": {
     "blueimp-md5": "^2.3.0",
     "moment": "^2.14.1",
@@ -52,10 +65,14 @@
     "babel-plugin-transform-react-jsx": "^6.24.1",
     "eslint": "^4.8.0",
     "eslint-config-airbnb": "^15.1.0",
+    "eslint-config-prettier": "^3.1.0",
     "eslint-plugin-import": "^2.7.0",
     "eslint-plugin-jsx-a11y": "^5.1.1",
     "eslint-plugin-react": "^7.4.0",
     "file-loader": "^1.1.5",
+    "husky": "^1.1.3",
+    "lint-staged": "^8.0.4",
+    "prettier": "^1.14.3",
     "webpack": "^3.8.1",
     "webpack-dev-server": "^2.9.1"
   }

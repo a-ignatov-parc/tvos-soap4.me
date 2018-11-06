@@ -1,4 +1,3 @@
-/* eslint max-len: "off" */
 /* eslint camelcase: "off" */
 
 import { supportUHD } from '../request/soap';
@@ -20,10 +19,12 @@ export default {
 
   'user-account-active': 'Активный',
   'user-turn-on-family-account-button': 'Включить Семейный Аккаунт',
-  'user-turn-on-family-account-title': 'Ты уверен, что хочешь включить Семейный Аккаунт?',
+  'user-turn-on-family-account-title':
+    'Ты уверен, что хочешь включить Семейный Аккаунт?',
   'user-turn-on-family-account-action_button': 'Включить',
   'user-turn-off-family-account-button': 'Выключить Семейный Аккаунт',
-  'user-turn-off-family-account-title': 'Ты уверен, что хочешь выключить Семейный Аккаунт?',
+  'user-turn-off-family-account-title':
+    'Ты уверен, что хочешь выключить Семейный Аккаунт?',
   'user-turn-off-family-account-action_button': 'Выключить',
   'user-switch-family-account-cancel_button': 'Отмена',
 
@@ -37,7 +38,8 @@ export default {
   'user-action-rename-button': 'Переименовать',
   'user-action-delete-button': 'Удалить',
 
-  'user-rename-account-form-title': ({ name }) => `Переименовать аккаунт "${name}"`,
+  'user-rename-account-form-title': ({ name }) =>
+    `Переименовать аккаунт "${name}"`,
   'user-rename-account-form-description': 'Введи новое имя для аккаунта.',
   'user-rename-account-form-button': 'Обновить',
 
@@ -58,9 +60,13 @@ export default {
   'settings-labels-speedtest': 'Тест скорости',
   'settings-labels-version': 'Версия',
 
-  'settings-descriptions-video_quality': `Предпочитаемое качество видео для воспроизведения если оно доступно.\n4K (UHD) видео${supportUHD ? ' ' : ' не '}поддерживается на данном девайсе.`,
-  'settings-descriptions-translation': 'Для того чтоб просматривать эпизоды с субтитрами необходимо активировать специальный параметр в настройках сайта soap4.me. В противном случае будут отображаться только серии с переводом.',
-  'settings-descriptions-video_playback': 'Настройка воспроизведения серий. Воспроизводить их непрерывно друг за другом или по эпизоду.',
+  'settings-descriptions-video_quality': `Предпочитаемое качество видео для воспроизведения если оно доступно.\n4K (UHD) видео${
+    supportUHD ? ' ' : ' не '
+  }поддерживается на данном девайсе.`,
+  'settings-descriptions-translation':
+    'Для того чтоб просматривать эпизоды с субтитрами необходимо активировать специальный параметр в настройках сайта soap4.me. В противном случае будут отображаться только серии с переводом.',
+  'settings-descriptions-video_playback':
+    'Настройка воспроизведения серий. Воспроизводить их непрерывно друг за другом или по эпизоду.',
 
   'settings-values-sd': 'SD',
   'settings-values-hd': 'HD',
@@ -78,9 +84,11 @@ export default {
   'speedtest-loading': 'Загрузка информации о серверах...',
   'speedtest-begin': 'Начать тест',
   'speedtest-testing': 'Тестируем скорость загрузки...',
-  'speedtest-footnote': 'Необходимо дождаться завершение теста иначе результаты не будут применимы',
+  'speedtest-footnote':
+    'Необходимо дождаться завершение теста иначе результаты не будут применимы',
   'speedtest-error-title': 'Что-то пошло не так =(',
-  'speedtest-error-description': 'Пожалуйста проверьте свое интернет соединение и попробуйте еще раз',
+  'speedtest-error-description':
+    'Пожалуйста проверьте свое интернет соединение и попробуйте еще раз',
 
   'speedtest-result': ({ speed }) => `${speed} Мб/с`,
   'speedtest-result-too-slow': 'Слишком медленно. Пропускаем...',
@@ -110,7 +118,8 @@ export default {
   'episode-mark-as-unwatched': 'Отметить непросмотренным',
   'episode-speedtest': 'Тест скорости',
   'episode-rate': 'Оценить эпизод',
-  'episode-rate-title': ({ timeout }) => `Оцените эпизод${timeout ? ` или подождите ${timeout} сек.` : ''}`,
+  'episode-rate-title': ({ timeout }) =>
+    `Оцените эпизод${timeout ? ` или подождите ${timeout} сек.` : ''}`,
 
   'season-title-more': 'Еще',
   'season-mark-as-watched': 'Отметить сезон как просмотренный',
@@ -145,9 +154,12 @@ export default {
   'tvshow-mark-as-watched': 'Отметить Сериал как просмотренный',
   'tvshow-mark-as-unwatched': 'Отметить Сериал как не просмотренный',
 
-  'tvshow-average-imdb': ({ amount }) => `На основе рейтинга ${amount} пользователей IMDB.`,
-  'tvshow-average-kinopoisk': ({ amount }) => `На основе рейтинга ${amount} пользователей Кинопоиска.`,
-  'tvshow-average-soap': ({ amount }) => `На основе рейтинга ${amount} пользователей soap4.me.`,
+  'tvshow-average-imdb': ({ amount }) =>
+    `На основе рейтинга ${amount} пользователей IMDB.`,
+  'tvshow-average-kinopoisk': ({ amount }) =>
+    `На основе рейтинга ${amount} пользователей Кинопоиска.`,
+  'tvshow-average-soap': ({ amount }) =>
+    `На основе рейтинга ${amount} пользователей soap4.me.`,
 
   'tvshow-liked-by': 'Нравится',
   'tvshow-liked-by-people': ({ likes }) => `пользователям: ${likes}`,
@@ -180,7 +192,8 @@ export default {
   'my-new-episodes': 'С новыми эпизодами',
 
   'my-empty-list-title': 'У тебя нет никаких подписок',
-  'my-empty-list-description': 'Ты можешь начать с добавления каких-нибудь сериалов из раздела "Сериалы"',
+  'my-empty-list-description':
+    'Ты можешь начать с добавления каких-нибудь сериалов из раздела "Сериалы"',
   'my-empty-list-button': 'Перейти в раздел "Сериалы"',
 
   'all-caption': 'Сериалы',
@@ -218,9 +231,12 @@ export default {
   'actor-title': 'Актер / Актриса',
 
   'authorize-caption': 'Авторизация',
-  'authorize-description': 'Для того чтоб просматривать свои подписки и контент необходимо авторизоваться',
-  'authorize-user-description': 'Вам потребуется авторизоваться если вы хотите чтоб ваш tv синхронизировался с аккаунтом на soap4.me.\n\nАвторизация так же потребуется для управления подписками и выставления рейтингов для сериалов и эпизодов с tv.',
-  'authorize-tvshow-description': 'Вам потребуется авторизоваться если вы захотите отслеживать подписки и синхронизироваться их с аккаунтом на soap4.me',
+  'authorize-description':
+    'Для того чтоб просматривать свои подписки и контент необходимо авторизоваться',
+  'authorize-user-description':
+    'Вам потребуется авторизоваться если вы хотите чтоб ваш tv синхронизировался с аккаунтом на soap4.me.\n\nАвторизация так же потребуется для управления подписками и выставления рейтингов для сериалов и эпизодов с tv.',
+  'authorize-tvshow-description':
+    'Вам потребуется авторизоваться если вы захотите отслеживать подписки и синхронизироваться их с аккаунтом на soap4.me',
   'authorize-control-trigger': 'Авторизоваться',
 
   'login-step1-caption': 'Введите логин (e-mail не является логином)',

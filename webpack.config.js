@@ -23,9 +23,12 @@ const rules = [
       loader: 'babel-loader',
       options: {
         plugins: [
-          ['transform-react-jsx', {
-            pragma: 'pragma.jsx',
-          }],
+          [
+            'transform-react-jsx',
+            {
+              pragma: 'pragma.jsx',
+            },
+          ],
           'transform-class-properties',
           'transform-object-rest-spread',
         ],
@@ -62,13 +65,15 @@ const plugins = [
 ];
 
 if (isProd) {
-  plugins.push(...[
-    new webpack.optimize.OccurrenceOrderPlugin(),
-    new MinifyPlugin({
-      keepFnName: true,
-      keepClassName: true,
-    }),
-  ]);
+  plugins.push(
+    ...[
+      new webpack.optimize.OccurrenceOrderPlugin(),
+      new MinifyPlugin({
+        keepFnName: true,
+        keepClassName: true,
+      }),
+    ],
+  );
 }
 
 module.exports = {

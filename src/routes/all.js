@@ -3,10 +3,7 @@ import * as TVDML from 'tvdml';
 import * as user from '../user';
 import { get as i18n } from '../localization';
 
-import {
-  getAllTVShows,
-  getCountriesList,
-} from '../request/soap';
+import { getAllTVShows, getCountriesList } from '../request/soap';
 
 import { isMenuButtonPressNavigatedTo } from '../utils';
 import { deepEqualShouldUpdate } from '../utils/components';
@@ -26,10 +23,12 @@ const sections = {
   [NAME]: {
     title: 'all-group-title-name',
     reducer(list) {
-      return [{
-        title: i18n('all-group-name-title'),
-        items: list,
-      }];
+      return [
+        {
+          title: i18n('all-group-name-title'),
+          items: list,
+        },
+      ];
     },
   },
 
@@ -46,8 +45,7 @@ const sections = {
           return result;
         }, {});
 
-      return Object
-        .keys(collection)
+      return Object.keys(collection)
         .sort((a, b) => b - a)
         .map(year => ({
           title: year,
@@ -81,8 +79,7 @@ const sections = {
           return result;
         }, {});
 
-      return Object
-        .keys(likesCollection)
+      return Object.keys(likesCollection)
         .sort((a, b) => b - a)
         .map(key => {
           const { thousand, hundred, items } = likesCollection[key];
@@ -115,8 +112,7 @@ const sections = {
         return result;
       }, {});
 
-      return Object
-        .keys(collection)
+      return Object.keys(collection)
         .sort((a, b) => b - a)
         .map(rating => ({
           title: rating,
@@ -145,10 +141,12 @@ const sections = {
   [COMPLETENESS]: {
     title: 'all-group-title-completeness',
     reducer(list) {
-      return [{
-        title: i18n('all-group-completeness-title'),
-        items: list.filter(({ status }) => +status),
-      }];
+      return [
+        {
+          title: i18n('all-group-completeness-title'),
+          items: list.filter(({ status }) => +status),
+        },
+      ];
     },
   },
 };
@@ -157,102 +155,100 @@ if (user.isExtended()) {
   sections[UHD] = {
     title: 'all-group-title-uhd',
     reducer(list) {
-      return [{
-        title: i18n('all-group-uhd-title'),
-        items: list.filter(item => !!item['4k']),
-      }];
+      return [
+        {
+          title: i18n('all-group-uhd-title'),
+          items: list.filter(item => !!item['4k']),
+        },
+      ];
     },
   };
 }
 
 export default function allRoute() {
-  return TVDML
-    .createPipeline()
-    .pipe(TVDML.render(TVDML.createComponent({
-      getInitialState() {
-        const token = user.getToken();
-
-        return {
-          token,
-          loading: true,
-          groupId: NAME,
-          updating: false,
-        };
-      },
-
-      componentDidMount() {
-        const setState = this.setState.bind(this);
-
-        // eslint-disable-next-line no-underscore-dangle
-        const currentDocument = this._rootNode.ownerDocument;
-
-        this.menuButtonPressStream = TVDML.subscribe('menu-button-press');
-        this.menuButtonPressStream
-          .pipe(isMenuButtonPressNavigatedTo(currentDocument))
-          .pipe(isNavigated => isNavigated && this.loadData().then(setState));
-
-        this.userStateChangeStream = user.subscription();
-        this.userStateChangeStream.pipe(() => {
+  return TVDML.createPipeline().pipe(
+    TVDML.render(
+      TVDML.createComponent({
+        getInitialState() {
           const token = user.getToken();
 
-          if (token !== this.state.token) {
-            this.setState({ updating: true, token });
-          }
-        });
+          return {
+            token,
+            loading: true,
+            groupId: NAME,
+            updating: false,
+          };
+        },
 
-        this.loadData().then(payload => {
-          this.setState({ loading: false, ...payload });
-        });
-      },
+        componentDidMount() {
+          const setState = this.setState.bind(this);
 
-      componentWillReceiveProps() {
-        this.setState({ updating: true });
-      },
+          // eslint-disable-next-line no-underscore-dangle
+          const currentDocument = this._rootNode.ownerDocument;
 
-      componentDidUpdate(prevProps, prevState) {
-        if (this.state.updating && prevState.updating !== this.state.updating) {
-          this.loadData().then(payload => {
-            this.setState({ updating: false, ...payload });
+          this.menuButtonPressStream = TVDML.subscribe('menu-button-press');
+          this.menuButtonPressStream
+            .pipe(isMenuButtonPressNavigatedTo(currentDocument))
+            .pipe(isNavigated => isNavigated && this.loadData().then(setState));
+
+          this.userStateChangeStream = user.subscription();
+          this.userStateChangeStream.pipe(() => {
+            const token = user.getToken();
+
+            if (token !== this.state.token) {
+              this.setState({ updating: true, token });
+            }
           });
-        }
-      },
 
-      componentWillUnmount() {
-        this.menuButtonPressStream.unsubscribe();
-        this.userStateChangeStream.unsubscribe();
-      },
+          this.loadData().then(payload => {
+            this.setState({ loading: false, ...payload });
+          });
+        },
 
-      shouldComponentUpdate: deepEqualShouldUpdate,
+        componentWillReceiveProps() {
+          this.setState({ updating: true });
+        },
 
-      loadData() {
-        return Promise
-          .all([
-            getAllTVShows(),
-            getCountriesList(),
-          ])
-          .then(([series, contries]) => ({ series, contries }));
-      },
+        componentDidUpdate(prevProps, prevState) {
+          if (
+            this.state.updating &&
+            prevState.updating !== this.state.updating
+          ) {
+            this.loadData().then(payload => {
+              this.setState({ updating: false, ...payload });
+            });
+          }
+        },
 
-      render() {
-        if (this.state.loading) {
-          return <Loader />;
-        }
+        componentWillUnmount() {
+          this.menuButtonPressStream.unsubscribe();
+          this.userStateChangeStream.unsubscribe();
+        },
 
-        const {
-          series,
-          groupId,
-          contries,
-        } = this.state;
+        shouldComponentUpdate: deepEqualShouldUpdate,
 
-        const { title: titleCode, reducer } = sections[groupId];
-        const groups = reducer(series, { contries });
-        const title = i18n(titleCode);
+        loadData() {
+          return Promise.all([getAllTVShows(), getCountriesList()]).then(
+            ([series, contries]) => ({ series, contries }),
+          );
+        },
 
-        return (
-          <document>
-            <head>
-              <style
-                content={`
+        render() {
+          if (this.state.loading) {
+            return <Loader />;
+          }
+
+          const { series, groupId, contries } = this.state;
+
+          const { title: titleCode, reducer } = sections[groupId];
+          const groups = reducer(series, { contries });
+          const title = i18n(titleCode);
+
+          return (
+            <document>
+              <head>
+                <style
+                  content={`
                   .dropdown-badge {
                     tv-tint-color: rgb(84, 82, 80);
                     margin: 0 0 5 0;
@@ -264,89 +260,83 @@ export default function allRoute() {
                     }
                   }
                 `}
-              />
-            </head>
-            <stackTemplate>
-              <banner>
-                <title>
-                  {i18n('all-caption')}
-                </title>
-              </banner>
-              <collectionList>
-                <separator>
-                  <button onSelect={this.onSwitchGroup}>
-                    <text>
-                      {i18n('all-group-by-title', { title })}
-                      {' '}
-                      <badge
-                        width="31"
-                        height="14"
-                        class="dropdown-badge"
-                        src="resource://button-dropdown"
-                      />
-                    </text>
-                  </button>
-                </separator>
-                {groups.map(({ title: groupTitle, items }) => (
-                  <grid key={groupTitle}>
-                    <header>
-                      <title>{groupTitle}</title>
-                    </header>
-                    <section>
-                      {items.map(tvshow => {
-                        const {
-                          sid,
-                          watching,
-                          unwatched,
-                          covers: { big: poster },
-                        } = tvshow;
+                />
+              </head>
+              <stackTemplate>
+                <banner>
+                  <title>{i18n('all-caption')}</title>
+                </banner>
+                <collectionList>
+                  <separator>
+                    <button onSelect={this.onSwitchGroup}>
+                      <text>
+                        {i18n('all-group-by-title', { title })}{' '}
+                        <badge
+                          width="31"
+                          height="14"
+                          class="dropdown-badge"
+                          src="resource://button-dropdown"
+                        />
+                      </text>
+                    </button>
+                  </separator>
+                  {groups.map(({ title: groupTitle, items }) => (
+                    <grid key={groupTitle}>
+                      <header>
+                        <title>{groupTitle}</title>
+                      </header>
+                      <section>
+                        {items.map(tvshow => {
+                          const {
+                            sid,
+                            watching,
+                            unwatched,
+                            covers: { big: poster },
+                          } = tvshow;
 
-                        const isUHD = !!tvshow['4k'];
-                        const tvShowTitle = i18n('tvshow-title', tvshow);
+                          const isUHD = !!tvshow['4k'];
+                          const tvShowTitle = i18n('tvshow-title', tvshow);
 
-                        return (
-                          <Tile
-                            key={sid}
-                            title={tvShowTitle}
-                            route="tvshow"
-                            poster={poster}
-                            counter={unwatched}
-                            isWatched={watching > 0 && !unwatched}
-                            isUHD={isUHD}
-                            payload={{
-                              sid,
-                              poster,
-                              title: tvShowTitle,
-                            }}
-                          />
-                        );
-                      })}
-                    </section>
-                  </grid>
-                ))}
-              </collectionList>
-            </stackTemplate>
-          </document>
-        );
-      },
+                          return (
+                            <Tile
+                              key={sid}
+                              title={tvShowTitle}
+                              route="tvshow"
+                              poster={poster}
+                              counter={unwatched}
+                              isWatched={watching > 0 && !unwatched}
+                              isUHD={isUHD}
+                              payload={{
+                                sid,
+                                poster,
+                                title: tvShowTitle,
+                              }}
+                            />
+                          );
+                        })}
+                      </section>
+                    </grid>
+                  ))}
+                </collectionList>
+              </stackTemplate>
+            </document>
+          );
+        },
 
-      onSwitchGroup() {
-        const sectionsList = Object
-          .keys(sections)
-          .map(id => ({ id, title: sections[id].title }));
+        onSwitchGroup() {
+          const sectionsList = Object.keys(sections).map(id => ({
+            id,
+            title: sections[id].title,
+          }));
 
-        TVDML
-          .renderModal((
+          TVDML.renderModal(
             <document>
               <alertTemplate>
-                <title>
-                  {i18n('all-group-by')}
-                </title>
+                <title>{i18n('all-group-by')}</title>
                 {sectionsList.map(({ id, title: titleCode }) => (
                   <button
                     key={id}
                     autoHighlight={id === this.state.groupId || undefined}
-
                     // eslint-disable-next-line react/jsx-no-bind
                     onSelect={this.onGroupSelect.bind(this, id)}
                   >
@@ -354,14 +344,15 @@ export default function allRoute() {
                   </button>
                 ))}
               </alertTemplate>
-            </document>
-          ))
-          .sink();
-      },
+            </document>,
+          ).sink();
+        },
 
-      onGroupSelect(groupId) {
-        this.setState({ groupId });
-        TVDML.removeModal();
-      },
-    })));
+        onGroupSelect(groupId) {
+          this.setState({ groupId });
+          TVDML.removeModal();
+        },
+      }),
+    ),
+  );
 }

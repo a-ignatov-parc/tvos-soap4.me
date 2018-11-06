@@ -18,9 +18,7 @@ const { LOCALIZATION, SUBTITLES } = settings.values[TRANSLATION];
 const TOP_SHELF_MIN_ITEMS = 4;
 
 function getLatest(tvshows, count = 10) {
-  return tvshows
-    .sort(({ sid: a }, { sid: b }) => b - a)
-    .slice(0, count);
+  return tvshows.sort(({ sid: a }, { sid: b }) => b - a).slice(0, count);
 }
 
 export const supportUHD = Device.productType !== 'AppleTV5,3';
@@ -47,12 +45,9 @@ export const mediaQualities = {
   4: UHD,
 };
 
-export const mediaQualityRanking = [
-  supportUHD && UHD,
-  FULLHD,
-  HD,
-  SD,
-].filter(Boolean);
+export const mediaQualityRanking = [supportUHD && UHD, FULLHD, HD, SD].filter(
+  Boolean,
+);
 
 export const mediaLocalizationRanking = {
   [LOCALIZATION]: [
@@ -99,7 +94,7 @@ export const TVShowStatusStrings = {
 function emptyOrErrorsResolvers(defaults) {
   return [
     // eslint-disable-next-line no-confusing-arrow
-    response => response != null ? response : defaults,
+    response => (response != null ? response : defaults),
     () => defaults,
   ];
 }
@@ -137,9 +132,7 @@ function headers() {
 
 function addHeaders(dict) {
   return XHR => {
-    Object
-      .keys(dict)
-      .forEach(key => XHR.setRequestHeader(key, dict[key]));
+    Object.keys(dict).forEach(key => XHR.setRequestHeader(key, dict[key]));
     return XHR;
   };
 }
@@ -163,13 +156,14 @@ export function checkSession() {
 }
 
 export function authorize({ login, password }) {
-  return post('https://api.soap4.me/v2/auth/', { login, password })
-    .catch(xhr => {
+  return post('https://api.soap4.me/v2/auth/', { login, password }).catch(
+    xhr => {
       if (xhr.status === 403) {
         return request.toJSON()(xhr);
       }
       return Promise.reject(xhr);
-    });
+    },
+  );
 }
 
 export function getFamilyAccounts() {
@@ -205,7 +199,6 @@ export function logout() {
 }
 
 export function getMyTVShows() {
-  // eslint-disable-next-line max-len
   return get('https://api.soap4.me/v2/soap/my/')
     .then(...emptyOrErrorsResolvers([]))
     .then(series => {
@@ -247,24 +240,23 @@ export function getMyTVShows() {
 }
 
 export function getAllTVShows() {
-  return get('https://api.soap4.me/v2/soap/')
-    .then(series => {
-      if (!isAuthorized() && !isQello()) {
-        const latest = getLatest(series);
+  return get('https://api.soap4.me/v2/soap/').then(series => {
+    if (!isAuthorized() && !isQello()) {
+      const latest = getLatest(series);
 
-        topShelf.set({
-          sections: [
-            {
-              id: 'latest',
-              title: i18n('search-latest'),
-              items: latest.map(topShelf.mapSeries),
-            },
-          ],
-        });
-      }
+      topShelf.set({
+        sections: [
+          {
+            id: 'latest',
+            title: i18n('search-latest'),
+            items: latest.map(topShelf.mapSeries),
+          },
+        ],
+      });
+    }
 
-      return series;
-    });
+    return series;
+  });
 }
 
 export function getLatestTVShows(count = 10) {
@@ -272,9 +264,9 @@ export function getLatestTVShows(count = 10) {
 }
 
 export function getPopularTVShows(count = 10) {
-  return getAllTVShows().then(tvshows => tvshows
-    .sort(({ likes: a }, { likes: b }) => b - a)
-    .slice(0, count));
+  return getAllTVShows().then(tvshows =>
+    tvshows.sort(({ likes: a }, { likes: b }) => b - a).slice(0, count),
+  );
 }
 
 export function getTVShowsByGenre(genre) {
@@ -298,13 +290,15 @@ export function getTVShowEpisodes(sid) {
 }
 
 export function getTVShowRecommendations(sid) {
-  // eslint-disable-next-line max-len
-  return get(`https://api.soap4.me/v2/soap/recommendations/${sid}/`).then(...emptyOrErrorsResolvers([]));
+  return get(`https://api.soap4.me/v2/soap/recommendations/${sid}/`).then(
+    ...emptyOrErrorsResolvers([]),
+  );
 }
 
 export function getTVShowReviews(sid) {
-  // eslint-disable-next-line max-len
-  return get(`https://api.soap4.me/v2/reviews/${sid}/`).then(...emptyOrErrorsResolvers([]));
+  return get(`https://api.soap4.me/v2/reviews/${sid}/`).then(
+    ...emptyOrErrorsResolvers([]),
+  );
 }
 
 export function markReviewAsLiked(rid) {
@@ -323,54 +317,60 @@ export function rateTVShow(sid, rating) {
 }
 
 export function rateEpisode(sid, season, episode, rating) {
-  // eslint-disable-next-line max-len
-  return post(`https://api.soap4.me/v2/rate/episode/${sid}/${season}/${episode}/rating/${rating}/`, {
-    sid,
-    season,
-    rating,
-    episode,
-  });
+  return post(
+    `https://api.soap4.me/v2/rate/episode/${sid}/${season}/${episode}/rating/${rating}/`,
+    {
+      sid,
+      season,
+      rating,
+      episode,
+    },
+  );
 }
 
 export function getTVShowTrailers(sid) {
-  return get(`https://api.soap4.me/v2/trailers/${sid}/`)
-    .then(...emptyOrErrorsResolvers([]));
+  return get(`https://api.soap4.me/v2/trailers/${sid}/`).then(
+    ...emptyOrErrorsResolvers([]),
+  );
 }
 
 export function getTVShowSeasons(sid) {
-  return getTVShowEpisodes(sid)
-    // eslint-disable-next-line arrow-body-style
-    .then(({ covers, episodes }) => {
-      return (episodes || []).reduce((result, episode) => {
-        if (!result[episode.season]) {
-          // eslint-disable-next-line no-param-reassign
-          result[episode.season] = {
-            episodes: [],
-            unwatched: 0,
-            season: episode.season,
-            covers: covers.filter(({ season }) => season === episode.season)[0],
-          };
-        }
-        result[episode.season].episodes.push(episode);
+  return (
+    getTVShowEpisodes(sid)
+      // eslint-disable-next-line arrow-body-style
+      .then(({ covers, episodes }) => {
+        return (episodes || []).reduce((result, episode) => {
+          if (!result[episode.season]) {
+            // eslint-disable-next-line no-param-reassign
+            result[episode.season] = {
+              episodes: [],
+              unwatched: 0,
+              season: episode.season,
+              covers: covers.filter(
+                ({ season }) => season === episode.season,
+              )[0],
+            };
+          }
+          result[episode.season].episodes.push(episode);
 
-        // eslint-disable-next-line no-param-reassign
-        if (!episode.watched) result[episode.season].unwatched += 1;
-        return result;
-      }, {});
-    })
-    // eslint-disable-next-line arrow-body-style
-    .then(seasonsCollection => {
-      return Object
-        .keys(seasonsCollection)
-        .sort((a, b) => a - b)
-        .map(seasonNumber => seasonsCollection[seasonNumber])
-        .map(season => ({
-          ...season,
-          episodes: season.episodes
-            .slice(0)
-            .sort((a, b) => a.episode - b.episode),
-        }));
-    });
+          // eslint-disable-next-line no-param-reassign
+          if (!episode.watched) result[episode.season].unwatched += 1;
+          return result;
+        }, {});
+      })
+      // eslint-disable-next-line arrow-body-style
+      .then(seasonsCollection => {
+        return Object.keys(seasonsCollection)
+          .sort((a, b) => a - b)
+          .map(seasonNumber => seasonsCollection[seasonNumber])
+          .map(season => ({
+            ...season,
+            episodes: season.episodes
+              .slice(0)
+              .sort((a, b) => a.episode - b.episode),
+          }));
+      })
+  );
 }
 
 export function getTVShowSeason(sid, id) {
@@ -382,17 +382,19 @@ export function getTVShowSeason(sid, id) {
 
 export function getTVShowSchedule(sid) {
   return get(`https://api.soap4.me/v2/shedule/${sid}/`)
-    .then(schedule => schedule.reduce((result, item) => {
-      if (!result[item.season - 1]) {
-        // eslint-disable-next-line no-param-reassign
-        result[item.season - 1] = {
-          episodes: [],
-          season: `${item.season}`,
-        };
-      }
-      result[item.season - 1].episodes.unshift(item);
-      return result;
-    }, []))
+    .then(schedule =>
+      schedule.reduce((result, item) => {
+        if (!result[item.season - 1]) {
+          // eslint-disable-next-line no-param-reassign
+          result[item.season - 1] = {
+            episodes: [],
+            season: `${item.season}`,
+          };
+        }
+        result[item.season - 1].episodes.unshift(item);
+        return result;
+      }, []),
+    )
     .catch(() => []);
 }
 
@@ -414,38 +416,33 @@ export function getEpisodeMedia({ files = [] }, translation) {
 
   const [rankedFile] = files
     .slice(0)
-    .sort(({
-      quality: qualityA,
-      translate: translateA,
-    }, {
-      quality: qualityB,
-      translate: translateB,
-    }) => {
-      const qualityIndexA = resolveCodeToIndex(...[
-        mediaQualities[qualityA],
-        qualityRanking,
-      ]);
+    .sort(
+      (
+        { quality: qualityA, translate: translateA },
+        { quality: qualityB, translate: translateB },
+      ) => {
+        const qualityIndexA = resolveCodeToIndex(
+          ...[mediaQualities[qualityA], qualityRanking],
+        );
 
-      const qualityIndexB = resolveCodeToIndex(...[
-        mediaQualities[qualityB],
-        qualityRanking,
-      ]);
+        const qualityIndexB = resolveCodeToIndex(
+          ...[mediaQualities[qualityB], qualityRanking],
+        );
 
-      const localizationIndexA = resolveCodeToIndex(...[
-        mediaLocalizations[translateA],
-        localizationRanking,
-      ]);
+        const localizationIndexA = resolveCodeToIndex(
+          ...[mediaLocalizations[translateA], localizationRanking],
+        );
 
-      const localizationIndexB = resolveCodeToIndex(...[
-        mediaLocalizations[translateB],
-        localizationRanking,
-      ]);
+        const localizationIndexB = resolveCodeToIndex(
+          ...[mediaLocalizations[translateB], localizationRanking],
+        );
 
-      const qualityWeight = qualityIndexA - qualityIndexB;
-      const localizationWeight = localizationIndexA - localizationIndexB;
+        const qualityWeight = qualityIndexA - qualityIndexB;
+        const localizationWeight = localizationIndexA - localizationIndexB;
 
-      return qualityWeight + localizationWeight;
-    });
+        return qualityWeight + localizationWeight;
+      },
+    );
 
   return rankedFile;
 }
@@ -463,18 +460,21 @@ export function markSeasonAsWatched(sid, season) {
 }
 
 export function markSeasonAsUnwatched(sid, season) {
-  // eslint-disable-next-line max-len
-  return post(`https://api.soap4.me/v2/episodes/unwatch/full/${sid}/${season}/`);
+  return post(
+    `https://api.soap4.me/v2/episodes/unwatch/full/${sid}/${season}/`,
+  );
 }
 
 export function markEpisodeAsWatched(sid, season, episodeNumber) {
-  // eslint-disable-next-line max-len
-  return post(`https://api.soap4.me/v2/episodes/watch/${sid}/${season}/${episodeNumber}/`);
+  return post(
+    `https://api.soap4.me/v2/episodes/watch/${sid}/${season}/${episodeNumber}/`,
+  );
 }
 
 export function markEpisodeAsUnwatched(sid, season, episodeNumber) {
-  // eslint-disable-next-line max-len
-  return post(`https://api.soap4.me/v2/episodes/unwatch/${sid}/${season}/${episodeNumber}/`);
+  return post(
+    `https://api.soap4.me/v2/episodes/unwatch/${sid}/${season}/${episodeNumber}/`,
+  );
 }
 
 export function getMediaStream(media) {

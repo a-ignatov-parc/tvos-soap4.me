@@ -32,10 +32,7 @@ const titleMapping = {
   [LANGUAGE]: 'settings-labels-language',
 };
 
-const onlyForExtendedAccounts = [
-  TRANSLATION,
-  VIDEO_PLAYBACK,
-];
+const onlyForExtendedAccounts = [TRANSLATION, VIDEO_PLAYBACK];
 
 const disabledFeatures = {
   [UHD]: !supportUHD,
@@ -74,80 +71,79 @@ function getTitleForValue(key) {
 }
 
 export default function settingsRoute() {
-  return TVDML
-    .createPipeline()
-    .pipe(TVDML.render(TVDML.createComponent({
-      getInitialState() {
-        const token = user.getToken();
-        const extended = user.isExtended();
-        const authorized = user.isAuthorized();
-        const language = localization.getLanguage();
-
-        return {
-          token,
-          language,
-          extended,
-          authorized,
-          settings: settings.getAll(),
-        };
-      },
-
-      componentDidMount() {
-        this.languageChangeStream = localization.subscription();
-        this.languageChangeStream.pipe(({ language }) => {
-          this.setState({ language });
-        });
-
-        this.userStateChangeStream = user.subscription();
-        this.userStateChangeStream.pipe(() => {
+  return TVDML.createPipeline().pipe(
+    TVDML.render(
+      TVDML.createComponent({
+        getInitialState() {
           const token = user.getToken();
+          const extended = user.isExtended();
+          const authorized = user.isAuthorized();
+          const language = localization.getLanguage();
 
-          if (token !== this.state.token) {
-            this.setState({
-              token,
-              extended: user.isExtended(),
-              authorized: user.isAuthorized(),
-            });
-          }
-        });
-      },
+          return {
+            token,
+            language,
+            extended,
+            authorized,
+            settings: settings.getAll(),
+          };
+        },
 
-      componentWillUnmount() {
-        this.languageChangeStream.unsubscribe();
-        this.userStateChangeStream.unsubscribe();
-      },
+        componentDidMount() {
+          this.languageChangeStream = localization.subscription();
+          this.languageChangeStream.pipe(({ language }) => {
+            this.setState({ language });
+          });
 
-      shouldComponentUpdate: deepEqualShouldUpdate,
+          this.userStateChangeStream = user.subscription();
+          this.userStateChangeStream.pipe(() => {
+            const token = user.getToken();
 
-      render() {
-        const {
-          extended,
-          authorized,
-          settings: currentSettings,
-        } = this.state;
+            if (token !== this.state.token) {
+              this.setState({
+                token,
+                extended: user.isExtended(),
+                authorized: user.isAuthorized(),
+              });
+            }
+          });
+        },
 
-        const { BASEURL } = getStartParams();
+        componentWillUnmount() {
+          this.languageChangeStream.unsubscribe();
+          this.userStateChangeStream.unsubscribe();
+        },
 
-        const items = Object
-          .keys(currentSettings)
-          .filter(key => extended || !~onlyForExtendedAccounts.indexOf(key))
-          .map(key => ({
-            key,
-            title: getTitleForKey(key),
-            value: currentSettings[key],
-            description: getDescriptionForKey(key),
-            result: getTitleForValue(currentSettings[key]),
-          }));
+        shouldComponentUpdate: deepEqualShouldUpdate,
 
-        const relatedImage = (
-          <img src={BASEURL + poster} width="560" height="560" />
-        );
+        render() {
+          const {
+            extended,
+            authorized,
+            settings: currentSettings,
+          } = this.state;
 
-        return (
-          <document>
-            <head>
-              <style
-                content={`
+          const { BASEURL } = getStartParams();
+
+          const items = Object.keys(currentSettings)
+            .filter(key => extended || !~onlyForExtendedAccounts.indexOf(key))
+            .map(key => ({
+              key,
+              title: getTitleForKey(key),
+              value: currentSettings[key],
+              description: getDescriptionForKey(key),
+              result: getTitleForValue(currentSettings[key]),
+            }));
+
+          const relatedImage = (
+            <img src={BASEURL + poster} width="560" height="560" />
+          );
+
+          return (
+            <document>
+              <head>
+                <style
+                  content={`
                   .grey_title {
                     color: rgb(142, 147, 157);
                   }
@@ -172,108 +168,86 @@ export default function settingsRoute() {
                     text-align: center;
                   }
                 `}
-              />
-            </head>
-            <listTemplate>
-              <banner>
-                <title class="grey_title">
-                  {i18n('settings-caption')}
-                </title>
-              </banner>
-              <list>
-                <relatedContent>
-                  <lockup>
-                    {relatedImage}
-                  </lockup>
-                </relatedContent>
-                <section>
-                  {items.map(({ key, value, title, description, result }) => (
+                />
+              </head>
+              <listTemplate>
+                <banner>
+                  <title class="grey_title">{i18n('settings-caption')}</title>
+                </banner>
+                <list>
+                  <relatedContent>
+                    <lockup>{relatedImage}</lockup>
+                  </relatedContent>
+                  <section>
+                    {items.map(({ key, value, title, description, result }) => (
+                      <listItemLockup
+                        key={key}
+                        class="item"
+                        // eslint-disable-next-line react/jsx-no-bind
+                        onSelect={this.onChangeOption.bind(this, key, value)}
+                      >
+                        <title>{title}</title>
+                        <decorationLabel>{result}</decorationLabel>
+                        {description && (
+                          <relatedContent>
+                            <lockup>
+                              {relatedImage}
+                              <description class="grey_text item_description">
+                                {description}
+                              </description>
+                            </lockup>
+                          </relatedContent>
+                        )}
+                      </listItemLockup>
+                    ))}
+                  </section>
+                  <section>
+                    <header>
+                      <title>{i18n('settings-titles-network')}</title>
+                    </header>
                     <listItemLockup
-                      key={key}
                       class="item"
-
-                      // eslint-disable-next-line react/jsx-no-bind
-                      onSelect={this.onChangeOption.bind(this, key, value)}
+                      onSelect={link('speedtest')}
+                      disabled={!(authorized && extended)}
                     >
-                      <title>
-                        {title}
-                      </title>
-                      <decorationLabel>
-                        {result}
-                      </decorationLabel>
-                      {description && (
-                        <relatedContent>
-                          <lockup>
-                            {relatedImage}
-                            <description class="grey_text item_description">
-                              {description}
-                            </description>
-                          </lockup>
-                        </relatedContent>
-                      )}
+                      <title>{i18n('settings-labels-speedtest')}</title>
                     </listItemLockup>
-                  ))}
-                </section>
-                <section>
-                  <header>
-                    <title>
-                      {i18n('settings-titles-network')}
-                    </title>
-                  </header>
-                  <listItemLockup
-                    class="item"
-                    onSelect={link('speedtest')}
-                    disabled={!(authorized && extended)}
-                  >
-                    <title>
-                      {i18n('settings-labels-speedtest')}
-                    </title>
-                  </listItemLockup>
-                </section>
-                <section>
-                  <header>
-                    <title>
-                      {i18n('settings-titles-about')}
-                    </title>
-                  </header>
-                  <listItemLockup disabled="true">
-                    <title>
-                      {i18n('settings-labels-version')}
-                    </title>
-                    <decorationLabel>{version}</decorationLabel>
-                  </listItemLockup>
-                </section>
-              </list>
-            </listTemplate>
-          </document>
-        );
-      },
+                  </section>
+                  <section>
+                    <header>
+                      <title>{i18n('settings-titles-about')}</title>
+                    </header>
+                    <listItemLockup disabled="true">
+                      <title>{i18n('settings-labels-version')}</title>
+                      <decorationLabel>{version}</decorationLabel>
+                    </listItemLockup>
+                  </section>
+                </list>
+              </listTemplate>
+            </document>
+          );
+        },
 
-      onChangeOption(key, active) {
-        const values = settings.values[key];
-        const options = Object
-          .keys(values)
-          .map(name => values[name])
-          .map(value => ({
-            value,
-            isActive: value === active,
-            isDisabled: !!disabledFeatures[value],
-            title: getTitleForValue(value),
-          }));
+        onChangeOption(key, active) {
+          const values = settings.values[key];
+          const options = Object.keys(values)
+            .map(name => values[name])
+            .map(value => ({
+              value,
+              isActive: value === active,
+              isDisabled: !!disabledFeatures[value],
+              title: getTitleForValue(value),
+            }));
 
-        TVDML
-          .renderModal((
+          TVDML.renderModal(
             <document>
               <alertTemplate>
-                <title>
-                  {getTitleForKey(key)}
-                </title>
+                <title>{getTitleForKey(key)}</title>
                 {options.map(({ title, value, isActive, isDisabled }) => (
                   <button
                     key={value}
                     disabled={isDisabled || undefined}
                     autoHighlight={isActive || undefined}
-
                     // eslint-disable-next-line react/jsx-no-bind
                     onSelect={this.onOptionSelect.bind(this, key, value)}
                   >
@@ -281,15 +255,16 @@ export default function settingsRoute() {
                   </button>
                 ))}
               </alertTemplate>
-            </document>
-          ))
-          .sink();
-      },
+            </document>,
+          ).sink();
+        },
 
-      onOptionSelect(key, value) {
-        settings.set(key, value);
-        this.setState({ settings: settings.getAll() });
-        TVDML.removeModal();
-      },
-    })));
+        onOptionSelect(key, value) {
+          settings.set(key, value);
+          this.setState({ settings: settings.getAll() });
+          TVDML.removeModal();
+        },
+      }),
+    ),
+  );
 }
