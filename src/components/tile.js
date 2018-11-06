@@ -13,12 +13,7 @@ export default function Tile({ key, attrs = {}, events = {} }) {
     autoHighlight,
   } = attrs;
 
-  const {
-    onPlay,
-    onSelect,
-    onHighlight,
-    onHoldselect,
-  } = events;
+  const { onPlay, onSelect, onHighlight, onHoldselect } = events;
 
   const showTopShadow = isUHD;
   const showBottomShadow = counter || isWatched;
@@ -53,7 +48,9 @@ export default function Tile({ key, attrs = {}, events = {} }) {
       <title
         class="tile-title"
         style="tv-text-highlight-style: marquee-on-highlight"
-      >{title}</title>
+      >
+        {title}
+      </title>
       <subtitle class="tile-subtitle">{subtitle}</subtitle>
       <overlay style="margin: 0; padding: 0;">
         {isUHD && (
@@ -68,10 +65,11 @@ export default function Tile({ key, attrs = {}, events = {} }) {
             `}
           />
         )}
-        {!isWatched && counter && (
-          <textBadge
-            type="fill"
-            style={`
+        {!isWatched &&
+          counter && (
+            <textBadge
+              type="fill"
+              style={`
               font-size: 20;
               border-radius: 30;
               margin: 0 10 12 0;
@@ -80,8 +78,10 @@ export default function Tile({ key, attrs = {}, events = {} }) {
               tv-position: bottom;
               tv-tint-color: rgb(255, 255, 255);
             `}
-          >{counter}</textBadge>
-        )}
+            >
+              {counter}
+            </textBadge>
+          )}
         {isWatched && (
           <textBadge
             type="fill"
@@ -94,7 +94,9 @@ export default function Tile({ key, attrs = {}, events = {} }) {
               tv-position: bottom;
               tv-tint-color: rgb(255, 255, 255);
             `}
-          >✓</textBadge>
+          >
+            ✓
+          </textBadge>
         )}
       </overlay>
     </lockup>

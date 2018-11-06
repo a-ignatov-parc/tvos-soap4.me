@@ -20,8 +20,7 @@ function prepareFamilyData(login) {
 
 // eslint-disable-next-line import/prefer-default-export
 export function processFamilyAccount(login) {
-  return Promise
-    .resolve(login)
+  return Promise.resolve(login)
     .then(prepareFamilyData)
     .then(user.set);
 }
