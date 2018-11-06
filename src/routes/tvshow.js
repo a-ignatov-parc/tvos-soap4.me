@@ -79,7 +79,7 @@ export default function tvShowRoute() {
         poster,
         continueWatchingAndPlay,
       },
-    }) => ({ sid, title, poster, continueWatchingAndPlay })))
+    }) => ({ sid, title, poster, continueWatchingAndPlay: continueWatchingAndPlay === '1' })))
     .pipe(TVDML.render(TVDML.createComponent({
       getInitialState() {
         const extended = user.isExtended();
