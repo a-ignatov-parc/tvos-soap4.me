@@ -134,7 +134,7 @@ export default function tvShowRoute() {
                   this.props.continueWatchingAndPlay &&
                   this.canContinueWatching()
                 ) {
-                  this.onContinueWatchingAndPlay(null);
+                  this.onContinueWatching(null, true, true);
                 }
               },
             );
@@ -190,8 +190,12 @@ export default function tvShowRoute() {
 
           render() {
             if (this.state.loading) {
+              const { continueWatchingAndPlay, title, poster } = this.props;
               return (
-                <Loader title={this.props.title} heroImg={this.props.poster} />
+                <Loader
+                  title={continueWatchingAndPlay ? '' : title}
+                  heroImg={poster}
+                />
               );
             }
 
@@ -773,7 +777,11 @@ export default function tvShowRoute() {
             this.onContinueWatching(event, true);
           },
 
-          onContinueWatching(event, shouldPlayImmediately) {
+          onContinueWatching(
+            event,
+            shouldPlayImmediately = false,
+            redirect = false,
+          ) {
             const uncompletedSeason = this.getSeasonToWatch(this.state.seasons);
             const {
               season: seasonNumber,
@@ -784,7 +792,7 @@ export default function tvShowRoute() {
             const title = i18n('tvshow-title', this.state.tvshow);
             const { sid } = this.state.tvshow;
 
-            TVDML.navigate('season', {
+            TVDML[redirect ? 'redirect' : 'navigate']('season', {
               sid,
               poster,
               id: seasonNumber,
