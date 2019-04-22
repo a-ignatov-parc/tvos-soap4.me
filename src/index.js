@@ -1,4 +1,4 @@
-/* global sessionStorage */
+/* global sessionStorage, navigationDocument */
 
 import * as TVDML from 'tvdml';
 
@@ -27,6 +27,14 @@ import { AUTH, GUEST } from './routes/menu/constants';
 import Loader from './components/loader';
 
 function openURLHandler(openURL) {
+  const mainRoute = navigationDocument.documents.find(
+    ({ route }) => route === 'main',
+  );
+
+  if (mainRoute) {
+    navigationDocument.popToDocument(mainRoute);
+  }
+
   TVDML.navigate(...getOpenURLParams(openURL));
 }
 

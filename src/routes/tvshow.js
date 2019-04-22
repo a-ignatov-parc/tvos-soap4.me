@@ -129,12 +129,14 @@ export default function tvShowRoute() {
 
             Promise.all([this.loadData(), waitForAnimations]).then(
               ([payload]) => {
-                this.setState({ loading: false, ...payload });
+                this.setState(payload);
                 if (
                   this.props.continueWatchingAndPlay &&
                   this.canContinueWatching()
                 ) {
                   this.onContinueWatchingAndPlay(null);
+                } else {
+                  this.setState({ loading: false });
                 }
               },
             );
@@ -790,7 +792,7 @@ export default function tvShowRoute() {
               id: seasonNumber,
               title: `${title} — ${seasonTitle}`,
               shouldPlayImmediately,
-            });
+            }).then(() => this.setState({ loading: false }));
           },
 
           onShowTrailer() {
@@ -921,23 +923,22 @@ export default function tvShowRoute() {
                 <descriptiveAlertTemplate>
                   <title>{userName}</title>
                   <description>{processEntitiesInString(text)}</description>
-                  {!youLiked &&
-                    !youDisliked && (
-                      <row>
-                        <button
-                          // eslint-disable-next-line react/jsx-no-bind
-                          onSelect={this.onReviewLiked.bind(this, id)}
-                        >
-                          <text>👍</text>
-                        </button>
-                        <button
-                          // eslint-disable-next-line react/jsx-no-bind
-                          onSelect={this.onReviewDisliked.bind(this, id)}
-                        >
-                          <text>👎</text>
-                        </button>
-                      </row>
-                    )}
+                  {!youLiked && !youDisliked && (
+                    <row>
+                      <button
+                        // eslint-disable-next-line react/jsx-no-bind
+                        onSelect={this.onReviewLiked.bind(this, id)}
+                      >
+                        <text>👍</text>
+                      </button>
+                      <button
+                        // eslint-disable-next-line react/jsx-no-bind
+                        onSelect={this.onReviewDisliked.bind(this, id)}
+                      >
+                        <text>👎</text>
+                      </button>
+                    </row>
+                  )}
                 </descriptiveAlertTemplate>
               </document>,
             ).sink();
