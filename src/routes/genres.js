@@ -10,6 +10,7 @@ import {
   genreToId,
   capitalizeText,
   isMenuButtonPressNavigatedTo,
+  sortTvShows,
 } from '../utils';
 
 import { deepEqualShouldUpdate } from '../utils/components';
@@ -134,7 +135,7 @@ export default function genresRoute() {
                             ) : (
                               <grid>
                                 <section>
-                                  {tvshows.map(tvshow => {
+                                  {sortTvShows(tvshows).map(tvshow => {
                                     const {
                                       sid,
                                       watching,

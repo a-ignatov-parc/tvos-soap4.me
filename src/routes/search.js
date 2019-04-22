@@ -2,7 +2,12 @@ import * as TVDML from 'tvdml';
 
 import { get as i18n } from '../localization';
 
-import { link, prettifyEpisodeNum, getMonogramImageUrl } from '../utils';
+import {
+  link,
+  prettifyEpisodeNum,
+  getMonogramImageUrl,
+  sortTvShows,
+} from '../utils';
 
 import { processEntitiesInString } from '../utils/parser';
 
@@ -194,7 +199,7 @@ export default function searchRoute() {
                 <title>{i18n('search-tvshows')}</title>
               </header>
               <section>
-                {this.state.series.map(tvshow => {
+                {sortTvShows(this.state.series).map(tvshow => {
                   const {
                     sid,
                     covers: { big: poster },

@@ -125,9 +125,9 @@ export default {
   'season-mark-as-watched': 'Mark Season as Watched',
   'season-mark-as-unwatched': 'Mark Season as Unwatched',
 
-  'tvshow-title': ({ title, title_en }) => title || title_en,
-  'tvshow-title-from-episode': ({ soap_en }) => soap_en,
-  'tvshow-episode-title': ({ title_en }) => title_en,
+  'tvshow-title': ({ title_en, title }) => title_en || title || '',
+  'tvshow-title-from-episode': ({ soap_en }) => soap_en || '',
+  'tvshow-episode-title': ({ title_en }) => title_en || '',
   'tvshow-episode-airdate': ({ airdate }) => `Airdate ${airdate}`,
   'tvshow-episode-menu-hint': "press and hold to open episode's menu",
   'tvshow-season': ({ seasonNumber }) => `Season ${seasonNumber}`,

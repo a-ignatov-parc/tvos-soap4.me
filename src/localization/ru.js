@@ -126,9 +126,9 @@ export default {
   'season-mark-as-watched': 'Отметить сезон как просмотренный',
   'season-mark-as-unwatched': 'Отметить сезон как не просмотренный',
 
-  'tvshow-title': ({ title_ru }) => title_ru,
-  'tvshow-title-from-episode': ({ soap_ru }) => soap_ru,
-  'tvshow-episode-title': ({ title_ru }) => title_ru,
+  'tvshow-title': ({ title_ru }) => title_ru || '',
+  'tvshow-title-from-episode': ({ soap_ru }) => soap_ru || '',
+  'tvshow-episode-title': ({ title_ru }) => title_ru || '',
   'tvshow-episode-airdate': ({ airdate }) => `Выходит ${airdate}`,
   'tvshow-episode-menu-hint': 'удерживайте для открытия меню эпизода',
   'tvshow-season': ({ seasonNumber }) => `Сезон ${seasonNumber}`,

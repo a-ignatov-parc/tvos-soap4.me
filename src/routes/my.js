@@ -10,6 +10,7 @@ import {
   link,
   groupSeriesByCategory,
   isMenuButtonPressNavigatedTo,
+  sortTvShows,
 } from '../utils';
 
 import { deepEqualShouldUpdate } from '../utils/components';
@@ -157,6 +158,8 @@ export default function myRoute() {
             .clone()
             .add(moment.relativeTimeThreshold('d'), 'day');
 
+          const sortedCollection = sortTvShows(collection);
+
           return (
             <grid>
               {title && (
@@ -165,7 +168,7 @@ export default function myRoute() {
                 </header>
               )}
               <section>
-                {collection.map(tvshow => {
+                {sortedCollection.map(tvshow => {
                   const {
                     sid,
                     unwatched,

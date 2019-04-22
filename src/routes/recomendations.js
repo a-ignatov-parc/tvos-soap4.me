@@ -4,7 +4,11 @@ import * as user from '../user';
 import { get as i18n } from '../localization';
 
 import { getMyRecommendations, getGenresList } from '../request/soap';
-import { isMenuButtonPressNavigatedTo, capitalizeText } from '../utils';
+import {
+  isMenuButtonPressNavigatedTo,
+  capitalizeText,
+  sortTvShows,
+} from '../utils';
 import { deepEqualShouldUpdate } from '../utils/components';
 
 import Tile from '../components/tile';
@@ -158,7 +162,7 @@ export default function myRecomendations() {
                         <relatedContent>
                           <grid>
                             <section>
-                              {tvshows.map(tvshow => {
+                              {sortTvShows(tvshows).map(tvshow => {
                                 const {
                                   id,
                                   covers: { big: poster },
