@@ -4,6 +4,8 @@ import url from 'url';
 
 import { navigate } from 'tvdml';
 
+import { get as i18n } from './localization';
+
 export function promisedTimeout(timeout) {
   return () => new Promise(resolve => setTimeout(resolve, timeout));
 }
@@ -60,7 +62,10 @@ export function capitalize(word) {
 }
 
 export function capitalizeText(text) {
-  return `${text}`.split(' ').map(capitalize).join(' ');
+  return `${text}`
+    .split(' ')
+    .map(capitalize)
+    .join(' ');
 }
 
 export function seconds(amount) {
@@ -88,7 +93,11 @@ export function removeDocumentFromNavigation(document) {
   // from `navigationDocument.documents` it still remains there.
   while (~navigationDocument.documents.indexOf(document)) {
     // eslint-disable-next-line no-empty
-    try { navigationDocument.removeDocument(document); } catch (e) {}
+    try {
+      navigationDocument.removeDocument(document);
+    } catch (e) {
+      // Noop
+    }
   }
 }
 
@@ -116,13 +125,11 @@ export function getMonogramImageUrl(targetUrl) {
 }
 
 export function createMediaItem(episode) {
-  return Object
-    .keys(episode)
-    .reduce((mediaItem, name) => {
-      // eslint-disable-next-line no-param-reassign
-      mediaItem[name] = episode[name];
-      return mediaItem;
-    }, new MediaItem('video'));
+  return Object.keys(episode).reduce((mediaItem, name) => {
+    // eslint-disable-next-line no-param-reassign
+    mediaItem[name] = episode[name];
+    return mediaItem;
+  }, new MediaItem('video'));
 }
 
 export function getOpenURLParams(str) {
@@ -148,4 +155,12 @@ export function groupSeriesByCategory(series) {
   });
 
   return { unwatched, watched, closed };
+}
+
+export function sortTvShows(tvshows) {
+  return tvshows
+    .slice(0)
+    .sort((left, right) =>
+      i18n('tvshow-title', left).localeCompare(i18n('tvshow-title', right)),
+    );
 }

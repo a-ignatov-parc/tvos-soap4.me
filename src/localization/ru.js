@@ -11,6 +11,7 @@ export default {
   'menu-genres': 'Жанры',
   'menu-account': 'Аккаунт',
   'menu-settings': 'Настройки',
+  'menu-recomendations': 'Рекомендации',
 
   'genres-caption': 'Жанры',
 
@@ -125,9 +126,9 @@ export default {
   'season-mark-as-watched': 'Отметить сезон как просмотренный',
   'season-mark-as-unwatched': 'Отметить сезон как не просмотренный',
 
-  'tvshow-title': ({ title_ru }) => title_ru,
-  'tvshow-title-from-episode': ({ soap_ru }) => soap_ru,
-  'tvshow-episode-title': ({ title_ru }) => title_ru,
+  'tvshow-title': ({ title_ru }) => title_ru || '',
+  'tvshow-title-from-episode': ({ soap_ru }) => soap_ru || '',
+  'tvshow-episode-title': ({ title_ru }) => title_ru || '',
   'tvshow-episode-airdate': ({ airdate }) => `Выходит ${airdate}`,
   'tvshow-episode-menu-hint': 'удерживайте для открытия меню эпизода',
   'tvshow-season': ({ seasonNumber }) => `Сезон ${seasonNumber}`,
@@ -195,6 +196,9 @@ export default {
   'my-empty-list-description':
     'Ты можешь начать с добавления каких-нибудь сериалов из раздела "Сериалы"',
   'my-empty-list-button': 'Перейти в раздел "Сериалы"',
+
+  'my-recomendations': 'Мои рекомендации',
+  'my-empty-recomendations': 'У тебя пока что нет никаких рекомендаций',
 
   'all-caption': 'Сериалы',
 

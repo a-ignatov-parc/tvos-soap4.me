@@ -289,6 +289,12 @@ export function getTVShowEpisodes(sid) {
   return get(`https://api.soap4.me/v2/episodes/${sid}/`);
 }
 
+export function getMyRecommendations() {
+  return get(`https://api.soap4.me/v2/soap/recommendations/personal/`).then(
+    ...emptyOrErrorsResolvers([]),
+  );
+}
+
 export function getTVShowRecommendations(sid) {
   return get(`https://api.soap4.me/v2/soap/recommendations/${sid}/`).then(
     ...emptyOrErrorsResolvers([]),

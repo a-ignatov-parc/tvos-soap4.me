@@ -4,7 +4,7 @@ import { get as i18n } from '../localization';
 
 import { getActorInfo } from '../request/soap';
 
-import { getMonogramImageUrl } from '../utils';
+import { getMonogramImageUrl, sortTvShows } from '../utils';
 
 import Tile from '../components/tile';
 import Loader from '../components/loader';
@@ -60,7 +60,7 @@ export default function actorRoute(title) {
                     <title>{i18n('actor-tvshows')}</title>
                   </header>
                   <section>
-                    {tvshows.map(tvshow => {
+                    {sortTvShows(tvshows).map(tvshow => {
                       const {
                         sid,
                         covers: { big: poster },

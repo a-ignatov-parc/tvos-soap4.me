@@ -5,7 +5,7 @@ import { get as i18n } from '../localization';
 
 import { getAllTVShows, getCountriesList } from '../request/soap';
 
-import { isMenuButtonPressNavigatedTo } from '../utils';
+import { isMenuButtonPressNavigatedTo, sortTvShows } from '../utils';
 import { deepEqualShouldUpdate } from '../utils/components';
 
 import Tile from '../components/tile';
@@ -26,7 +26,7 @@ const sections = {
       return [
         {
           title: i18n('all-group-name-title'),
-          items: list,
+          items: sortTvShows(list),
         },
       ];
     },
@@ -35,21 +35,18 @@ const sections = {
   [DATE]: {
     title: 'all-group-title-date',
     reducer(list) {
-      const collection = list
-        .slice(0)
-        .sort(({ sid: a }, { sid: b }) => b - a)
-        .reduce((result, item) => {
-          // eslint-disable-next-line no-param-reassign
-          if (!result[item.year]) result[item.year] = [];
-          result[item.year].push(item);
-          return result;
-        }, {});
+      const collection = list.reduce((result, item) => {
+        // eslint-disable-next-line no-param-reassign
+        if (!result[item.year]) result[item.year] = [];
+        result[item.year].push(item);
+        return result;
+      }, {});
 
       return Object.keys(collection)
         .sort((a, b) => b - a)
         .map(year => ({
           title: year,
-          items: collection[year],
+          items: sortTvShows(collection[year]),
         }));
     },
   },
@@ -116,7 +113,7 @@ const sections = {
         .sort((a, b) => b - a)
         .map(rating => ({
           title: rating,
-          items: collection[rating],
+          items: sortTvShows(collection[rating]),
         }));
     },
   },
@@ -133,7 +130,7 @@ const sections = {
 
       return contries.map(country => ({
         title: country.full,
-        items: collection[country.short],
+        items: sortTvShows(collection[country.short]),
       }));
     },
   },
@@ -144,7 +141,7 @@ const sections = {
       return [
         {
           title: i18n('all-group-completeness-title'),
-          items: list.filter(({ status }) => +status),
+          items: sortTvShows(list.filter(({ status }) => +status)),
         },
       ];
     },
@@ -158,7 +155,7 @@ if (user.isExtended()) {
       return [
         {
           title: i18n('all-group-uhd-title'),
-          items: list.filter(item => !!item['4k']),
+          items: sortTvShows(list.filter(item => !!item['4k'])),
         },
       ];
     },

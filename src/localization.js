@@ -36,17 +36,15 @@ export function getLanguage() {
 // Configuring initial locale.
 moment.locale(getLanguage());
 
-settings
-  .subscription()
-  .pipe(({ key }) => {
-    if (key === LANGUAGE) {
-      const language = getLanguage();
+settings.subscription().pipe(({ key }) => {
+  if (key === LANGUAGE) {
+    const language = getLanguage();
 
-      // Updating locale
-      moment.locale(language);
-      bus.broadcast({ language });
-    }
-  });
+    // Updating locale
+    moment.locale(language);
+    bus.broadcast({ language });
+  }
+});
 
 export const subscription = bus.subscription.bind(bus);
 

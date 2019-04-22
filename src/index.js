@@ -1,4 +1,4 @@
-/* global sessionStorage */
+/* global sessionStorage, navigationDocument */
 
 import * as TVDML from 'tvdml';
 
@@ -20,28 +20,34 @@ import searchRoute from './routes/search';
 import genresRoute from './routes/genres';
 import settingsRoute from './routes/settings';
 import speedTestRoute from './routes/speedtest';
+import myRecomendations from './routes/recomendations';
 
 import { AUTH, GUEST } from './routes/menu/constants';
 
 import Loader from './components/loader';
 
 function openURLHandler(openURL) {
+  const mainRoute = navigationDocument.documents.find(
+    ({ route }) => route === 'main',
+  );
+
+  if (mainRoute) {
+    navigationDocument.popToDocument(mainRoute);
+  }
+
   TVDML.navigate(...getOpenURLParams(openURL));
 }
 
-TVDML
-  .subscribe(TVDML.event.LAUNCH)
-  .pipe(params => {
-    /**
-     * TODO: Need to save initial params in a better way then
-     * using `sessionStorage`. Maybe some in-memory storage.
-     */
-    sessionStorage.setItem('startParams', JSON.stringify(params));
-    return TVDML.navigate('get-token');
-  });
+TVDML.subscribe(TVDML.event.LAUNCH).pipe(params => {
+  /**
+   * TODO: Need to save initial params in a better way then
+   * using `sessionStorage`. Maybe some in-memory storage.
+   */
+  sessionStorage.setItem('startParams', JSON.stringify(params));
+  return TVDML.navigate('get-token');
+});
 
-TVDML
-  .handleRoute('get-token')
+TVDML.handleRoute('get-token')
   .pipe(TVDML.render(<Loader title={i18n('auth-checking')} />))
   .pipe(checkSession)
   .pipe(payload => {
@@ -67,61 +73,51 @@ TVDML
     }
   });
 
-TVDML
-  .handleRoute('main')
-  .pipe(menuRoute([
+TVDML.handleRoute('main').pipe(
+  menuRoute([
     {
       route: 'search',
-    }, {
+    },
+    {
       route: 'my',
       active: AUTH,
       hidden: GUEST,
-    }, {
+    },
+    {
       route: 'all',
       active: GUEST,
-    }, {
+    },
+    {
+      route: 'recomendations',
+      hidden: GUEST,
+    },
+    {
       route: 'genres',
-    }, {
+    },
+    {
       route: 'settings',
     },
-  ]));
+  ]),
+);
 
-TVDML
-  .handleRoute('my')
-  .pipe(myRoute());
+TVDML.handleRoute('my').pipe(myRoute());
 
-TVDML
-  .handleRoute('all')
-  .pipe(allRoute());
+TVDML.handleRoute('all').pipe(allRoute());
 
-TVDML
-  .handleRoute('search')
-  .pipe(searchRoute());
+TVDML.handleRoute('search').pipe(searchRoute());
 
-TVDML
-  .handleRoute('settings')
-  .pipe(settingsRoute());
+TVDML.handleRoute('settings').pipe(settingsRoute());
 
-TVDML
-  .handleRoute('tvshow')
-  .pipe(tvShowRoute());
+TVDML.handleRoute('tvshow').pipe(tvShowRoute());
 
-TVDML
-  .handleRoute('season')
-  .pipe(seasonRoute());
+TVDML.handleRoute('season').pipe(seasonRoute());
 
-TVDML
-  .handleRoute('actor')
-  .pipe(actorRoute());
+TVDML.handleRoute('actor').pipe(actorRoute());
 
-TVDML
-  .handleRoute('speedtest')
-  .pipe(speedTestRoute());
+TVDML.handleRoute('speedtest').pipe(speedTestRoute());
 
-TVDML
-  .handleRoute('user')
-  .pipe(userRoute());
+TVDML.handleRoute('user').pipe(userRoute());
 
-TVDML
-  .handleRoute('genres')
-  .pipe(genresRoute());
+TVDML.handleRoute('genres').pipe(genresRoute());
+
+TVDML.handleRoute('recomendations').pipe(myRecomendations());
