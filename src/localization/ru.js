@@ -11,6 +11,7 @@ export default {
   'menu-genres': 'Жанры',
   'menu-account': 'Аккаунт',
   'menu-settings': 'Настройки',
+  'menu-recomendations': 'Рекомендации',
 
   'genres-caption': 'Жанры',
 
@@ -195,6 +196,9 @@ export default {
   'my-empty-list-description':
     'Ты можешь начать с добавления каких-нибудь сериалов из раздела "Сериалы"',
   'my-empty-list-button': 'Перейти в раздел "Сериалы"',
+
+  'my-recomendations': 'Мои рекомендации',
+  'my-empty-recomendations': 'У тебя пока что нет никаких рекомендаций',
 
   'all-caption': 'Сериалы',
 

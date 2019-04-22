@@ -11,6 +11,7 @@ export default {
   'menu-genres': 'Genres',
   'menu-account': 'Account',
   'menu-settings': 'Settings',
+  'menu-recomendations': 'Recomendations',
 
   'genres-caption': 'Genres',
 
@@ -124,7 +125,7 @@ export default {
   'season-mark-as-watched': 'Mark Season as Watched',
   'season-mark-as-unwatched': 'Mark Season as Unwatched',
 
-  'tvshow-title': ({ title }) => title,
+  'tvshow-title': ({ title, title_en }) => title || title_en,
   'tvshow-title-from-episode': ({ soap_en }) => soap_en,
   'tvshow-episode-title': ({ title_en }) => title_en,
   'tvshow-episode-airdate': ({ airdate }) => `Airdate ${airdate}`,
@@ -194,6 +195,9 @@ export default {
   'my-empty-list-description':
     'You can start from adding some tv series from "TV Shows" sections',
   'my-empty-list-button': 'Go to "TV Shows"',
+
+  'my-recomendations': 'My recomendations',
+  'my-empty-recomendations': "You don't have any recomendations yet",
 
   'all-caption': 'TV Shows',
 

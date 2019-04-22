@@ -11,6 +11,7 @@
     "no-bitwise": ["off"],
     "arrow-parens": ["error", "as-needed"],
     "no-return-assign": ["error", "except-parens"],
-    "no-console": ["error", { "allow": ["info", "warn", "error"] }]
+    "no-console": ["error", { "allow": ["info", "warn", "error"] }],
+    "no-param-reassign": ["error", { "props": false }]
   }
 }
