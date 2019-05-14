@@ -61,9 +61,10 @@ export default {
   'settings-labels-speedtest': 'Тест скорости',
   'settings-labels-version': 'Версия',
 
-  'settings-descriptions-video_quality': `Предпочитаемое качество видео для воспроизведения если оно доступно.\n4K (UHD) видео${
-    supportUHD ? ' ' : ' не '
-  }поддерживается на данном девайсе.`,
+  'settings-descriptions-video_quality': () =>
+    `Предпочитаемое качество видео для воспроизведения если оно доступно.\n4K (UHD) видео${
+      supportUHD ? ' ' : ' не '
+    }поддерживается на данном девайсе.`,
   'settings-descriptions-translation':
     'Для того чтоб просматривать эпизоды с субтитрами необходимо активировать специальный параметр в настройках сайта soap4.me. В противном случае будут отображаться только серии с переводом.',
   'settings-descriptions-video_playback':
