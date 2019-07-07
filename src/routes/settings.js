@@ -144,30 +144,30 @@ export default function settingsRoute() {
               <head>
                 <style
                   content={`
-                  .grey_title {
-                    color: rgb(142, 147, 157);
-                  }
-
-                  .grey_text {
-                    color: rgb(84, 82, 80);
-                  }
-
-                  .item {
-                    background-color: rgba(255, 255, 255, 0.3);
-                    tv-highlight-color: rgba(255, 255, 255, 0.9);
-                  }
-
-                  @media tv-template and (tv-theme:dark) {
-                    .item {
-                      background-color: rgba(255, 255, 255, 0.05);
+                    .grey_title {
+                      color: rgb(142, 147, 157);
                     }
-                  }
 
-                  .item_description {
-                    margin: 80 0 0;
-                    text-align: center;
-                  }
-                `}
+                    .grey_text {
+                      color: rgb(84, 82, 80);
+                    }
+
+                    .item {
+                      background-color: rgba(255, 255, 255, 0.3);
+                      tv-highlight-color: rgba(255, 255, 255, 0.9);
+                    }
+
+                    @media tv-template and (tv-theme:dark) {
+                      .item {
+                        background-color: rgba(255, 255, 255, 0.05);
+                      }
+                    }
+
+                    .item_description {
+                      margin: 80 0 0;
+                      text-align: center;
+                    }
+                  `}
                 />
               </head>
               <listTemplate>

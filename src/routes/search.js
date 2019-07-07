@@ -54,10 +54,10 @@ export default function searchRoute() {
               <head>
                 <style
                   content={`
-                  .shelf_indent {
-                    margin: 0 0 60;
-                  }
-                `}
+                    .shelf_indent {
+                      margin: 0 0 60;
+                    }
+                  `}
                 />
               </head>
               <searchTemplate>

@@ -246,17 +246,17 @@ export default function allRoute() {
               <head>
                 <style
                   content={`
-                  .dropdown-badge {
-                    tv-tint-color: rgb(84, 82, 80);
-                    margin: 0 0 5 0;
-                  }
-
-                  @media tv-template and (tv-theme:dark) {
                     .dropdown-badge {
-                      tv-tint-color: rgb(132, 133, 135);
+                      tv-tint-color: rgb(84, 82, 80);
+                      margin: 0 0 5 0;
                     }
-                  }
-                `}
+
+                    @media tv-template and (tv-theme:dark) {
+                      .dropdown-badge {
+                        tv-tint-color: rgb(132, 133, 135);
+                      }
+                    }
+                  `}
                 />
               </head>
               <stackTemplate>

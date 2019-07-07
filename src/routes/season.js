@@ -320,46 +320,46 @@ export default function seasonRoute() {
                 <head>
                   <style
                     content={`
-                  .controls_container {
-                    margin: 40 0 0;
-                    tv-align: center;
-                    tv-content-align: top;
-                    tv-interitem-spacing: 24;
-                  }
+                      .controls_container {
+                        margin: 40 0 0;
+                        tv-align: center;
+                        tv-content-align: top;
+                        tv-interitem-spacing: 24;
+                      }
 
-                  .item {
-                    background-color: rgba(255, 255, 255, 0.05);
-                    tv-highlight-color: rgba(255, 255, 255, 0.9);
-                  }
+                      .item {
+                        background-color: rgba(255, 255, 255, 0.05);
+                        tv-highlight-color: rgba(255, 255, 255, 0.9);
+                      }
 
-                  .item-content {
-                    margin: 60 75 0 0;
-                  }
+                      .item-content {
+                        margin: 60 75 0 0;
+                      }
 
-                  .item-desc {
-                    margin: 40 0 0;
-                  }
+                      .item-desc {
+                        margin: 40 0 0;
+                      }
 
-                  .item--disabled {
-                    color: rgba(0, 0, 0, 0.3);
-                  }
+                      .item--disabled {
+                        color: rgba(0, 0, 0, 0.3);
+                      }
 
-                  @media tv-template and (tv-theme:dark) {
-                    .item--disabled {
-                      color: rgba(255, 255, 255, 0.3);
-                    }
-                  }
+                      @media tv-template and (tv-theme:dark) {
+                        .item--disabled {
+                          color: rgba(255, 255, 255, 0.3);
+                        }
+                      }
 
-                  .title {
-                    tv-text-highlight-style: marquee-on-highlight;
-                  }
+                      .title {
+                        tv-text-highlight-style: marquee-on-highlight;
+                      }
 
-                  @media tv-template and (tv-theme:dark) {
-                    .badge {
-                      tv-tint-color: rgb(255, 255, 255);
-                    }
-                  }
-                `}
+                      @media tv-template and (tv-theme:dark) {
+                        .badge {
+                          tv-tint-color: rgb(255, 255, 255);
+                        }
+                      }
+                    `}
                   />
                 </head>
                 <compilationTemplate>

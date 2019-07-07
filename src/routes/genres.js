@@ -101,12 +101,12 @@ export default function genresRoute() {
               <head>
                 <style
                   content={`
-                  @media tv-template and (tv-theme:dark) {
-                    .tile-title {
-                      color: rgb(152, 151, 152);
+                    @media tv-template and (tv-theme:dark) {
+                      .tile-title {
+                        color: rgb(152, 151, 152);
+                      }
                     }
-                  }
-                `}
+                  `}
                 />
               </head>
               <catalogTemplate>
