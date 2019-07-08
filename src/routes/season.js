@@ -1,4 +1,4 @@
-/* global Player Playlist */
+/* global Player Playlist Device */
 
 import moment from 'moment';
 import * as TVDML from 'tvdml';
@@ -163,6 +163,20 @@ function getSeasonData(payload, isDemo) {
 
 function someEpisodesHasSubtitles(episodes) {
   return episodes.some(episodeHasSubtitles);
+}
+
+function getOrdinal(episodeNumber) {
+  /**
+   * Workaround for a tvOS 13 public beta crash.
+   *
+   * Crash is happening because Apple broke `minLength` attribute
+   * for `ordinal` element.
+   */
+  return Device.systemVersion === '13.0' ? (
+    <ordinal>{`  ${episodeNumber}`}</ordinal>
+  ) : (
+    <ordinal minLength="3">{episodeNumber}</ordinal>
+  );
 }
 
 export default function seasonRoute() {
@@ -414,7 +428,7 @@ export default function seasonRoute() {
 
                           return (
                             <listItemLockup class="item item--disabled">
-                              <ordinal minLength="3">{episodeNumber}</ordinal>
+                              {getOrdinal(episodeNumber)}
                               <title class="title">{episode.title}</title>
                               <decorationLabel>
                                 <text>{dateTitle}</text>
@@ -489,7 +503,7 @@ export default function seasonRoute() {
                             onHoldselect={onSelectDesc}
                             autoHighlight={highlight ? 'true' : undefined}
                           >
-                            <ordinal minLength="3">{episodeNumber}</ordinal>
+                            {getOrdinal(episodeNumber)}
                             <title class="title">{epTitle}</title>
                             <decorationLabel>
                               {badges
