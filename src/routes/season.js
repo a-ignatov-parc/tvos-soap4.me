@@ -1,4 +1,4 @@
-/* global Player Playlist */
+/* global Player Playlist Device */
 
 import moment from 'moment';
 import * as TVDML from 'tvdml';
@@ -165,6 +165,20 @@ function someEpisodesHasSubtitles(episodes) {
   return episodes.some(episodeHasSubtitles);
 }
 
+function getOrdinal(episodeNumber) {
+  /**
+   * Workaround for a tvOS 13 public beta crash.
+   *
+   * Crash is happening because Apple broke `minLength` attribute
+   * for `ordinal` element.
+   */
+  return Device.systemVersion === '13.0' ? (
+    <ordinal>{`  ${episodeNumber}`}</ordinal>
+  ) : (
+    <ordinal minLength="3">{episodeNumber}</ordinal>
+  );
+}
+
 export default function seasonRoute() {
   return TVDML.createPipeline()
     .pipe(
@@ -320,46 +334,46 @@ export default function seasonRoute() {
                 <head>
                   <style
                     content={`
-                  .controls_container {
-                    margin: 40 0 0;
-                    tv-align: center;
-                    tv-content-align: top;
-                    tv-interitem-spacing: 24;
-                  }
+                      .controls_container {
+                        margin: 40 0 0;
+                        tv-align: center;
+                        tv-content-align: top;
+                        tv-interitem-spacing: 24;
+                      }
 
-                  .item {
-                    background-color: rgba(255, 255, 255, 0.05);
-                    tv-highlight-color: rgba(255, 255, 255, 0.9);
-                  }
+                      .item {
+                        background-color: rgba(255, 255, 255, 0.05);
+                        tv-highlight-color: rgba(255, 255, 255, 0.9);
+                      }
 
-                  .item-content {
-                    margin: 60 75 0 0;
-                  }
+                      .item-content {
+                        margin: 60 75 0 0;
+                      }
 
-                  .item-desc {
-                    margin: 40 0 0;
-                  }
+                      .item-desc {
+                        margin: 40 0 0;
+                      }
 
-                  .item--disabled {
-                    color: rgba(0, 0, 0, 0.3);
-                  }
+                      .item--disabled {
+                        color: rgba(0, 0, 0, 0.3);
+                      }
 
-                  @media tv-template and (tv-theme:dark) {
-                    .item--disabled {
-                      color: rgba(255, 255, 255, 0.3);
-                    }
-                  }
+                      @media tv-template and (tv-theme:dark) {
+                        .item--disabled {
+                          color: rgba(255, 255, 255, 0.3);
+                        }
+                      }
 
-                  .title {
-                    tv-text-highlight-style: marquee-on-highlight;
-                  }
+                      .title {
+                        tv-text-highlight-style: marquee-on-highlight;
+                      }
 
-                  @media tv-template and (tv-theme:dark) {
-                    .badge {
-                      tv-tint-color: rgb(255, 255, 255);
-                    }
-                  }
-                `}
+                      @media tv-template and (tv-theme:dark) {
+                        .badge {
+                          tv-tint-color: rgb(255, 255, 255);
+                        }
+                      }
+                    `}
                   />
                 </head>
                 <compilationTemplate>
@@ -414,7 +428,7 @@ export default function seasonRoute() {
 
                           return (
                             <listItemLockup class="item item--disabled">
-                              <ordinal minLength="3">{episodeNumber}</ordinal>
+                              {getOrdinal(episodeNumber)}
                               <title class="title">{episode.title}</title>
                               <decorationLabel>
                                 <text>{dateTitle}</text>
@@ -489,7 +503,7 @@ export default function seasonRoute() {
                             onHoldselect={onSelectDesc}
                             autoHighlight={highlight ? 'true' : undefined}
                           >
-                            <ordinal minLength="3">{episodeNumber}</ordinal>
+                            {getOrdinal(episodeNumber)}
                             <title class="title">{epTitle}</title>
                             <decorationLabel>
                               {badges
