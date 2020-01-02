@@ -37,7 +37,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TVApplicationControllerDe
 
     // MARK: UIApplicationDelegate
 
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         window = UIWindow(frame: UIScreen.main.bounds)
 
@@ -107,10 +107,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, TVApplicationControllerDe
             (key, value) -> Void in
             defaults?.set(value, forKey: key)
         }
-        jsContext.setObject(unsafeBitCast(StoreInUserDefaults, to: AnyObject.self), forKeyedSubscript: "StoreInUserDefaults" as (NSCopying & NSObjectProtocol)!)
+        jsContext.setObject(unsafeBitCast(StoreInUserDefaults, to: AnyObject.self), forKeyedSubscript: "StoreInUserDefaults" as (NSCopying & NSObjectProtocol)?)
     }
 
-    func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey: Any] = [:]) -> Bool {
+    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
         appController?.evaluate(inJavaScriptContext: { (context: JSContext) in
             let globalObject : JSValue = context.globalObject
 
