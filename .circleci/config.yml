@@ -3,7 +3,7 @@ version: 2
 job-configuration: &job-configuration
   working_directory: ~/app
   docker:
-    - image: circleci/node:8.9.1
+    - image: circleci/node:lts
 
 prepare-git: &prepare-git
   name: Preparing git working directory
