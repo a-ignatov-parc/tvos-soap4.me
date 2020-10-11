@@ -6,7 +6,7 @@ export default {
   'auth-checking': 'Checking authorization...',
 
   'menu-my': 'My',
-  'menu-all': 'TV Shows',
+  'menu-all': 'Shows',
   'menu-search': 'Search',
   'menu-genres': 'Genres',
   'menu-account': 'Account',

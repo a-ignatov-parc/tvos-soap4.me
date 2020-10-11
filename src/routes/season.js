@@ -1,4 +1,4 @@
-/* global Player Playlist Device */
+/* global Player Playlist */
 
 import moment from 'moment';
 import * as TVDML from 'tvdml';
@@ -163,20 +163,6 @@ function getSeasonData(payload, isDemo) {
 
 function someEpisodesHasSubtitles(episodes) {
   return episodes.some(episodeHasSubtitles);
-}
-
-function getOrdinal(episodeNumber) {
-  /**
-   * Workaround for a tvOS 13 public beta crash.
-   *
-   * Crash is happening because Apple broke `minLength` attribute
-   * for `ordinal` element.
-   */
-  return Device.systemVersion === '13.0' ? (
-    <ordinal>{`  ${episodeNumber}`}</ordinal>
-  ) : (
-    <ordinal minLength="3">{episodeNumber}</ordinal>
-  );
 }
 
 export default function seasonRoute() {
@@ -428,7 +414,7 @@ export default function seasonRoute() {
 
                           return (
                             <listItemLockup class="item item--disabled">
-                              {getOrdinal(episodeNumber)}
+                              <ordinal minLength="3">{episodeNumber}</ordinal>
                               <title class="title">{episode.title}</title>
                               <decorationLabel>
                                 <text>{dateTitle}</text>
@@ -503,7 +489,7 @@ export default function seasonRoute() {
                             onHoldselect={onSelectDesc}
                             autoHighlight={highlight ? 'true' : undefined}
                           >
-                            {getOrdinal(episodeNumber)}
+                            <ordinal minLength="3">{episodeNumber}</ordinal>
                             <title class="title">{epTitle}</title>
                             <decorationLabel>
                               {badges
@@ -597,6 +583,8 @@ export default function seasonRoute() {
 
             player.playlist = new Playlist();
             player.interactiveOverlayDismissable = false;
+
+            let overlayDocument;
 
             player.addEventListener(
               'timeDidChange',
@@ -717,6 +705,10 @@ export default function seasonRoute() {
                         }, 1000);
                       },
 
+                      componentWillUnmount() {
+                        if (this.timer) clearInterval(this.timer);
+                      },
+
                       resumePlayback() {
                         if (this.timer) clearInterval(this.timer);
 
@@ -756,6 +748,7 @@ export default function seasonRoute() {
                     .pipe(payload => {
                       const { parsedDocument: document } = payload;
                       player.interactiveOverlayDocument = document;
+                      overlayDocument = document;
 
                       /**
                        * Because we created document bypassing normal rendering
@@ -779,6 +772,10 @@ export default function seasonRoute() {
                 currentMediaItem &&
                 !currentMediaItem.markedAsWatched &&
                 isProperState;
+
+              if (isEnded && overlayDocument) {
+                overlayDocument.destroyComponent();
+              }
 
               if (shouldSaveTime) {
                 const { id, currentTime } = currentMediaItem;
