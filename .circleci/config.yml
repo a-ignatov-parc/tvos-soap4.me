@@ -101,7 +101,7 @@ jobs:
             git checkout gh-pages
             git clean -d -f
             git merge origin/gh-pages
-            SOAP4ATV_RELEASE_DIR=./1.2
+            SOAP4ATV_RELEASE_DIR=./1.3
             QELLO_RELEASE_DIR=./qello/tvml
             mkdir -p $SOAP4ATV_RELEASE_DIR
             cp -r ~/tmp/apps/soap4atv/* $SOAP4ATV_RELEASE_DIR
