@@ -65,11 +65,10 @@ export default function Tile({ key, attrs = {}, events = {} }) {
             `}
           />
         )}
-        {!isWatched &&
-          counter && (
-            <textBadge
-              type="fill"
-              style={`
+        {!isWatched && counter && (
+          <textBadge
+            type="fill"
+            style={`
               font-size: 20;
               border-radius: 30;
               margin: 0 10 12 0;
@@ -78,10 +77,10 @@ export default function Tile({ key, attrs = {}, events = {} }) {
               tv-position: bottom;
               tv-tint-color: rgb(255, 255, 255);
             `}
-            >
-              {counter}
-            </textBadge>
-          )}
+          >
+            {counter}
+          </textBadge>
+        )}
         {isWatched && (
           <textBadge
             type="fill"
