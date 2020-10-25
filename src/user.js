@@ -10,30 +10,22 @@ const cache = {
   payload: JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'),
 };
 
-const contract = [
-  'till',
-  'token',
-  'logged',
-  'family',
-  'selected',
-];
+const contract = ['till', 'token', 'logged', 'family', 'selected'];
 
 export const subscription = bus.subscription.bind(bus);
 
 export function set(payload) {
-  cache.payload = Object
-    .keys(payload)
-    .reduce((result, key) => {
-      if (~contract.indexOf(key)) {
-        if (typeof payload[key] !== 'undefined') {
-          // eslint-disable-next-line no-param-reassign
-          result[key] = payload[key];
-        }
-      } else {
-        console.warn(`Passed unsupported key "${key}". Skipping...`);
+  cache.payload = Object.keys(payload).reduce((result, key) => {
+    if (~contract.indexOf(key)) {
+      if (typeof payload[key] !== 'undefined') {
+        // eslint-disable-next-line no-param-reassign
+        result[key] = payload[key];
       }
-      return result;
-    }, cache.payload);
+    } else {
+      console.warn(`Passed unsupported key "${key}". Skipping...`);
+    }
+    return result;
+  }, cache.payload);
 
   localStorage.setItem(STORAGE_KEY, JSON.stringify(cache.payload));
   bus.broadcast(cache.payload);
@@ -55,11 +47,9 @@ export function getToken() {
 }
 
 export function getMainAccount() {
-  const [mainAccount] = (get().family || []).slice(0).sort(({
-    main: a,
-  }, {
-    main: b,
-  }) => b - a);
+  const [mainAccount] = (get().family || [])
+    .slice(0)
+    .sort(({ main: a }, { main: b }) => b - a);
   return mainAccount;
 }
 

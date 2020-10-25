@@ -93,7 +93,7 @@ export default function speedTestRoute() {
                 <collectionList>
                   <shelf
                     centered="true"
-                    style="tv-interitem-spacing: 60; margin: 228 0 0"
+                    style="tv-interitem-spacing: 60; margin: 228 0 100"
                   >
                     <section>
                       {serversList.map(({ id }) => {

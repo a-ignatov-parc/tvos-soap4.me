@@ -260,9 +260,6 @@ export default function allRoute() {
                 />
               </head>
               <stackTemplate>
-                <banner>
-                  <title>{i18n('all-caption')}</title>
-                </banner>
                 <collectionList>
                   <separator>
                     <button onSelect={this.onSwitchGroup}>

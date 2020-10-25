@@ -126,9 +126,6 @@ export default function myRoute() {
           return (
             <document>
               <stackTemplate>
-                <banner>
-                  <title>{i18n('my-caption')}</title>
-                </banner>
                 <collectionList>
                   {unwatched.length &&
                     this.renderSectionGrid(unwatched, 'my-new-episodes')}
