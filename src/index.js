@@ -22,7 +22,7 @@ import settingsRoute from './routes/settings';
 import speedTestRoute from './routes/speedtest';
 import myRecomendations from './routes/recomendations';
 
-import { AUTH, GUEST } from './routes/menu/constants';
+import { AUTH, BASIC, GUEST } from './routes/menu/constants';
 
 import Loader from './components/loader';
 
@@ -89,7 +89,7 @@ TVDML.handleRoute('main').pipe(
     },
     {
       route: 'recomendations',
-      hidden: GUEST,
+      hidden: [GUEST, BASIC],
     },
     {
       route: 'genres',

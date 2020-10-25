@@ -139,7 +139,6 @@ export default function userRoute() {
             <document>
               <stackTemplate>
                 <banner>
-                  <title>{i18n('user-caption')}</title>
                   <description style="margin: 35 0 -70">
                     {accountInfo}
                   </description>

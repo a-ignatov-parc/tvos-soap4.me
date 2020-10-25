@@ -7,7 +7,7 @@ import * as localization from '../localization';
 
 import { deepEqualShouldUpdate } from '../utils/components';
 
-import { AUTH, GUEST } from './menu/constants';
+import { AUTH, GUEST, BASIC } from './menu/constants';
 
 const datePattern = 'DD-MM-YYYY';
 
@@ -30,8 +30,16 @@ export default function menuRoute(items) {
           const nickname = user.getLogin();
           const authorized = user.isAuthorized();
           const isFamilyAccount = user.isFamily();
+          const isExtendedAccount = user.isExtended();
           const avatar = isFamilyAccount ? '👪' : this.getUserIcon();
-          return { nickname, authorized, isFamilyAccount, avatar };
+
+          return {
+            avatar,
+            nickname,
+            authorized,
+            isFamilyAccount,
+            isExtendedAccount,
+          };
         },
 
         componentWillMount() {
@@ -66,7 +74,7 @@ export default function menuRoute(items) {
           const { menu, avatar, nickname, rendered, authorized } = this.state;
 
           const menuItems = menu.filter(
-            item => !this.resolveToken(item.hidden),
+            item => !this.isActiveTokens(item.hidden),
           );
 
           return (
@@ -74,7 +82,7 @@ export default function menuRoute(items) {
               <menuBarTemplate>
                 <menuBar>
                   {menuItems.map(({ route, active }) => {
-                    const isActive = this.resolveToken(active);
+                    const isActive = this.isActiveTokens(active);
 
                     return (
                       <menuItem
@@ -102,12 +110,25 @@ export default function menuRoute(items) {
           );
         },
 
-        resolveToken(token) {
-          const authState = this.state.authorized
-            ? token === AUTH
-            : token === GUEST;
+        isActiveTokens(tokens) {
+          if (typeof tokens === 'boolean') return tokens;
 
-          return typeof token === 'boolean' ? token : authState;
+          const tokensList = Array.isArray(tokens) ? tokens : [tokens];
+
+          if (this.state.authorized) {
+            if (tokensList.includes(AUTH)) {
+              return true;
+            } else if (
+              !this.state.isExtendedAccount &&
+              tokensList.includes(BASIC)
+            ) {
+              return true;
+            }
+          } else if (tokensList.includes(GUEST)) {
+            return true;
+          }
+
+          return false;
         },
 
         getUserIcon() {
