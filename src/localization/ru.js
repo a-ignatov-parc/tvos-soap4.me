@@ -7,7 +7,7 @@ export default {
 
   'menu-my': 'Мои',
   'menu-all': 'Сериалы',
-  'menu-search': 'Поиск',
+  'menu-search': '🔍',
   'menu-genres': 'Жанры',
   'menu-account': 'Аккаунт',
   'menu-settings': 'Настройки',

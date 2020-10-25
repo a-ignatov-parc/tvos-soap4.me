@@ -55,23 +55,18 @@ const defaults = {
 };
 
 function checkKeyValidity(key) {
-  return Object
-    .keys(params)
-    .some(param => params[param] === key);
+  return Object.keys(params).some(param => params[param] === key);
 }
 
 function checkKeyValueValidity(key, value) {
   if (!checkKeyValidity(key)) return false;
 
-  return Object
-    .keys(values[key])
-    .some(param => values[key][param] === value);
+  return Object.keys(values[key]).some(param => values[key][param] === value);
 }
 
 function getSettingsFromStorage(defaultSettings = {}) {
   const settings = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-  const validatedSettings = Object
-    .keys(settings)
+  const validatedSettings = Object.keys(settings)
     .filter(checkKeyValidity)
     .map(key => ({ key, value: settings[key] }))
     .filter(({ key, value }) => checkKeyValueValidity(key, value))
