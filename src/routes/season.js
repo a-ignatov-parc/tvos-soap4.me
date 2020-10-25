@@ -597,13 +597,6 @@ export default function seasonRoute() {
                   currentMediaItem.duration = currentMediaItemDuration;
                 }
 
-                if (!currentMediaItem.watchedTime) {
-                  currentMediaItem.watchedTime = 0;
-                }
-
-                // Incrementing watched time by 1sec.
-                currentMediaItem.watchedTime += 1;
-
                 const [, , currentEpisodeNumber] = currentMediaItem.id.split(
                   '-',
                 );
@@ -644,17 +637,17 @@ export default function seasonRoute() {
                   }
                 }
 
-                const {
-                  duration,
-                  watchedTime,
-                  markedAsRated,
-                } = currentMediaItem;
+                const { duration, markedAsRated } = currentMediaItem;
 
                 /**
                  * Rounding time values to lower integer and checking if it's last
                  * second of the episode.
                  */
-                if (~~time === ~~duration && !markedAsRated) {
+                if (
+                  !isNaN(duration) &&
+                  time >= duration - 1 &&
+                  !markedAsRated
+                ) {
                   currentMediaItem.markedAsRated = true;
 
                   const minimalWatchTime =
@@ -671,7 +664,7 @@ export default function seasonRoute() {
                    * allowed time. This means that user didn't watch episode enough
                    * to rate it.
                    */
-                  if (watchedTime < minimalWatchTime) return;
+                  if (time < minimalWatchTime) return;
 
                   /**
                    * Pausing player so we can show rating screen with blocked
