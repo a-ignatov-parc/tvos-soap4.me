@@ -31,7 +31,7 @@ export default {
 
   'user-add-account-button': 'Добавить новый аккаунт',
   'user-add-account-form-title': 'Создание аккаунта',
-  'user-add-account-form-description': 'Введи имя для нового аккаунта.',
+  'user-add-account-form-description': 'Введи имя для нового аккаунта',
   'user-add-account-form-button': 'Добавить',
 
   'user-action-menu-title': ({ name }) => `Что сделать с аккаунтом "${name}"?`,
@@ -41,7 +41,7 @@ export default {
 
   'user-rename-account-form-title': ({ name }) =>
     `Переименовать аккаунт "${name}"`,
-  'user-rename-account-form-description': 'Введи новое имя для аккаунта.',
+  'user-rename-account-form-description': 'Введи новое имя для аккаунта',
   'user-rename-account-form-button': 'Обновить',
 
   'user-logout-button': 'Выйти из аккаунта',
@@ -62,11 +62,11 @@ export default {
   'settings-labels-version': 'Версия',
 
   'settings-descriptions-video_quality': () =>
-    `Предпочитаемое качество видео для воспроизведения если оно доступно.\n4K (UHD) видео${
+    `Предпочитаемое качество видео для воспроизведения, если оно доступно.\n4K (UHD) видео${
       supportUHD ? ' ' : ' не '
-    }поддерживается на данном девайсе.`,
+    }поддерживается на этом устройстве.`,
   'settings-descriptions-translation':
-    'Для того чтоб просматривать эпизоды с субтитрами необходимо активировать специальный параметр в настройках сайта soap4.me. В противном случае будут отображаться только серии с переводом.',
+    'Чтобы просматривать эпизоды с субтитрами необходимо активировать специальный параметр в настройках сайта soap4.me. Иначе будут отображаться только серии с переводом.',
   'settings-descriptions-video_playback':
     'Настройка воспроизведения серий. Воспроизводить их непрерывно друг за другом или по эпизоду.',
 
@@ -87,12 +87,12 @@ export default {
   'speedtest-begin': 'Начать тест',
   'speedtest-testing': 'Тестируем скорость загрузки...',
   'speedtest-footnote':
-    'Необходимо дождаться завершение теста иначе результаты не будут применимы',
+    'Необходимо дождаться завершения теста, иначе результаты не будут применимы',
   'speedtest-error-title': 'Что-то пошло не так =(',
   'speedtest-error-description':
-    'Пожалуйста проверьте свое интернет соединение и попробуйте еще раз',
+    'Проверьте интернет-соединение и попробуйте снова',
 
-  'speedtest-result': ({ speed }) => `${speed} Мб/с`,
+  'speedtest-result': ({ speed }) => `${speed} мб/с`,
   'speedtest-result-too-slow': 'Слишком медленно. Пропускаем...',
 
   'speedtest-country-fr': 'Франция',
@@ -115,7 +115,7 @@ export default {
   'speedtest-country-bg': 'Болгария',
   'speedtest-country-cz': 'Чехия',
 
-  'episode-more': 'Еще',
+  'episode-more': 'Ещё',
   'episode-mark-as-watched': 'Отметить просмотренным',
   'episode-mark-as-unwatched': 'Отметить непросмотренным',
   'episode-speedtest': 'Тест скорости',
@@ -123,9 +123,9 @@ export default {
   'episode-rate-title': ({ timeout }) =>
     `Оцените эпизод${timeout ? ` или подождите ${timeout} сек.` : ''}`,
 
-  'season-title-more': 'Еще',
+  'season-title-more': 'Ещё',
   'season-mark-as-watched': 'Отметить сезон как просмотренный',
-  'season-mark-as-unwatched': 'Отметить сезон как не просмотренный',
+  'season-mark-as-unwatched': 'Отметить сезон как непросмотренный',
 
   'tvshow-title': ({ title_ru }) => title_ru || '',
   'tvshow-title-from-episode': ({ soap_ru }) => soap_ru || '',
@@ -136,11 +136,11 @@ export default {
 
   'tvshow-status': 'Статус',
   'tvshow-genres': 'Жанры',
-  'tvshow-actors': 'Актеры',
+  'tvshow-actors': 'Актёры',
   'tvshow-seasons': 'Сезоны',
   'tvshow-also-watched': 'Рекомендации',
-  'tvshow-ratings': 'Рейтинги и Отзывы',
-  'tvshow-cast-crew': 'Актеры',
+  'tvshow-ratings': 'Рейтинги и отзывы',
+  'tvshow-cast-crew': 'Актёры',
 
   'tvshow-information': 'Информация',
   'tvshow-information-year': 'Год',
@@ -152,9 +152,9 @@ export default {
   'tvshow-languages-primary': 'Основные',
   'tvshow-languages-primary-values': 'Русский, Английский',
 
-  'tvshow-title-more': 'Еще',
-  'tvshow-mark-as-watched': 'Отметить Сериал как просмотренный',
-  'tvshow-mark-as-unwatched': 'Отметить Сериал как не просмотренный',
+  'tvshow-title-more': 'Ещё',
+  'tvshow-mark-as-watched': 'Отметить сериал как просмотренный',
+  'tvshow-mark-as-unwatched': 'Отметить сериал как непросмотренный',
 
   'tvshow-average-imdb': ({ amount }) =>
     `На основе рейтинга ${amount} пользователей IMDB.`,
@@ -171,13 +171,13 @@ export default {
   'tvshow-status-closed': 'Закрыт',
   'tvshow-status-running': 'Идет показ',
 
-  'tvshow-control-continue-watching': 'Продолжить Просмотр',
-  'tvshow-control-show-trailer': 'Посмотреть Трейлер',
-  'tvshow-control-show-trailers': 'Посмотреть Трейлеры',
-  'tvshow-control-start-watching': 'Начать Просмотр',
-  'tvshow-control-stop-watching': 'Закончить Просмотр',
-  'tvshow-control-rate': 'Оценить Сериал',
-  'tvshow-control-more': 'Еще',
+  'tvshow-control-continue-watching': 'Продолжить просмотр',
+  'tvshow-control-show-trailer': 'Посмотреть трейлер',
+  'tvshow-control-show-trailers': 'Посмотреть трейлеры',
+  'tvshow-control-start-watching': 'Начать просмотр',
+  'tvshow-control-stop-watching': 'Закончить просмотр',
+  'tvshow-control-rate': 'Оценить сериал',
+  'tvshow-control-more': 'Ещё',
 
   'new-episode-soon': 'Скоро',
   'new-episode-day': 'Эпизод в течение дня',
@@ -189,17 +189,17 @@ export default {
 
   'my-caption': 'Мои',
 
-  'my-closed': 'Завершенные',
+  'my-closed': 'Завершённые',
   'my-watched': 'Просмотренные',
   'my-new-episodes': 'С новыми эпизодами',
 
-  'my-empty-list-title': 'У тебя нет никаких подписок',
+  'my-empty-list-title': 'У тебя нет подписок',
   'my-empty-list-description':
-    'Ты можешь начать с добавления каких-нибудь сериалов из раздела "Сериалы"',
+    'Можно начать с добавления каких-нибудь сериалов из раздела "Сериалы"',
   'my-empty-list-button': 'Перейти в раздел "Сериалы"',
 
   'my-recomendations': 'Мои рекомендации',
-  'my-empty-recomendations': 'У тебя пока что нет никаких рекомендаций',
+  'my-empty-recomendations': 'У тебя пока нет рекомендаций',
 
   'all-caption': 'Сериалы',
 
@@ -220,7 +220,7 @@ export default {
 
   'all-group-title-country': 'Стране',
 
-  'all-group-title-completeness': 'Завершенности',
+  'all-group-title-completeness': 'Завершённости',
   'all-group-completeness-title': 'Завершенные',
 
   'all-group-title-uhd': '4K (UHD)',
@@ -237,11 +237,11 @@ export default {
 
   'authorize-caption': 'Авторизация',
   'authorize-description':
-    'Для того чтоб просматривать свои подписки и контент необходимо авторизоваться',
+    'Чтобы просматривать свои подписки и контент необходимо авторизоваться',
   'authorize-user-description':
-    'Вам потребуется авторизоваться если вы хотите чтоб ваш tv синхронизировался с аккаунтом на soap4.me.\n\nАвторизация так же потребуется для управления подписками и выставления рейтингов для сериалов и эпизодов с tv.',
+    'Авторизуйтесь, чтобы ваш tv синхронизировался с аккаунтом на soap4.me.\n\nАвторизация нужна для управления подписками и выставления рейтингов для сериалов и эпизодов с tv.',
   'authorize-tvshow-description':
-    'Вам потребуется авторизоваться если вы захотите отслеживать подписки и синхронизироваться их с аккаунтом на soap4.me',
+    'Авторизуйтесь, чтобы отслеживать подписки и синхронизироваться с аккаунтом на soap4.me',
   'authorize-control-trigger': 'Авторизоваться',
 
   'login-step1-caption': 'Введите логин (e-mail не является логином)',
@@ -254,7 +254,7 @@ export default {
 
   'login-step3-caption': 'Авторизация...',
 
-  'login-error-wrong-login': 'Не верный логин или пароль',
+  'login-error-wrong-login': 'Неверный логин или пароль',
   'login-error-something-went-wrong': 'Что-то пошло не так =(',
 
   'translation-localization': 'Озвучка',
