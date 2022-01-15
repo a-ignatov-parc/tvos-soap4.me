@@ -6,6 +6,11 @@
 node_modules/
 dist/
 
+# IDE and editors
+*.iml
+.vscode
+.idea
+
 ## Build generated
 tvos/DerivedData/
 

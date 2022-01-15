@@ -16,6 +16,7 @@ const { SD, HD, FULLHD, UHD } = settings.values[VIDEO_QUALITY];
 const { LOCALIZATION, SUBTITLES } = settings.values[TRANSLATION];
 
 const TOP_SHELF_MIN_ITEMS = 4;
+const API_URL = 'https://api.soap4uand.me/v2';
 
 function getLatest(tvshows, count = 10) {
   return tvshows.sort(({ sid: a }, { sid: b }) => b - a).slice(0, count);
@@ -152,54 +153,52 @@ export function post(url, parameters) {
 }
 
 export function checkSession() {
-  return get('https://api.soap4.me/v2/auth/check/');
+  return get(`${API_URL}/auth/check/`);
 }
 
 export function authorize({ login, password }) {
-  return post('https://api.soap4.me/v2/auth/', { login, password }).catch(
-    xhr => {
-      if (xhr.status === 403) {
-        return request.toJSON()(xhr);
-      }
-      return Promise.reject(xhr);
-    },
-  );
+  return post(`${API_URL}/auth/`, { login, password }).catch(xhr => {
+    if (xhr.status === 403) {
+      return request.toJSON()(xhr);
+    }
+    return Promise.reject(xhr);
+  });
 }
 
 export function getFamilyAccounts() {
-  return get('https://api.soap4.me/v2/family/');
+  return get(`${API_URL}/family/`);
 }
 
 export function migrateToFamilyAccount() {
-  return post('https://api.soap4.me/v2/family/migrate/');
+  return post(`${API_URL}/family/migrate/`);
 }
 
 export function turnOffFamilyAccount() {
-  return post('https://api.soap4.me/v2/family/unset/');
+  return post(`${API_URL}/family/unset/`);
 }
 
 export function selectAccount(fid) {
-  return post(`https://api.soap4.me/v2/family/set/${fid}/`, { fid });
+  return post(`${API_URL}/family/set/${fid}/`, { fid });
 }
 
 export function addAccount(name) {
-  return post('https://api.soap4.me/v2/family/add/', { name });
+  return post(`${API_URL}/family/add/`, { name });
 }
 
 export function renameAccount(fid, name) {
-  return post(`https://api.soap4.me/v2/family/rename/${fid}/`, { fid, name });
+  return post(`${API_URL}/family/rename/${fid}/`, { fid, name });
 }
 
 export function deleteAccount(fid) {
-  return post(`https://api.soap4.me/v2/family/remove/${fid}/`, { fid });
+  return post(`${API_URL}/family/remove/${fid}/`, { fid });
 }
 
 export function logout() {
-  return post('https://api.soap4.me/v2/auth/logout/');
+  return post(`${API_URL}/auth/logout/`);
 }
 
 export function getMyTVShows() {
-  return get('https://api.soap4.me/v2/soap/my/')
+  return get(`${API_URL}/soap/my/`)
     .then(...emptyOrErrorsResolvers([]))
     .then(series => {
       if (isAuthorized() && !isQello()) {
@@ -240,7 +239,7 @@ export function getMyTVShows() {
 }
 
 export function getAllTVShows() {
-  return get('https://api.soap4.me/v2/soap/').then(series => {
+  return get(`${API_URL}/soap/`).then(series => {
     if (!isAuthorized() && !isQello()) {
       const latest = getLatest(series);
 
@@ -270,53 +269,51 @@ export function getPopularTVShows(count = 10) {
 }
 
 export function getTVShowsByGenre(genre) {
-  return get(`https://api.soap4.me/v2/soap/genre/${genreToId(genre)}/`);
+  return get(`${API_URL}/soap/genre/${genreToId(genre)}/`);
 }
 
 export function getTVShowDescription(sid) {
-  return get(`https://api.soap4.me/v2/soap/description/${sid}/`);
+  return get(`${API_URL}/soap/description/${sid}/`);
 }
 
 export function getCountriesList() {
-  return get('https://api.soap4.me/v2/soap/countrys/');
+  return get(`${API_URL}/soap/countrys/`);
 }
 
 export function getGenresList() {
-  return get('https://api.soap4.me/v2/soap/genres/');
+  return get(`${API_URL}/soap/genres/`);
 }
 
 export function getTVShowEpisodes(sid) {
-  return get(`https://api.soap4.me/v2/episodes/${sid}/`);
+  return get(`${API_URL}/episodes/${sid}/`);
 }
 
 export function getMyRecommendations() {
-  return get(`https://api.soap4.me/v2/soap/recommendations/personal/`).then(
+  return get(`${API_URL}/soap/recommendations/personal/`).then(
     ...emptyOrErrorsResolvers([]),
   );
 }
 
 export function getTVShowRecommendations(sid) {
-  return get(`https://api.soap4.me/v2/soap/recommendations/${sid}/`).then(
+  return get(`${API_URL}/soap/recommendations/${sid}/`).then(
     ...emptyOrErrorsResolvers([]),
   );
 }
 
 export function getTVShowReviews(sid) {
-  return get(`https://api.soap4.me/v2/reviews/${sid}/`).then(
-    ...emptyOrErrorsResolvers([]),
-  );
+  return get(`${API_URL}/reviews/${sid}/`).then(...emptyOrErrorsResolvers([]));
 }
 
 export function markReviewAsLiked(rid) {
-  return post(`https://api.soap4.me/v2/rate/review/${rid}/like/`);
+  return post(`${API_URL}/rate/review/${rid}/like/`);
 }
 
 export function markReviewAsDisliked(rid) {
-  return post(`https://api.soap4.me/v2/rate/review/${rid}/dislike/`);
+  return post(`${API_URL}/rate/review/${rid}/dislike/`);
 }
 
 export function rateTVShow(sid, rating) {
-  return post(`https://api.soap4.me/v2/rate/soap/${sid}/${rating}/`, {
+  return post(`${API_URL}/rate/soap/${sid}/${rating}/`, {
     sid,
     rating,
   });
@@ -324,7 +321,7 @@ export function rateTVShow(sid, rating) {
 
 export function rateEpisode(sid, season, episode, rating) {
   return post(
-    `https://api.soap4.me/v2/rate/episode/${sid}/${season}/${episode}/rating/${rating}/`,
+    `${API_URL}/rate/episode/${sid}/${season}/${episode}/rating/${rating}/`,
     {
       sid,
       season,
@@ -335,9 +332,7 @@ export function rateEpisode(sid, season, episode, rating) {
 }
 
 export function getTVShowTrailers(sid) {
-  return get(`https://api.soap4.me/v2/trailers/${sid}/`).then(
-    ...emptyOrErrorsResolvers([]),
-  );
+  return get(`${API_URL}/trailers/${sid}/`).then(...emptyOrErrorsResolvers([]));
 }
 
 export function getTVShowSeasons(sid) {
@@ -387,7 +382,7 @@ export function getTVShowSeason(sid, id) {
 }
 
 export function getTVShowSchedule(sid) {
-  return get(`https://api.soap4.me/v2/shedule/${sid}/`)
+  return get(`${API_URL}/shedule/${sid}/`)
     .then(schedule =>
       schedule.reduce((result, item) => {
         if (!result[item.season - 1]) {
@@ -405,11 +400,11 @@ export function getTVShowSchedule(sid) {
 }
 
 export function getMySchedule() {
-  return get('https://api.soap4.me/v2/shedule/my/').catch(() => []);
+  return get(`${API_URL}/shedule/my/`).catch(() => []);
 }
 
 export function getActorInfo(id) {
-  return get(`https://api.soap4.me/v2/soap/person/${id}/`);
+  return get(`${API_URL}/soap/person/${id}/`);
 }
 
 export function getEpisodeMedia({ files = [] }, translation) {
@@ -454,33 +449,27 @@ export function getEpisodeMedia({ files = [] }, translation) {
 }
 
 export function markTVShowAsWatched(sid) {
-  return post(`https://api.soap4.me/v2/episodes/watch/full/${sid}/`);
+  return post(`${API_URL}/episodes/watch/full/${sid}/`);
 }
 
 export function markTVShowAsUnwatched(sid) {
-  return post(`https://api.soap4.me/v2/episodes/unwatch/full/${sid}/`);
+  return post(`${API_URL}/episodes/unwatch/full/${sid}/`);
 }
 
 export function markSeasonAsWatched(sid, season) {
-  return post(`https://api.soap4.me/v2/episodes/watch/full/${sid}/${season}/`);
+  return post(`${API_URL}/episodes/watch/full/${sid}/${season}/`);
 }
 
 export function markSeasonAsUnwatched(sid, season) {
-  return post(
-    `https://api.soap4.me/v2/episodes/unwatch/full/${sid}/${season}/`,
-  );
+  return post(`${API_URL}/episodes/unwatch/full/${sid}/${season}/`);
 }
 
 export function markEpisodeAsWatched(sid, season, episodeNumber) {
-  return post(
-    `https://api.soap4.me/v2/episodes/watch/${sid}/${season}/${episodeNumber}/`,
-  );
+  return post(`${API_URL}/episodes/watch/${sid}/${season}/${episodeNumber}/`);
 }
 
 export function markEpisodeAsUnwatched(sid, season, episodeNumber) {
-  return post(
-    `https://api.soap4.me/v2/episodes/unwatch/${sid}/${season}/${episodeNumber}/`,
-  );
+  return post(`${API_URL}/episodes/unwatch/${sid}/${season}/${episodeNumber}/`);
 }
 
 export function getMediaStream(media) {
@@ -490,36 +479,36 @@ export function getMediaStream(media) {
   const token = getToken();
   const hash = md5(token + eid + sid + episodeHash);
 
-  return post(`https://api.soap4.me/v2/play/episode/${eid}/`, { eid, hash });
+  return post(`${API_URL}/play/episode/${eid}/`, { eid, hash });
 }
 
 export function getTrailerStream(tid) {
-  return post(`https://api.soap4.me/v2/play/trailer/${tid}/`);
+  return post(`${API_URL}/play/trailer/${tid}/`);
 }
 
 export function addToMyTVShows(sid) {
-  return post(`https://api.soap4.me/v2/soap/watch/${sid}/`);
+  return post(`${API_URL}/soap/watch/${sid}/`);
 }
 
 export function removeFromMyTVShows(sid) {
-  return post(`https://api.soap4.me/v2/soap/unwatch/${sid}/`);
+  return post(`${API_URL}/soap/unwatch/${sid}/`);
 }
 
 export function getSearchResults(query) {
-  return get(`https://api.soap4.me/v2/search/?q=${encodeURIComponent(query)}`);
+  return get(`${API_URL}/search/?q=${encodeURIComponent(query)}`);
 }
 
 export function saveElapsedTime(eid, time) {
-  return post(`https://api.soap4.me/v2/play/episode/${eid}/savets/`, {
+  return post(`${API_URL}/play/episode/${eid}/savets/`, {
     eid,
     time,
   });
 }
 
 export function getSpeedTestServers() {
-  return get('https://api.soap4.me/v2/speedtest/servers/');
+  return get(`${API_URL}/speedtest/servers/`);
 }
 
 export function saveSpeedTestResults(results) {
-  return post('https://api.soap4.me/v2/speedtest/save/', results);
+  return post(`${API_URL}/speedtest/save/`, results);
 }
