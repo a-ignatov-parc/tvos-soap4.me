@@ -33,51 +33,51 @@ class ServiceProvider: NSObject, TVTopShelfProvider {
                 let topShelf = try JSONSerialization.jsonObject(with: topShelfData) as? [String: Any] {
 
                 for sectionData in topShelf["sections"] as! [[String: Any]] {
-                    let sectionItem = TVContentItem(contentIdentifier: TVContentIdentifier(identifier: sectionData["id"] as! String, container: nil)!)
+                    let sectionItem = TVContentItem(contentIdentifier: TVContentIdentifier(identifier: sectionData["id"] as! String, container: nil))
 
                     var sectionTopShelfItems = [TVContentItem]();
                     for itemData in sectionData["items"] as! [[String: Any]] {
-                        let contentItem = TVContentItem(contentIdentifier: TVContentIdentifier(identifier: itemData["id"] as! String, container: nil)!)
+                        let contentItem = TVContentItem(contentIdentifier: TVContentIdentifier(identifier: itemData["id"] as! String, container: nil))
 
                         if let imageURLString = itemData["imageURL"] as? String,
                             let imageURL = URL(string: imageURLString) {
                             if #available(tvOSApplicationExtension 11.0, *) {
-                                contentItem!.setImageURL(imageURL, forTraits: .userInterfaceStyleLight)
-                                contentItem!.setImageURL(imageURL, forTraits: .userInterfaceStyleDark)
+                                contentItem.setImageURL(imageURL, forTraits: .userInterfaceStyleLight)
+                                contentItem.setImageURL(imageURL, forTraits: .userInterfaceStyleDark)
                             } else {
-                                contentItem!.imageURL = imageURL
+                                contentItem.imageURL = imageURL
                             }
                         }
                         if let displayURLString = itemData["displayURL"] as? String,
                             let displayURL = URL(string: displayURLString) {
-                            contentItem!.displayURL = displayURL;
+                            contentItem.displayURL = displayURL;
                         }
                         if let playURLString = itemData["playURL"] as? String,
                             let playURL = URL(string: playURLString) {
-                            contentItem!.playURL = playURL;
+                            contentItem.playURL = playURL;
                         }
 
-                        contentItem!.imageShape = .square
-                        contentItem!.title = itemData["title"] as? String
+                        contentItem.imageShape = .square
+                        contentItem.title = itemData["title"] as? String
 
                         // Seems that now there is no support for theese properties in TopShelf
                         // but TVContentItem consumes it, so why not. All of them are optional
-                        contentItem!.creationDate = iso8601ToDate(string: itemData["creationDate"] as? String)
-                        contentItem!.expirationDate = iso8601ToDate(string: itemData["expirationDate"] as? String)
-                        contentItem!.lastAccessedDate = iso8601ToDate(string: itemData["lastAccessedDate"] as? String)
-                        contentItem!.badgeCount = itemData["badgeCount"] as? NSNumber
-                        contentItem!.duration = itemData["duration"] as? NSNumber
-                        contentItem!.currentPosition = itemData["currentPosition"] as? NSNumber
-                        contentItem!.hasPlayedToEnd = itemData["hasPlayedToEnd"] as? NSNumber
+                        contentItem.creationDate = iso8601ToDate(string: itemData["creationDate"] as? String)
+                        contentItem.expirationDate = iso8601ToDate(string: itemData["expirationDate"] as? String)
+                        contentItem.lastAccessedDate = iso8601ToDate(string: itemData["lastAccessedDate"] as? String)
+                        contentItem.badgeCount = itemData["badgeCount"] as? NSNumber
+                        contentItem.duration = itemData["duration"] as? NSNumber
+                        contentItem.currentPosition = itemData["currentPosition"] as? NSNumber
+                        contentItem.hasPlayedToEnd = itemData["hasPlayedToEnd"] as? NSNumber
 
-                        sectionTopShelfItems.append(contentItem!)
+                        sectionTopShelfItems.append(contentItem)
                     }
 
-                    sectionItem!.title = sectionData["title"] as? String
+                    sectionItem.title = sectionData["title"] as? String
 
                     if sectionTopShelfItems.count > 0 {
-                        sectionItem!.topShelfItems = sectionTopShelfItems
-                        SectionsItems.append(sectionItem!)
+                        sectionItem.topShelfItems = sectionTopShelfItems
+                        SectionsItems.append(sectionItem)
                     }
                 }
             }
