@@ -1,12 +1,14 @@
 /* eslint camelcase: "off" */
 
 import { supportUHD } from '../request/soap';
+import { pluralSuffix } from '../utils';
 
 export default {
   'auth-checking': 'Проверяем авторизацию...',
 
   'menu-my': 'Мои',
   'menu-all': 'Сериалы',
+  'menu-movies': 'Кино',
   'menu-search': '🔍',
   'menu-genres': 'Жанры',
   'menu-account': 'Аккаунт',
@@ -187,6 +189,92 @@ export default {
   'new-season-day': 'Сезон в течение дня',
   'new-season-custom-date': ({ date }) => `Сезон ${date}`,
 
+  'movies-group-by': 'Группировать по',
+  'movies-group-by-title': ({ title }) => `Группировать по ${title}`,
+
+  'movies-group-title-name': 'Имени',
+  'movies-group-name-title': 'A — Z',
+
+  'movies-group-title-date': 'Дате',
+
+  'movies-group-title-likes': 'Лайкам',
+  'movies-group-likes-title-over-thousand': ({ thousand }) =>
+    `Более ${thousand}k`,
+  'movies-group-likes-title-over-hundred': ({ hundred }) => `Более ${hundred}`,
+  'movies-group-likes-title-lower-hundred': ({ hundred }) => `Менее ${hundred}`,
+
+  'movies-group-title-rating': 'Рейтингу',
+
+  'movies-group-title-franchise': 'Франшизе',
+
+  'movies-group-title-country': 'Стране',
+
+  'movies-group-title-favorite': 'Избранному',
+
+  'movie-title': ({ title_ru }) => title_ru || '',
+  'movie-description': ({ description_ru }) => description_ru || '',
+  'movie-runtime': ({ runtime }) => runtime || '',
+  'movie-genres': 'Жанры',
+  'movie-directors': 'Режиссеры',
+  'movie-actors': 'Актеры',
+  'movie-franchise': 'Франшиза',
+  'movie-ratings': 'Рейтинги и Отзывы',
+  'movie-cast-crew': 'Актеры',
+  'movie-cast-crew-role': ({ role }) =>
+    ({
+      director: 'Режиссер',
+      writer: 'Сценарист',
+      actor: 'Актер',
+    }[role] || ''),
+
+  'movie-information': 'Информация',
+  'movie-information-year': 'Год',
+  'movie-information-runtime': 'Тайминг',
+  'movie-information-country': 'Страна',
+  'movie-information-budget': 'Бюджет',
+  'movie-information-gross_worldwide': 'Общие сборы',
+
+  'movie-information-languages': 'Языки',
+  'movie-information-languages-primary': 'Основные',
+  'movie-information-languages-primary-values': 'Русский, Английский',
+
+  'movie-liked-by': 'Нравится',
+  'movie-liked-by-people': ({ likes }) => `пользователям: ${likes}`,
+  'movie-liked-by-no-one': 'никому',
+
+  'movie-control-watch': 'Смотреть',
+  'movie-control-mark-as-watched': 'Отметить просмотр',
+  'movie-control-favorite': 'Добавить в Избранное',
+  'movie-control-unfavorite': 'Удалить из Избранного',
+  'movie-control-rate': 'Оценить Фильм',
+  'movie-control-more': 'Еще',
+
+  'movie-title-more': 'Еще',
+  'movie-mark-as-unwatched': 'Отметить Фильм как не просмотренный',
+
+  'movie-franchise-title': ({ franchise }) => `Франшиза: ${franchise}`,
+
+  'movie-imdb-title': 'IMDB',
+  'movie-average-imdb': ({ amount }) =>
+    `${amount} голос${pluralSuffix(amount, {
+      singular: 'а',
+      plural: 'ов',
+    })}`,
+
+  'movie-kinopoisk-title': 'Кинопоиск',
+  'movie-average-kinopoisk': ({ amount }) =>
+    `${amount} голос${pluralSuffix(amount, {
+      singular: 'а',
+      plural: 'ов',
+    })}`,
+
+  'movie-soap-title': 'soap4.me',
+  'movie-average-soap': ({ amount }) =>
+    `${amount} голос${pluralSuffix(amount, {
+      singular: 'а',
+      plural: 'ов',
+    })}`,
+
   'my-caption': 'Мои',
 
   'my-closed': 'Завершенные',
@@ -231,9 +319,17 @@ export default {
   'search-persons': 'Люди',
   'search-actor': 'Актер / Актриса',
   'search-tvshows': 'Сериалы',
+  'search-movies': 'Фильмы',
 
   'actor-tvshows': 'Сериалы',
+  'actor-movies': 'Фильмы',
   'actor-title': 'Актер / Актриса',
+
+  'director-movies': 'Фильмы',
+  'director-title': 'Режиссер',
+
+  'writer-movies': 'Фильмы',
+  'writer-title': 'Сценарист',
 
   'authorize-caption': 'Авторизация',
   'authorize-description':

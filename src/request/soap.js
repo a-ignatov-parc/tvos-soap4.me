@@ -9,7 +9,12 @@ import * as request from '../request';
 import * as settings from '../settings';
 import * as topShelf from '../helpers/topShelf';
 import { get as i18n } from '../localization';
-import { genreToId, isQello, groupSeriesByCategory } from '../utils';
+import {
+  genreToId,
+  isQello,
+  groupSeriesByCategory,
+  encodeNameForUrl,
+} from '../utils';
 
 const { VIDEO_QUALITY, TRANSLATION } = settings.params;
 const { SD, HD, FULLHD, UHD } = settings.values[VIDEO_QUALITY];
@@ -511,4 +516,59 @@ export function getSpeedTestServers() {
 
 export function saveSpeedTestResults(results) {
   return post(`${API_URL}/speedtest/save/`, results);
+}
+
+export function getAllMovies() {
+  return get(`${API_URL}/movies/`);
+}
+
+export function getFranchiseMovies(franchiseName) {
+  return get(`${API_URL}/movies/franchise/${encodeNameForUrl(franchiseName)}/`);
+}
+
+export function getMovieDescription(id) {
+  return get(`${API_URL}/movies/description/${id}/`);
+}
+
+export function getMovieFranchiseMovies(id) {
+  return getMovieDescription(id).then(result => {
+    if (!result.franchise) return [];
+    return getFranchiseMovies(result.franchise);
+  });
+}
+
+export function addMovieToFavorite(id) {
+  return post(`${API_URL}/movies/like/${id}/`, { do: 'like' });
+}
+
+export function removeMovieFromFavorite(id) {
+  return post(`${API_URL}/movies/like/${id}/`, { do: 'unlike' });
+}
+
+export function markMovieAsWatched(id) {
+  return post(`${API_URL}/movies/watch/${id}/`);
+}
+
+export function markMovieAsUnwatched(id) {
+  return post(`${API_URL}/movies/unwatch/${id}/`);
+}
+
+export function rateMovie(id, rating) {
+  return post(`${API_URL}/movies/rate/${id}/${rating}/`);
+}
+
+export function saveMovieTime(id, time) {
+  return post(`${API_URL}/movies/savets/${id}/`, { time });
+}
+
+export function getDirectorMovies(directorName) {
+  return get(`${API_URL}/movies/director/${encodeNameForUrl(directorName)}/`);
+}
+
+export function getWriterMovies(writerName) {
+  return get(`${API_URL}/movies/writer/${encodeNameForUrl(writerName)}/`);
+}
+
+export function getActorMovies(actorName) {
+  return get(`${API_URL}/movies/actor/${encodeNameForUrl(actorName)}/`);
 }

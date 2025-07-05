@@ -7,6 +7,7 @@ import {
   prettifyEpisodeNum,
   getMonogramImageUrl,
   sortTvShows,
+  movieIsUHD,
 } from '../utils';
 
 import { processEntitiesInString } from '../utils/parser';
@@ -35,6 +36,7 @@ export default function searchRoute() {
             popular: [],
             persons: [],
             episodes: [],
+            movies: [],
           };
         },
 
@@ -69,6 +71,7 @@ export default function searchRoute() {
                   {this.renderLatest()}
                   {this.renderPopular()}
                   {this.renderPersons()}
+                  {this.renderMovies()}
                   {this.renderShows()}
                   {episodes.map((name, i) =>
                     this.renderEpisodes(
@@ -183,6 +186,40 @@ export default function searchRoute() {
                       <title>{actorName}</title>
                       <subtitle>{i18n('search-actor')}</subtitle>
                     </monogramLockup>
+                  );
+                })}
+              </section>
+            </shelf>
+          );
+        },
+
+        renderMovies() {
+          const { movies } = this.state;
+
+          if (!movies.length) return null;
+
+          return (
+            <shelf class="shelf_indent">
+              <header>
+                <title>{i18n('search-movies')}</title>
+              </header>
+              <section>
+                {movies.map(movie => {
+                  const {
+                    id,
+                    covers: { big: poster },
+                  } = movie;
+
+                  const title = i18n('movie-title', movie);
+
+                  return (
+                    <Tile
+                      title={title}
+                      route="movie"
+                      poster={poster}
+                      isUHD={movieIsUHD(movie)}
+                      payload={{ title, id, poster }}
+                    />
                   );
                 })}
               </section>

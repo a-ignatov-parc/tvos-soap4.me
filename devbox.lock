@@ -1,0 +1,32 @@
+{
+  "lockfile_version": "1",
+  "packages": {
+    "github:NixOS/nixpkgs/nixpkgs-unstable": {
+      "last_modified": "2025-06-14T12:19:57Z",
+      "resolved": "github:NixOS/nixpkgs/41da1e3ea8e23e094e5e3eeb1e6b830468a7399e?lastModified=1749903597&narHash=sha256-jp0D4vzBcRKwNZwfY4BcWHemLGUs4JrS3X9w5k%2FJYDA%3D"
+    },
+    "nodejs@12": {
+      "last_modified": "2022-05-03T02:40:48Z",
+      "plugin_version": "0.0.2",
+      "resolved": "github:NixOS/nixpkgs/24c33ab7952544ad355d0677c9eea931b23f371c#nodejs-12_x",
+      "source": "devbox-search",
+      "version": "12.22.12",
+      "systems": {
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/2y4zbs43m3wrkgi8cvss9217bk6gw431-nodejs-12.22.12",
+              "default": true
+            },
+            {
+              "name": "libv8",
+              "path": "/nix/store/fmk8c6x4a8v2sjp9dxz1y5hx2bxb29qz-nodejs-12.22.12-libv8"
+            }
+          ],
+          "store_path": "/nix/store/2y4zbs43m3wrkgi8cvss9217bk6gw431-nodejs-12.22.12"
+        }
+      }
+    }
+  }
+}
