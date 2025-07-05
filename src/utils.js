@@ -164,3 +164,31 @@ export function sortTvShows(tvshows) {
       i18n('tvshow-title', left).localeCompare(i18n('tvshow-title', right)),
     );
 }
+
+export function sortMovies(movies) {
+  return movies
+    .slice(0)
+    .sort((left, right) =>
+      i18n('movie-title', left).localeCompare(i18n('movie-title', right)),
+    );
+}
+
+export function pluralSuffix(amount, suffix = { singular: '', plural: '' }) {
+  return [1, '1'].includes(amount) ? suffix.singular : suffix.plural;
+}
+
+export function encodeNameForUrl(input) {
+  return input.replaceAll(' ', '_');
+}
+
+export function movieIsUHD(movie) {
+  return movie.qualities.includes('UHD');
+}
+
+export function movieIsHD(movie) {
+  return movie.qualities.includes('FHD');
+}
+
+export function movieHasCC(movie) {
+  return movie.subs;
+}

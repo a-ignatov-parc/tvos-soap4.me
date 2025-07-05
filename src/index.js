@@ -25,6 +25,11 @@ import myRecomendations from './routes/recomendations';
 import { AUTH, BASIC, GUEST } from './routes/menu/constants';
 
 import Loader from './components/loader';
+import moviesRoute from './routes/movies';
+import movieRoute from './routes/movie';
+import movieActorRoute from './routes/movie-actor';
+import movieDirectorRoute from './routes/movie-director';
+import movieWriterRoute from './routes/movie-writer';
 
 function openURLHandler(openURL) {
   const mainRoute = navigationDocument.documents.find(
@@ -88,6 +93,10 @@ TVDML.handleRoute('main').pipe(
       active: GUEST,
     },
     {
+      route: 'movies',
+      hidden: GUEST,
+    },
+    {
       route: 'recomendations',
       hidden: [GUEST, BASIC],
     },
@@ -103,6 +112,16 @@ TVDML.handleRoute('main').pipe(
 TVDML.handleRoute('my').pipe(myRoute());
 
 TVDML.handleRoute('all').pipe(allRoute());
+
+TVDML.handleRoute('movies').pipe(moviesRoute());
+
+TVDML.handleRoute('movie').pipe(movieRoute());
+
+TVDML.handleRoute('movie-director').pipe(movieDirectorRoute());
+
+TVDML.handleRoute('movie-writer').pipe(movieWriterRoute());
+
+TVDML.handleRoute('movie-actor').pipe(movieActorRoute());
 
 TVDML.handleRoute('search').pipe(searchRoute());
 

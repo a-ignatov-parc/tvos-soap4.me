@@ -1,12 +1,14 @@
 /* eslint camelcase: "off" */
 
 import { supportUHD } from '../request/soap';
+import { pluralSuffix } from '../utils';
 
 export default {
   'auth-checking': 'Checking authorization...',
 
   'menu-my': 'My',
   'menu-all': 'Shows',
+  'menu-movies': 'Movies',
   'menu-search': '🔍',
   'menu-genres': 'Genres',
   'menu-account': 'Account',
@@ -140,6 +142,12 @@ export default {
   'tvshow-also-watched': 'Viewers Also Watched',
   'tvshow-ratings': 'Ratings and Reviews',
   'tvshow-cast-crew': 'Cast and Crew',
+  'movie-cast-crew-role': ({ role }) =>
+    ({
+      director: 'Director',
+      writer: 'Writer',
+      actor: 'Actor',
+    }[role] || ''),
 
   'tvshow-information': 'Information',
   'tvshow-information-year': 'Year',
@@ -186,6 +194,87 @@ export default {
   'new-season-day': 'Season in a day',
   'new-season-custom-date': ({ date }) => `Season ${date}`,
 
+  'movies-group-by': 'Group by',
+  'movies-group-by-title': ({ title }) => `Group by ${title}`,
+
+  'movies-group-title-name': 'Name',
+  'movies-group-name-title': 'A — Z',
+
+  'movies-group-title-date': 'Date',
+
+  'movies-group-title-likes': 'Likes',
+  'movies-group-likes-title-over-thousand': ({ thousand }) =>
+    `Over ${thousand}k`,
+  'movies-group-likes-title-over-hundred': ({ hundred }) => `Over ${hundred}`,
+  'movies-group-likes-title-lower-hundred': ({ hundred }) => `Lower ${hundred}`,
+
+  'movies-group-title-rating': 'Rating',
+
+  'movies-group-title-franchise': 'Franchise',
+
+  'movies-group-title-country': 'Country',
+
+  'movies-group-title-favorite': 'Favorite',
+
+  'movie-title': ({ title }) => title || '',
+  'movie-description': ({ description }) => description || '',
+  'movie-runtime': ({ runtime }) =>
+    runtime ? runtime.replace('ч', 'h').replace('м', 'm') : '',
+  'movie-genres': 'Genres',
+  'movie-directors': 'Directors',
+  'movie-actors': 'Actors',
+  'movie-franchise': 'Franchise',
+  'movie-ratings': 'Ratings and Reviews',
+  'movie-cast-crew': 'Cast and Crew',
+
+  'movie-information': 'Information',
+  'movie-information-year': 'Year',
+  'movie-information-runtime': 'Runtime',
+  'movie-information-country': 'Country',
+  'movie-information-budget': 'Budget',
+  'movie-information-gross_worldwide': 'Gross worldwide',
+
+  'movie-information-languages': 'Languages',
+  'movie-information-languages-primary': 'Primary',
+  'movie-information-languages-primary-values': 'Russian, English',
+
+  'movie-liked-by': 'Liked by',
+  'movie-liked-by-people': ({ likes }) => `${likes} people`,
+  'movie-liked-by-no-one': 'no one',
+
+  'movie-control-watch': 'Watch',
+  'movie-control-mark-as-watched': 'Mark as Watched',
+  'movie-control-favorite': 'Add to Favorite',
+  'movie-control-unfavorite': 'Remove from Favorite',
+  'movie-control-rate': 'Rate Movie',
+  'movie-control-more': 'More',
+
+  'movie-title-more': 'More',
+  'movie-mark-as-unwatched': 'Mark Movie as Unwatched',
+
+  'movie-franchise-title': ({ franchise }) => `Franchise: ${franchise}`,
+
+  'movie-imdb-title': 'IMDB',
+  'movie-average-imdb': ({ amount }) =>
+    `${amount} vote${pluralSuffix(amount, {
+      singular: '',
+      plural: 's',
+    })}`,
+
+  'movie-kinopoisk-title': 'Kinopoisk',
+  'movie-average-kinopoisk': ({ amount }) =>
+    `${amount} vote${pluralSuffix(amount, {
+      singular: '',
+      plural: 's',
+    })}`,
+
+  'movie-soap-title': 'soap4.me',
+  'movie-average-soap': ({ amount }) =>
+    `${amount} vote${pluralSuffix(amount, {
+      singular: '',
+      plural: 's',
+    })}`,
+
   'my-caption': 'My',
 
   'my-closed': 'Closed',
@@ -230,9 +319,17 @@ export default {
   'search-persons': 'Persons',
   'search-actor': 'Actor',
   'search-tvshows': 'TV Shows',
+  'search-movies': 'Movies',
 
   'actor-tvshows': 'TV Shows',
+  'actor-movies': 'Movies',
   'actor-title': 'Actor',
+
+  'director-movies': 'Movies',
+  'director-title': 'Director',
+
+  'writer-movies': 'Movies',
+  'writer-title': 'Writer',
 
   'authorize-caption': 'Authorization',
   'authorize-description':
