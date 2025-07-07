@@ -9,7 +9,11 @@ import {
   getLatestTvShows,
 } from '../request/soap';
 
-import { isMenuButtonPressNavigatedTo, sortTvShows } from '../utils';
+import {
+  capitalizeText,
+  isMenuButtonPressNavigatedTo,
+  sortTvShows,
+} from '../utils';
 import { deepEqualShouldUpdate } from '../utils/components';
 
 import Tile from '../components/tile';
@@ -21,6 +25,7 @@ const DATE = 'date';
 const LIKES = 'likes';
 const RATING = 'rating';
 const LATEST = 'latest';
+const GENRES = 'genres';
 const COUNTRY = 'country';
 const COMPLETENESS = 'completeness';
 
@@ -46,6 +51,14 @@ const sections = {
           items: sortTvShows(list),
         },
       ];
+    },
+  },
+
+  [GENRES]: {
+    title: 'tvshows-group-title-genres',
+    useSubFilter: true,
+    reducer() {
+      return [];
     },
   },
 
@@ -218,6 +231,12 @@ export default function tvShowsRoute() {
 
           this.loadData().then(payload => {
             this.setState({ loading: false, ...payload });
+
+            const genresOptions = this.getSubGroupOptions(GENRES);
+            const genreId = genresOptions[0].id;
+
+            this.setSubGroupId(GENRES, genreId);
+            this.loadSubGroupData(GENRES, genreId);
           });
         },
 
@@ -245,7 +264,30 @@ export default function tvShowsRoute() {
 
         loadData() {
           return Promise.all([getAllTVShows(), getCountriesList()]).then(
-            ([series, contries]) => ({ series, contries }),
+            ([tvshows, contries]) => {
+              const genresDict = {};
+
+              tvshows.forEach(tvshow => {
+                tvshow.genres.forEach(genre => {
+                  if (!genresDict[genre]) {
+                    genresDict[genre] = {
+                      id: genre,
+                      title: capitalizeText(genre),
+                    };
+                  }
+                });
+              });
+
+              const genres = Object.entries(genresDict)
+                .sort(([a], [b]) => a.localeCompare(b))
+                .map(([, genre]) => genre);
+
+              return {
+                tvshows,
+                contries,
+                [this.getSubGroupStatePath(GENRES, ['options'])]: genres,
+              };
+            },
           );
         },
 
@@ -254,11 +296,18 @@ export default function tvShowsRoute() {
             return <Loader />;
           }
 
-          const { series, groupId, contries } = this.state;
+          const { tvshows, groupId, contries } = this.state;
 
-          const { title: titleCode, reducer } = sections[groupId];
-          const groups = reducer(series, { contries });
-          const title = i18n(titleCode);
+          const { title: titleCode, reducer, useSubFilter } = sections[groupId];
+          const groups = reducer(tvshows, { contries });
+
+          const subGroupId = this.getSubGroupId(groupId);
+          const subGroupTitle = this.getSubGroupTitle(groupId, subGroupId);
+          const subGroupItems = this.getSubGroupItems(groupId, subGroupId);
+          const subGroupIsLoaded = this.getSubGroupIsLoaded(
+            groupId,
+            subGroupId,
+          );
 
           return (
             <document>
@@ -280,59 +329,92 @@ export default function tvShowsRoute() {
               </head>
               <stackTemplate>
                 <collectionList>
-                  <separator>
-                    <button onSelect={this.onSwitchGroup}>
-                      <text>
-                        {i18n('tvshows-group-by-title', { title })}{' '}
-                        <badge
-                          width="31"
-                          height="14"
-                          class="dropdown-badge"
-                          src="resource://button-dropdown"
-                        />
-                      </text>
-                    </button>
-                  </separator>
-                  {groups.map(({ title: groupTitle, items }) => (
-                    <grid key={groupTitle}>
-                      <header>
-                        <title>{groupTitle}</title>
-                      </header>
-                      <section>
-                        {items.map(tvshow => {
-                          const {
-                            sid,
-                            watching,
-                            unwatched,
-                            covers: { big: poster },
-                          } = tvshow;
-
-                          const isUHD = !!tvshow['4k'];
-                          const tvShowTitle = i18n('tvshow-title', tvshow);
-
-                          return (
-                            <Tile
-                              key={sid}
-                              title={tvShowTitle}
-                              route="tvshow"
-                              poster={poster}
-                              counter={unwatched}
-                              isWatched={watching > 0 && !unwatched}
-                              isUHD={isUHD}
-                              payload={{
-                                sid,
-                                poster,
-                                title: tvShowTitle,
-                              }}
-                            />
-                          );
-                        })}
-                      </section>
-                    </grid>
-                  ))}
+                  {this.renderDropdown(
+                    i18n('tvshows-group-by-title', {
+                      title: i18n(titleCode),
+                    }),
+                    this.onSwitchGroup,
+                  )}
+                  {useSubFilter &&
+                    this.renderDropdown(
+                      i18n(`tvshows-group-by-${groupId}-title`, {
+                        title: subGroupTitle,
+                      }),
+                      this.onSwitchSubgroup,
+                    )}
+                  {useSubFilter &&
+                    (subGroupIsLoaded ? (
+                      <grid key={`subgroup-${groupId}`}>
+                        {this.renderTvshows(subGroupItems)}
+                      </grid>
+                    ) : (
+                      <activityIndicator />
+                    ))}
+                  {!useSubFilter &&
+                    groups.map(({ title: groupTitle, items }) => (
+                      <grid key={groupTitle}>
+                        <header>
+                          <title>{groupTitle}</title>
+                        </header>
+                        {this.renderTvshows(items)}
+                      </grid>
+                    ))}
                 </collectionList>
               </stackTemplate>
             </document>
+          );
+        },
+
+        renderDropdown(title, onSelect) {
+          return (
+            <separator>
+              <button onSelect={onSelect}>
+                <text>
+                  {title}{' '}
+                  <badge
+                    width="31"
+                    height="14"
+                    class="dropdown-badge"
+                    src="resource://button-dropdown"
+                  />
+                </text>
+              </button>
+            </separator>
+          );
+        },
+
+        renderTvshows(tvshows) {
+          return (
+            <section>
+              {tvshows.map(tvshow => {
+                const {
+                  sid,
+                  watching,
+                  unwatched,
+                  covers: { big: poster },
+                } = tvshow;
+
+                const isUHD = !!tvshow['4k'];
+                const tvShowTitle = i18n('tvshow-title', tvshow);
+
+                return (
+                  <Tile
+                    key={sid}
+                    title={tvShowTitle}
+                    route="tvshow"
+                    poster={poster}
+                    counter={unwatched}
+                    isWatched={watching > 0 && !unwatched}
+                    isUHD={isUHD}
+                    payload={{
+                      sid,
+                      poster,
+                      title: tvShowTitle,
+                    }}
+                  />
+                );
+              })}
+            </section>
           );
         },
 
@@ -346,24 +428,135 @@ export default function tvShowsRoute() {
             <document>
               <alertTemplate>
                 <title>{i18n('tvshows-group-by')}</title>
-                {sectionsList.map(({ id, title: titleCode }) => (
-                  <button
-                    key={id}
-                    autoHighlight={id === this.state.groupId || undefined}
-                    // eslint-disable-next-line react/jsx-no-bind
-                    onSelect={this.onGroupSelect.bind(this, id)}
-                  >
-                    <text>{i18n(titleCode)}</text>
-                  </button>
-                ))}
+                {sectionsList.map(({ id, title: titleCode }) => {
+                  const onGroupSelect = () => {
+                    this.setState({ groupId: id });
+                    TVDML.removeModal();
+                  };
+
+                  return (
+                    <button
+                      key={id}
+                      autoHighlight={id === this.state.groupId || undefined}
+                      onSelect={onGroupSelect}
+                    >
+                      <text>{i18n(titleCode)}</text>
+                    </button>
+                  );
+                })}
               </alertTemplate>
             </document>,
           ).sink();
         },
 
-        onGroupSelect(groupId) {
-          this.setState({ groupId });
-          TVDML.removeModal();
+        getSubGroupStatePath(groupId, statePathItems) {
+          return `${groupId}_subgroup_${statePathItems.join(':')}`;
+        },
+
+        getSubGroupState(groupId, statePathItems) {
+          return this.state[this.getSubGroupStatePath(groupId, statePathItems)];
+        },
+
+        setSubGroupStateValue(groupId, statePathItems, value) {
+          this.setState({
+            [this.getSubGroupStatePath(groupId, statePathItems)]: value,
+          });
+        },
+
+        setSubGroupState(groupId, statePathItems, state) {
+          const newState = {};
+
+          Object.keys(state).forEach(key => {
+            newState[
+              this.getSubGroupStatePath(groupId, [...statePathItems, key])
+            ] = state[key];
+          });
+
+          this.setState(newState);
+        },
+
+        getSubGroupId(groupId) {
+          return this.getSubGroupState(groupId, ['id']);
+        },
+
+        setSubGroupId(groupId, subGroupId) {
+          this.setSubGroupStateValue(groupId, ['id'], subGroupId);
+        },
+
+        getSubGroupOptions(groupId) {
+          return this.getSubGroupState(groupId, ['options']) || [];
+        },
+
+        getSubGroupTitle(groupId, subGroupId) {
+          const options = this.getSubGroupOptions(groupId, subGroupId);
+          const option = options.find(item => item.id === subGroupId);
+          return option ? option.title : '';
+        },
+
+        getSubGroupIsLoaded(groupId, subGroupId) {
+          return !!this.getSubGroupState(groupId, [subGroupId, 'loaded']);
+        },
+
+        getSubGroupItems(groupId, subGroupId) {
+          return this.getSubGroupState(groupId, [subGroupId, 'items']) || [];
+        },
+
+        setSubGroupItems(groupId, subGroupId, items) {
+          this.setSubGroupState(groupId, [subGroupId], {
+            loaded: true,
+            items,
+          });
+        },
+
+        onSwitchSubgroup() {
+          const { groupId } = this.state;
+          const subGroupId = this.getSubGroupId(groupId);
+          const subGroupOptions = this.getSubGroupOptions(groupId);
+
+          TVDML.renderModal(
+            <document>
+              <alertTemplate>
+                <title>{i18n('tvshows-group-by')}</title>
+                {subGroupOptions.map(({ id, title }) => {
+                  const onGroupSelect = () => {
+                    this.setSubGroupId(groupId, id);
+                    this.loadSubGroupData(groupId, id);
+                    TVDML.removeModal();
+                  };
+
+                  return (
+                    <button
+                      key={id}
+                      autoHighlight={id === subGroupId || undefined}
+                      onSelect={onGroupSelect}
+                    >
+                      <text>{title}</text>
+                    </button>
+                  );
+                })}
+              </alertTemplate>
+            </document>,
+          ).sink();
+        },
+
+        loadSubGroupData(groupId, subGroupId) {
+          const { tvshows } = this.state;
+
+          switch (groupId) {
+            case GENRES: {
+              this.setSubGroupItems(
+                groupId,
+                subGroupId,
+                tvshows.filter(tvshow =>
+                  tvshow.genres.some(genre => genre === subGroupId),
+                ),
+              );
+              break;
+            }
+            default: {
+              throw new Error(`Subgroups not supported for ${groupId}`);
+            }
+          }
         },
       }),
     ),

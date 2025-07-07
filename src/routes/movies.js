@@ -20,6 +20,7 @@ const DATE = 'date';
 const LIKES = 'likes';
 const RATING = 'rating';
 const LATEST = 'latest';
+const GENRES = 'genres';
 const COUNTRY = 'country';
 const FAVORITE = 'favorite';
 const FRANCHISE = 'franchise';
@@ -46,6 +47,14 @@ const sections = {
           items: sortMovies(list),
         },
       ];
+    },
+  },
+
+  [GENRES]: {
+    title: 'movies-group-title-genres',
+    useSubFilter: true,
+    reducer() {
+      return [];
     },
   },
 
@@ -230,6 +239,12 @@ export default function moviesRoute() {
 
           this.loadData().then(payload => {
             this.setState({ loading: false, ...payload });
+
+            const genresOptions = this.getSubGroupOptions(GENRES);
+            const genreId = genresOptions[0].id;
+
+            this.setSubGroupId(GENRES, genreId);
+            this.loadSubGroupData(GENRES, genreId);
           });
         },
 
@@ -257,7 +272,30 @@ export default function moviesRoute() {
 
         loadData() {
           return Promise.all([getAllMovies(), getCountriesList()]).then(
-            ([movies, contries]) => ({ movies, contries }),
+            ([movies, contries]) => {
+              const genresDict = {};
+
+              movies.forEach(movie => {
+                movie.interests.forEach(interest => {
+                  if (!genresDict[interest.name]) {
+                    genresDict[interest.name] = {
+                      id: interest.url_name,
+                      title: interest.name,
+                    };
+                  }
+                });
+              });
+
+              const genres = Object.entries(genresDict)
+                .sort(([a], [b]) => a.localeCompare(b))
+                .map(([, genre]) => genre);
+
+              return {
+                movies,
+                contries,
+                [this.getSubGroupStatePath(GENRES, ['options'])]: genres,
+              };
+            },
           );
         },
 
@@ -268,9 +306,16 @@ export default function moviesRoute() {
 
           const { movies, groupId, contries } = this.state;
 
-          const { title: titleCode, reducer } = sections[groupId];
+          const { title: titleCode, reducer, useSubFilter } = sections[groupId];
           const groups = reducer(movies, { contries });
-          const title = i18n(titleCode);
+
+          const subGroupId = this.getSubGroupId(groupId);
+          const subGroupTitle = this.getSubGroupTitle(groupId, subGroupId);
+          const subGroupItems = this.getSubGroupItems(groupId, subGroupId);
+          const subGroupIsLoaded = this.getSubGroupIsLoaded(
+            groupId,
+            subGroupId,
+          );
 
           return (
             <document>
@@ -292,56 +337,89 @@ export default function moviesRoute() {
               </head>
               <stackTemplate>
                 <collectionList>
-                  <separator>
-                    <button onSelect={this.onSwitchGroup}>
-                      <text>
-                        {i18n('movies-group-by-title', { title })}{' '}
-                        <badge
-                          width="31"
-                          height="14"
-                          class="dropdown-badge"
-                          src="resource://button-dropdown"
-                        />
-                      </text>
-                    </button>
-                  </separator>
-                  {groups.map(({ title: groupTitle, items }) => (
-                    <grid key={groupTitle}>
-                      <header>
-                        <title>{groupTitle}</title>
-                      </header>
-                      <section>
-                        {items.map(movie => {
-                          const {
-                            id,
-                            watched,
-                            covers: { big: poster },
-                          } = movie;
-
-                          const movieTitle = i18n('movie-title', movie);
-
-                          return (
-                            <Tile
-                              key={id}
-                              title={movieTitle}
-                              route="movie"
-                              poster={poster}
-                              isWatched={watched}
-                              isUHD={movieIsUHD(movie)}
-                              payload={{
-                                id,
-                                poster,
-                                title: movieTitle,
-                              }}
-                            />
-                          );
-                        })}
-                      </section>
-                    </grid>
-                  ))}
+                  {this.renderDropdown(
+                    i18n('movies-group-by-title', {
+                      title: i18n(titleCode),
+                    }),
+                    this.onSwitchGroup,
+                  )}
+                  {useSubFilter &&
+                    this.renderDropdown(
+                      i18n(`movies-group-by-${groupId}-title`, {
+                        title: subGroupTitle,
+                      }),
+                      this.onSwitchSubgroup,
+                    )}
+                  {useSubFilter &&
+                    (subGroupIsLoaded ? (
+                      <grid key={`subgroup-${groupId}`}>
+                        {this.renderMovies(subGroupItems)}
+                      </grid>
+                    ) : (
+                      <activityIndicator />
+                    ))}
+                  {!useSubFilter &&
+                    groups.map(({ title: groupTitle, items }) => (
+                      <grid key={groupTitle}>
+                        <header>
+                          <title>{groupTitle}</title>
+                        </header>
+                        {this.renderMovies(items)}
+                      </grid>
+                    ))}
                 </collectionList>
               </stackTemplate>
             </document>
+          );
+        },
+
+        renderDropdown(title, onSelect) {
+          return (
+            <separator>
+              <button onSelect={onSelect}>
+                <text>
+                  {title}{' '}
+                  <badge
+                    width="31"
+                    height="14"
+                    class="dropdown-badge"
+                    src="resource://button-dropdown"
+                  />
+                </text>
+              </button>
+            </separator>
+          );
+        },
+
+        renderMovies(movies) {
+          return (
+            <section>
+              {movies.map(movie => {
+                const {
+                  id,
+                  watched,
+                  covers: { big: poster },
+                } = movie;
+
+                const movieTitle = i18n('movie-title', movie);
+
+                return (
+                  <Tile
+                    key={id}
+                    title={movieTitle}
+                    route="movie"
+                    poster={poster}
+                    isWatched={watched}
+                    isUHD={movieIsUHD(movie)}
+                    payload={{
+                      id,
+                      poster,
+                      title: movieTitle,
+                    }}
+                  />
+                );
+              })}
+            </section>
           );
         },
 
@@ -355,24 +433,137 @@ export default function moviesRoute() {
             <document>
               <alertTemplate>
                 <title>{i18n('movies-group-by')}</title>
-                {sectionsList.map(({ id, title: titleCode }) => (
-                  <button
-                    key={id}
-                    autoHighlight={id === this.state.groupId || undefined}
-                    // eslint-disable-next-line react/jsx-no-bind
-                    onSelect={this.onGroupSelect.bind(this, id)}
-                  >
-                    <text>{i18n(titleCode)}</text>
-                  </button>
-                ))}
+                {sectionsList.map(({ id, title: titleCode }) => {
+                  const onGroupSelect = () => {
+                    this.setState({ groupId: id });
+                    TVDML.removeModal();
+                  };
+
+                  return (
+                    <button
+                      key={id}
+                      autoHighlight={id === this.state.groupId || undefined}
+                      onSelect={onGroupSelect}
+                    >
+                      <text>{i18n(titleCode)}</text>
+                    </button>
+                  );
+                })}
               </alertTemplate>
             </document>,
           ).sink();
         },
 
-        onGroupSelect(groupId) {
-          this.setState({ groupId });
-          TVDML.removeModal();
+        getSubGroupStatePath(groupId, statePathItems) {
+          return `${groupId}_subgroup_${statePathItems.join(':')}`;
+        },
+
+        getSubGroupState(groupId, statePathItems) {
+          return this.state[this.getSubGroupStatePath(groupId, statePathItems)];
+        },
+
+        setSubGroupStateValue(groupId, statePathItems, value) {
+          this.setState({
+            [this.getSubGroupStatePath(groupId, statePathItems)]: value,
+          });
+        },
+
+        setSubGroupState(groupId, statePathItems, state) {
+          const newState = {};
+
+          Object.keys(state).forEach(key => {
+            newState[
+              this.getSubGroupStatePath(groupId, [...statePathItems, key])
+            ] = state[key];
+          });
+
+          this.setState(newState);
+        },
+
+        getSubGroupId(groupId) {
+          return this.getSubGroupState(groupId, ['id']);
+        },
+
+        setSubGroupId(groupId, subGroupId) {
+          this.setSubGroupStateValue(groupId, ['id'], subGroupId);
+        },
+
+        getSubGroupOptions(groupId) {
+          return this.getSubGroupState(groupId, ['options']) || [];
+        },
+
+        getSubGroupTitle(groupId, subGroupId) {
+          const options = this.getSubGroupOptions(groupId, subGroupId);
+          const option = options.find(item => item.id === subGroupId);
+          return option ? option.title : '';
+        },
+
+        getSubGroupIsLoaded(groupId, subGroupId) {
+          return !!this.getSubGroupState(groupId, [subGroupId, 'loaded']);
+        },
+
+        getSubGroupItems(groupId, subGroupId) {
+          return this.getSubGroupState(groupId, [subGroupId, 'items']) || [];
+        },
+
+        setSubGroupItems(groupId, subGroupId, items) {
+          this.setSubGroupState(groupId, [subGroupId], {
+            loaded: true,
+            items,
+          });
+        },
+
+        onSwitchSubgroup() {
+          const { groupId } = this.state;
+          const subGroupId = this.getSubGroupId(groupId);
+          const subGroupOptions = this.getSubGroupOptions(groupId);
+
+          TVDML.renderModal(
+            <document>
+              <alertTemplate>
+                <title>{i18n('tvshows-group-by')}</title>
+                {subGroupOptions.map(({ id, title }) => {
+                  const onGroupSelect = () => {
+                    this.setSubGroupId(groupId, id);
+                    this.loadSubGroupData(groupId, id);
+                    TVDML.removeModal();
+                  };
+
+                  return (
+                    <button
+                      key={id}
+                      autoHighlight={id === subGroupId || undefined}
+                      onSelect={onGroupSelect}
+                    >
+                      <text>{title}</text>
+                    </button>
+                  );
+                })}
+              </alertTemplate>
+            </document>,
+          ).sink();
+        },
+
+        loadSubGroupData(groupId, subGroupId) {
+          const { movies } = this.state;
+
+          switch (groupId) {
+            case GENRES: {
+              this.setSubGroupItems(
+                groupId,
+                subGroupId,
+                movies.filter(movie =>
+                  movie.interests.some(
+                    interest => interest.url_name === subGroupId,
+                  ),
+                ),
+              );
+              break;
+            }
+            default: {
+              throw new Error(`Subgroups not supported for ${groupId}`);
+            }
+          }
         },
       }),
     ),

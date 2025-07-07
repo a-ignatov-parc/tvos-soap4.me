@@ -216,6 +216,9 @@ export default {
 
   'movies-group-title-favorite': 'Favorite',
 
+  'movies-group-title-genres': 'Genre',
+  'movies-group-by-genres-title': ({ title }) => `Filter by ${title}`,
+
   'movie-title': ({ title }) => title || '',
   'movie-description': ({ description }) => description || '',
   'movie-runtime': ({ runtime }) =>
@@ -318,6 +321,9 @@ export default {
 
   'tvshows-group-title-uhd': '4K (UHD)',
   'tvshows-group-uhd-title': 'A — Z',
+
+  'tvshows-group-title-genres': 'Genre',
+  'tvshows-group-by-genres-title': ({ title }) => `Filter by ${title}`,
 
   'search-latest': 'Latest TV Shows',
   'search-popular': 'Popular TV Shows',

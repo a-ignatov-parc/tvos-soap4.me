@@ -211,6 +211,9 @@ export default {
 
   'movies-group-title-favorite': 'Избранному',
 
+  'movies-group-title-genres': 'Жанру',
+  'movies-group-by-genres-title': ({ title }) => `Фильтровать по ${title}`,
+
   'movie-title': ({ title_ru }) => title_ru || '',
   'movie-description': ({ description_ru }) => description_ru || '',
   'movie-runtime': ({ runtime }) => runtime || '',
@@ -318,6 +321,9 @@ export default {
 
   'tvshows-group-title-uhd': '4K (UHD)',
   'tvshows-group-uhd-title': 'A — Z',
+
+  'tvshows-group-title-genres': 'Жанру',
+  'tvshows-group-by-genres-title': ({ title }) => `Фильтровать по ${title}`,
 
   'search-latest': 'Новые сериалы',
   'search-popular': 'Популярные сериалы',
