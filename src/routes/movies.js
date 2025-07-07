@@ -337,42 +337,23 @@ export default function moviesRoute() {
               </head>
               <stackTemplate>
                 <collectionList>
-                  <separator>
-                    <button onSelect={this.onSwitchGroup}>
-                      <text>
-                        {i18n('movies-group-by-title', {
-                          title: i18n(titleCode),
-                        })}{' '}
-                        <badge
-                          width="31"
-                          height="14"
-                          class="dropdown-badge"
-                          src="resource://button-dropdown"
-                        />
-                      </text>
-                    </button>
-                  </separator>
-                  {useSubFilter && (
-                    <separator>
-                      <button onSelect={this.onSwitchSubgroup}>
-                        <text>
-                          {i18n(`movies-group-by-${groupId}-title`, {
-                            title: subGroupTitle,
-                          })}{' '}
-                          <badge
-                            width="31"
-                            height="14"
-                            class="dropdown-badge"
-                            src="resource://button-dropdown"
-                          />
-                        </text>
-                      </button>
-                    </separator>
+                  {this.renderDropdown(
+                    i18n('movies-group-by-title', {
+                      title: i18n(titleCode),
+                    }),
+                    this.onSwitchGroup,
                   )}
+                  {useSubFilter &&
+                    this.renderDropdown(
+                      i18n(`movies-group-by-${groupId}-title`, {
+                        title: subGroupTitle,
+                      }),
+                      this.onSwitchSubgroup,
+                    )}
                   {useSubFilter &&
                     (subGroupIsLoaded ? (
                       <grid key={`subgroup-${groupId}`}>
-                        {this.renderTvshowSection(subGroupItems)}
+                        {this.renderMovies(subGroupItems)}
                       </grid>
                     ) : (
                       <activityIndicator />
@@ -383,7 +364,7 @@ export default function moviesRoute() {
                         <header>
                           <title>{groupTitle}</title>
                         </header>
-                        {this.renderTvshowSection(items)}
+                        {this.renderMovies(items)}
                       </grid>
                     ))}
                 </collectionList>
@@ -392,7 +373,25 @@ export default function moviesRoute() {
           );
         },
 
-        renderTvshowSection(movies) {
+        renderDropdown(title, onSelect) {
+          return (
+            <separator>
+              <button onSelect={onSelect}>
+                <text>
+                  {title}{' '}
+                  <badge
+                    width="31"
+                    height="14"
+                    class="dropdown-badge"
+                    src="resource://button-dropdown"
+                  />
+                </text>
+              </button>
+            </separator>
+          );
+        },
+
+        renderMovies(movies) {
           return (
             <section>
               {movies.map(movie => {
