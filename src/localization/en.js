@@ -7,15 +7,12 @@ export default {
   'auth-checking': 'Checking authorization...',
 
   'menu-my': 'My',
-  'menu-all': 'Shows',
+  'menu-tvshows': 'Shows',
   'menu-movies': 'Movies',
   'menu-search': '🔍',
-  'menu-genres': 'Genres',
   'menu-account': 'Account',
   'menu-settings': 'Settings',
   'menu-recomendations': 'Recomendations',
-
-  'genres-caption': 'Genres',
 
   'user-caption': 'Account',
   'user-description': ({ till }) => `Extended account expires ${till}`,
@@ -197,6 +194,9 @@ export default {
   'movies-group-by': 'Group by',
   'movies-group-by-title': ({ title }) => `Group by ${title}`,
 
+  'movies-group-title-latest': 'Latest Added',
+  'movies-group-latest-title': 'Latest Movies',
+
   'movies-group-title-name': 'Name',
   'movies-group-name-title': 'A — Z',
 
@@ -289,30 +289,35 @@ export default {
   'my-recomendations': 'My recomendations',
   'my-empty-recomendations': "You don't have any recomendations yet",
 
-  'all-caption': 'TV Shows',
+  'tvshows-caption': 'TV Shows',
 
-  'all-group-by': 'Group by',
-  'all-group-by-title': ({ title }) => `Group by ${title}`,
+  'tvshows-group-by': 'Group by',
+  'tvshows-group-by-title': ({ title }) => `Group by ${title}`,
 
-  'all-group-title-name': 'Name',
-  'all-group-name-title': 'A — Z',
+  'tvshows-group-title-latest': 'Latest Added',
+  'tvshows-group-latest-title': 'Latest TV Shows',
 
-  'all-group-title-date': 'Date',
+  'tvshows-group-title-name': 'Name',
+  'tvshows-group-name-title': 'A — Z',
 
-  'all-group-title-likes': 'Likes',
-  'all-group-likes-title-over-thousand': ({ thousand }) => `Over ${thousand}k`,
-  'all-group-likes-title-over-hundred': ({ hundred }) => `Over ${hundred}`,
-  'all-group-likes-title-lower-hundred': ({ hundred }) => `Lower ${hundred}`,
+  'tvshows-group-title-date': 'Date',
 
-  'all-group-title-rating': 'Rating',
+  'tvshows-group-title-likes': 'Likes',
+  'tvshows-group-likes-title-over-thousand': ({ thousand }) =>
+    `Over ${thousand}k`,
+  'tvshows-group-likes-title-over-hundred': ({ hundred }) => `Over ${hundred}`,
+  'tvshows-group-likes-title-lower-hundred': ({ hundred }) =>
+    `Lower ${hundred}`,
 
-  'all-group-title-country': 'Country',
+  'tvshows-group-title-rating': 'Rating',
 
-  'all-group-title-completeness': 'Completeness',
-  'all-group-completeness-title': 'Completed',
+  'tvshows-group-title-country': 'Country',
 
-  'all-group-title-uhd': '4K (UHD)',
-  'all-group-uhd-title': 'A — Z',
+  'tvshows-group-title-completeness': 'Completeness',
+  'tvshows-group-completeness-title': 'Completed',
+
+  'tvshows-group-title-uhd': '4K (UHD)',
+  'tvshows-group-uhd-title': 'A — Z',
 
   'search-latest': 'Latest TV Shows',
   'search-popular': 'Popular TV Shows',

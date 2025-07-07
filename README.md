@@ -40,4 +40,3 @@ This application is available as [`soap4atv`](https://itunes.apple.com/ru/app/id
 ![TV Show Screen](screenshots/screenshot2.png)
 ![Season Screen](screenshots/screenshot3.png)
 ![All TV Shows Screen](screenshots/screenshot4.png)
-![Genres Screen](screenshots/screenshot5.png)

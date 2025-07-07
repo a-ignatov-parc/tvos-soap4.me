@@ -113,7 +113,7 @@ export default function myRoute() {
                   <description class="grey_description">
                     {i18n('my-empty-list-description')}
                   </description>
-                  <button onSelect={link('all')}>
+                  <button onSelect={link('tvshows')}>
                     <text>{i18n('my-empty-list-button')}</text>
                   </button>
                 </alertTemplate>

@@ -7,15 +7,12 @@ export default {
   'auth-checking': 'Проверяем авторизацию...',
 
   'menu-my': 'Мои',
-  'menu-all': 'Сериалы',
+  'menu-tvshows': 'Сериалы',
   'menu-movies': 'Кино',
   'menu-search': '🔍',
-  'menu-genres': 'Жанры',
   'menu-account': 'Аккаунт',
   'menu-settings': 'Настройки',
   'menu-recomendations': 'Рекомендации',
-
-  'genres-caption': 'Жанры',
 
   'user-caption': 'Аккаунт',
   'user-description': ({ till }) => `Расширенный аккаунт истекает ${till}`,
@@ -192,6 +189,9 @@ export default {
   'movies-group-by': 'Группировать по',
   'movies-group-by-title': ({ title }) => `Группировать по ${title}`,
 
+  'movies-group-title-latest': 'Последние Добавленные',
+  'movies-group-latest-title': 'Последние Фильмы',
+
   'movies-group-title-name': 'Имени',
   'movies-group-name-title': 'A — Z',
 
@@ -289,30 +289,35 @@ export default {
   'my-recomendations': 'Мои рекомендации',
   'my-empty-recomendations': 'У тебя пока что нет никаких рекомендаций',
 
-  'all-caption': 'Сериалы',
+  'tvshows-caption': 'Сериалы',
 
-  'all-group-by': 'Группировать по',
-  'all-group-by-title': ({ title }) => `Группировать по ${title}`,
+  'tvshows-group-by': 'Группировать по',
+  'tvshows-group-by-title': ({ title }) => `Группировать по ${title}`,
 
-  'all-group-title-name': 'Имени',
-  'all-group-name-title': 'A — Z',
+  'tvshows-group-title-latest': 'Последние Добавленные',
+  'tvshows-group-latest-title': 'Последние Сериалы',
 
-  'all-group-title-date': 'Дате',
+  'tvshows-group-title-name': 'Имени',
+  'tvshows-group-name-title': 'A — Z',
 
-  'all-group-title-likes': 'Лайкам',
-  'all-group-likes-title-over-thousand': ({ thousand }) => `Более ${thousand}k`,
-  'all-group-likes-title-over-hundred': ({ hundred }) => `Более ${hundred}`,
-  'all-group-likes-title-lower-hundred': ({ hundred }) => `Менее ${hundred}`,
+  'tvshows-group-title-date': 'Дате',
 
-  'all-group-title-rating': 'Рейтингу',
+  'tvshows-group-title-likes': 'Лайкам',
+  'tvshows-group-likes-title-over-thousand': ({ thousand }) =>
+    `Более ${thousand}k`,
+  'tvshows-group-likes-title-over-hundred': ({ hundred }) => `Более ${hundred}`,
+  'tvshows-group-likes-title-lower-hundred': ({ hundred }) =>
+    `Менее ${hundred}`,
 
-  'all-group-title-country': 'Стране',
+  'tvshows-group-title-rating': 'Рейтингу',
 
-  'all-group-title-completeness': 'Завершенности',
-  'all-group-completeness-title': 'Завершенные',
+  'tvshows-group-title-country': 'Стране',
 
-  'all-group-title-uhd': '4K (UHD)',
-  'all-group-uhd-title': 'A — Z',
+  'tvshows-group-title-completeness': 'Завершенности',
+  'tvshows-group-completeness-title': 'Завершенные',
+
+  'tvshows-group-title-uhd': '4K (UHD)',
+  'tvshows-group-uhd-title': 'A — Z',
 
   'search-latest': 'Новые сериалы',
   'search-popular': 'Популярные сериалы',

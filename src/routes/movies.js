@@ -3,7 +3,11 @@ import * as TVDML from 'tvdml';
 import * as user from '../user';
 import { get as i18n } from '../localization';
 
-import { getAllMovies, getCountriesList } from '../request/soap';
+import {
+  getAllMovies,
+  getCountriesList,
+  getLatestMovies,
+} from '../request/soap';
 
 import { isMenuButtonPressNavigatedTo, movieIsUHD, sortMovies } from '../utils';
 import { deepEqualShouldUpdate } from '../utils/components';
@@ -15,11 +19,24 @@ const NAME = 'name';
 const DATE = 'date';
 const LIKES = 'likes';
 const RATING = 'rating';
+const LATEST = 'latest';
 const COUNTRY = 'country';
 const FAVORITE = 'favorite';
 const FRANCHISE = 'franchise';
 
 const sections = {
+  [LATEST]: {
+    title: 'movies-group-title-latest',
+    reducer(list) {
+      return [
+        {
+          title: i18n('movies-group-latest-title'),
+          items: getLatestMovies(list),
+        },
+      ];
+    },
+  },
+
   [NAME]: {
     title: 'movies-group-title-name',
     reducer(list) {
@@ -186,7 +203,7 @@ export default function moviesRoute() {
           return {
             token,
             loading: true,
-            groupId: NAME,
+            groupId: LATEST,
             updating: false,
           };
         },
