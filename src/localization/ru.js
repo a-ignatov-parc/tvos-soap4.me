@@ -211,6 +211,9 @@ export default {
 
   'movies-group-title-favorite': 'Избранному',
 
+  'movies-group-title-genres': 'Жанру',
+  'movies-group-by-genres-title': ({ title }) => `Фильтровать по ${title}`,
+
   'movie-title': ({ title_ru }) => title_ru || '',
   'movie-description': ({ description_ru }) => description_ru || '',
   'movie-runtime': ({ runtime }) => runtime || '',

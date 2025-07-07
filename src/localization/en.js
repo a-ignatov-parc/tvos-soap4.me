@@ -216,6 +216,9 @@ export default {
 
   'movies-group-title-favorite': 'Favorite',
 
+  'movies-group-title-genres': 'Genre',
+  'movies-group-by-genres-title': ({ title }) => `Filter by ${title}`,
+
   'movie-title': ({ title }) => title || '',
   'movie-description': ({ description }) => description || '',
   'movie-runtime': ({ runtime }) =>

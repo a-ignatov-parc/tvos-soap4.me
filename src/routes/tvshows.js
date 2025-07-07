@@ -6,9 +6,7 @@ import { get as i18n } from '../localization';
 import {
   getAllTVShows,
   getCountriesList,
-  getGenresList,
   getLatestTvShows,
-  getTVShowsByGenre,
 } from '../request/soap';
 
 import {
@@ -233,7 +231,12 @@ export default function tvShowsRoute() {
 
           this.loadData().then(payload => {
             this.setState({ loading: false, ...payload });
-            this.loadSubGroupData(GENRES, this.getSubGroupId(GENRES));
+
+            const genresOptions = this.getSubGroupOptions(GENRES);
+            const genreId = genresOptions[0].id;
+
+            this.setSubGroupId(GENRES, genreId);
+            this.loadSubGroupData(GENRES, genreId);
           });
         },
 
@@ -260,18 +263,32 @@ export default function tvShowsRoute() {
         shouldComponentUpdate: deepEqualShouldUpdate,
 
         loadData() {
-          return Promise.all([
-            getAllTVShows(),
-            getCountriesList(),
-            getGenresList(),
-          ]).then(([series, contries, genres]) => ({
-            series,
-            contries,
-            [this.getSubGroupStatePath(GENRES, ['id'])]: genres[0],
-            [this.getSubGroupStatePath(GENRES, ['options'])]: genres.map(
-              item => ({ id: item, title: capitalizeText(item) }),
-            ),
-          }));
+          return Promise.all([getAllTVShows(), getCountriesList()]).then(
+            ([tvshows, contries]) => {
+              const genresDict = {};
+
+              tvshows.forEach(tvshow => {
+                tvshow.genres.forEach(genre => {
+                  if (!genresDict[genre]) {
+                    genresDict[genre] = {
+                      id: genre,
+                      title: capitalizeText(genre),
+                    };
+                  }
+                });
+              });
+
+              const genres = Object.entries(genresDict)
+                .sort(([a], [b]) => a.localeCompare(b))
+                .map(([, genre]) => genre);
+
+              return {
+                tvshows,
+                contries,
+                [this.getSubGroupStatePath(GENRES, ['options'])]: genres,
+              };
+            },
+          );
         },
 
         render() {
@@ -279,10 +296,10 @@ export default function tvShowsRoute() {
             return <Loader />;
           }
 
-          const { series, groupId, contries } = this.state;
+          const { tvshows, groupId, contries } = this.state;
 
           const { title: titleCode, reducer, useSubFilter } = sections[groupId];
-          const groups = reducer(series, { contries });
+          const groups = reducer(tvshows, { contries });
 
           const subGroupId = this.getSubGroupId(groupId);
           const subGroupTitle = this.getSubGroupTitle(groupId, subGroupId);
@@ -524,11 +541,18 @@ export default function tvShowsRoute() {
         },
 
         loadSubGroupData(groupId, subGroupId) {
+          const { tvshows } = this.state;
+
           switch (groupId) {
             case GENRES: {
-              return getTVShowsByGenre(subGroupId).then(items => {
-                this.setSubGroupItems(groupId, subGroupId, items);
-              });
+              this.setSubGroupItems(
+                groupId,
+                subGroupId,
+                tvshows.filter(tvshow =>
+                  tvshow.genres.some(genre => genre === subGroupId),
+                ),
+              );
+              break;
             }
             default: {
               throw new Error(`Subgroups not supported for ${groupId}`);
