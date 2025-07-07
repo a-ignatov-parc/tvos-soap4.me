@@ -319,6 +319,9 @@ export default {
   'tvshows-group-title-uhd': '4K (UHD)',
   'tvshows-group-uhd-title': 'A — Z',
 
+  'tvshows-group-title-genres': 'Жанру',
+  'tvshows-group-by-genres-title': ({ title }) => `Фильтровать по ${title}`,
+
   'search-latest': 'Новые сериалы',
   'search-popular': 'Популярные сериалы',
   'search-persons': 'Люди',

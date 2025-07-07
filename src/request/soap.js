@@ -267,6 +267,10 @@ export function getGenresList() {
   return get(`${API_URL}/soap/genres/`);
 }
 
+export function getTVShowsByGenre(genre) {
+  return get(`${API_URL}/soap/genre/${encodeNameForUrl(genre)}/`);
+}
+
 export function getTVShowEpisodes(sid) {
   return get(`${API_URL}/episodes/${sid}/`);
 }
