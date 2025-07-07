@@ -9,12 +9,7 @@ import * as request from '../request';
 import * as settings from '../settings';
 import * as topShelf from '../helpers/topShelf';
 import { get as i18n } from '../localization';
-import {
-  genreToId,
-  isQello,
-  groupSeriesByCategory,
-  encodeNameForUrl,
-} from '../utils';
+import { isQello, groupSeriesByCategory, encodeNameForUrl } from '../utils';
 
 const { VIDEO_QUALITY, TRANSLATION } = settings.params;
 const { SD, HD, FULLHD, UHD } = settings.values[VIDEO_QUALITY];
@@ -23,8 +18,12 @@ const { LOCALIZATION, SUBTITLES } = settings.values[TRANSLATION];
 const TOP_SHELF_MIN_ITEMS = 4;
 const API_URL = 'https://api.soap4uand.me/v2';
 
-function getLatest(tvshows, count = 10) {
+export function getLatestTvShows(tvshows, count = 12) {
   return tvshows.sort(({ sid: a }, { sid: b }) => b - a).slice(0, count);
+}
+
+export function getLatestMovies(movies, count = 12) {
+  return movies.sort(({ id: a }, { id: b }) => b - a).slice(0, count);
 }
 
 export const supportUHD = Device.productType !== 'AppleTV5,3';
@@ -76,13 +75,6 @@ export const mediaLocalizations = {
   2: localization.ORIGINAL_SUBTITLES,
   3: localization.LOCALIZATION_SUBTITLES,
   4: localization.LOCALIZATION,
-};
-
-export const mediaLocalizationStrings = {
-  [localization.ORIGINAL]: 'Original',
-  [localization.ORIGINAL_SUBTITLES]: 'Original with subtitles',
-  [localization.LOCALIZATION]: 'Localization',
-  [localization.LOCALIZATION_SUBTITLES]: 'Localization with subtitles',
 };
 
 export const TVShowStatuses = {
@@ -246,7 +238,7 @@ export function getMyTVShows() {
 export function getAllTVShows() {
   return get(`${API_URL}/soap/`).then(series => {
     if (!isAuthorized() && !isQello()) {
-      const latest = getLatest(series);
+      const latest = getLatestTvShows(series);
 
       topShelf.set({
         sections: [
@@ -261,20 +253,6 @@ export function getAllTVShows() {
 
     return series;
   });
-}
-
-export function getLatestTVShows(count = 10) {
-  return getAllTVShows().then(tvshows => getLatest(tvshows, count));
-}
-
-export function getPopularTVShows(count = 10) {
-  return getAllTVShows().then(tvshows =>
-    tvshows.sort(({ likes: a }, { likes: b }) => b - a).slice(0, count),
-  );
-}
-
-export function getTVShowsByGenre(genre) {
-  return get(`${API_URL}/soap/genre/${genreToId(genre)}/`);
 }
 
 export function getTVShowDescription(sid) {
@@ -528,13 +506,6 @@ export function getFranchiseMovies(franchiseName) {
 
 export function getMovieDescription(id) {
   return get(`${API_URL}/movies/description/${id}/`);
-}
-
-export function getMovieFranchiseMovies(id) {
-  return getMovieDescription(id).then(result => {
-    if (!result.franchise) return [];
-    return getFranchiseMovies(result.franchise);
-  });
 }
 
 export function addMovieToFavorite(id) {

@@ -3,7 +3,11 @@ import * as TVDML from 'tvdml';
 import * as user from '../user';
 import { get as i18n } from '../localization';
 
-import { getAllTVShows, getCountriesList } from '../request/soap';
+import {
+  getAllTVShows,
+  getCountriesList,
+  getLatestTvShows,
+} from '../request/soap';
 
 import { isMenuButtonPressNavigatedTo, sortTvShows } from '../utils';
 import { deepEqualShouldUpdate } from '../utils/components';
@@ -16,16 +20,29 @@ const NAME = 'name';
 const DATE = 'date';
 const LIKES = 'likes';
 const RATING = 'rating';
+const LATEST = 'latest';
 const COUNTRY = 'country';
 const COMPLETENESS = 'completeness';
 
 const sections = {
-  [NAME]: {
-    title: 'all-group-title-name',
+  [LATEST]: {
+    title: 'tvshows-group-title-latest',
     reducer(list) {
       return [
         {
-          title: i18n('all-group-name-title'),
+          title: i18n('tvshows-group-latest-title'),
+          items: getLatestTvShows(list),
+        },
+      ];
+    },
+  },
+
+  [NAME]: {
+    title: 'tvshows-group-title-name',
+    reducer(list) {
+      return [
+        {
+          title: i18n('tvshows-group-name-title'),
           items: sortTvShows(list),
         },
       ];
@@ -33,7 +50,7 @@ const sections = {
   },
 
   [DATE]: {
-    title: 'all-group-title-date',
+    title: 'tvshows-group-title-date',
     reducer(list) {
       const collection = list.reduce((result, item) => {
         // eslint-disable-next-line no-param-reassign
@@ -52,7 +69,7 @@ const sections = {
   },
 
   [LIKES]: {
-    title: 'all-group-title-likes',
+    title: 'tvshows-group-title-likes',
     reducer(list) {
       const likesCollection = list
         .slice(0)
@@ -81,15 +98,17 @@ const sections = {
         .map(key => {
           const { thousand, hundred, items } = likesCollection[key];
 
-          let title = i18n('all-group-likes-title-over-thousand', { thousand });
+          let title = i18n('tvshows-group-likes-title-over-thousand', {
+            thousand,
+          });
 
           if (!thousand) {
             if (hundred) {
-              title = i18n('all-group-likes-title-over-hundred', {
+              title = i18n('tvshows-group-likes-title-over-hundred', {
                 hundred: hundred * 100,
               });
             } else {
-              title = i18n('all-group-likes-title-lower-hundred', {
+              title = i18n('tvshows-group-likes-title-lower-hundred', {
                 hundred: (hundred + 1) * 100,
               });
             }
@@ -100,7 +119,7 @@ const sections = {
   },
 
   [RATING]: {
-    title: 'all-group-title-rating',
+    title: 'tvshows-group-title-rating',
     reducer(list) {
       const collection = list.reduce((result, item) => {
         // eslint-disable-next-line no-param-reassign
@@ -119,7 +138,7 @@ const sections = {
   },
 
   [COUNTRY]: {
-    title: 'all-group-title-country',
+    title: 'tvshows-group-title-country',
     reducer(list, { contries }) {
       const collection = list.reduce((result, item) => {
         // eslint-disable-next-line no-param-reassign
@@ -136,11 +155,11 @@ const sections = {
   },
 
   [COMPLETENESS]: {
-    title: 'all-group-title-completeness',
+    title: 'tvshows-group-title-completeness',
     reducer(list) {
       return [
         {
-          title: i18n('all-group-completeness-title'),
+          title: i18n('tvshows-group-completeness-title'),
           items: sortTvShows(list.filter(({ status }) => +status)),
         },
       ];
@@ -150,11 +169,11 @@ const sections = {
 
 if (user.isExtended()) {
   sections[UHD] = {
-    title: 'all-group-title-uhd',
+    title: 'tvshows-group-title-uhd',
     reducer(list) {
       return [
         {
-          title: i18n('all-group-uhd-title'),
+          title: i18n('tvshows-group-uhd-title'),
           items: sortTvShows(list.filter(item => !!item['4k'])),
         },
       ];
@@ -162,7 +181,7 @@ if (user.isExtended()) {
   };
 }
 
-export default function allRoute() {
+export default function tvShowsRoute() {
   return TVDML.createPipeline().pipe(
     TVDML.render(
       TVDML.createComponent({
@@ -172,7 +191,7 @@ export default function allRoute() {
           return {
             token,
             loading: true,
-            groupId: NAME,
+            groupId: LATEST,
             updating: false,
           };
         },
@@ -264,7 +283,7 @@ export default function allRoute() {
                   <separator>
                     <button onSelect={this.onSwitchGroup}>
                       <text>
-                        {i18n('all-group-by-title', { title })}{' '}
+                        {i18n('tvshows-group-by-title', { title })}{' '}
                         <badge
                           width="31"
                           height="14"
@@ -326,7 +345,7 @@ export default function allRoute() {
           TVDML.renderModal(
             <document>
               <alertTemplate>
-                <title>{i18n('all-group-by')}</title>
+                <title>{i18n('tvshows-group-by')}</title>
                 {sectionsList.map(({ id, title: titleCode }) => (
                   <button
                     key={id}

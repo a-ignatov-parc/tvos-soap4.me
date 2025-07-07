@@ -101,10 +101,6 @@ export function removeDocumentFromNavigation(document) {
   }
 }
 
-export function genreToId(genre) {
-  return genre.replace(/\s/g, '_');
-}
-
 export function getCroppedImageUrl(targetUrl, size) {
   const params = `w=${size}&h=${size}&mode=crop`;
   const descriptor = url.parse(targetUrl);

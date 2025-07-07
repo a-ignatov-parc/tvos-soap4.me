@@ -18,13 +18,13 @@ import { get as i18n } from '../localization';
 
 import {
   getMovieDescription,
-  getMovieFranchiseMovies,
   addMovieToFavorite,
   removeMovieFromFavorite,
   markMovieAsWatched,
   markMovieAsUnwatched,
   rateMovie,
   saveMovieTime,
+  getFranchiseMovies,
 } from '../request/soap';
 
 import Tile from '../components/tile';
@@ -103,18 +103,16 @@ export default function movieRoute() {
           loadData() {
             const { id } = this.props;
 
-            return Promise.all([
-              getMovieDescription(id),
-              getMovieFranchiseMovies(id),
-            ]).then(payload => {
-              const [movie, franchiseMovies] = payload;
-
-              return {
+            return getMovieDescription(id).then(movie =>
+              (movie.franchise
+                ? getFranchiseMovies(movie.franchise)
+                : Promise.resolve([])
+              ).then(franchiseMovies => ({
                 movie,
                 franchiseMovies,
                 likes: +movie.likes,
-              };
-            });
+              })),
+            );
           },
 
           render() {
