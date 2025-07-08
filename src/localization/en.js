@@ -12,7 +12,6 @@ export default {
   'menu-search': '🔍',
   'menu-account': 'Account',
   'menu-settings': 'Settings',
-  'menu-recomendations': 'Recomendations',
 
   'user-caption': 'Account',
   'user-description': ({ till }) => `Extended account expires ${till}`,
@@ -214,7 +213,8 @@ export default {
 
   'movies-group-title-country': 'Country',
 
-  'movies-group-title-favorite': 'Favorite',
+  'movies-group-title-favorite': 'Favorites',
+  'movies-group-name-favorite': 'My favorites',
 
   'movies-group-title-genres': 'Genre',
   'movies-group-by-genres-title': ({ title }) => `Filter by ${title}`,
@@ -289,9 +289,6 @@ export default {
     'You can start from adding some tv series from "TV Shows" sections',
   'my-empty-list-button': 'Go to "TV Shows"',
 
-  'my-recomendations': 'My recomendations',
-  'my-empty-recomendations': "You don't have any recomendations yet",
-
   'tvshows-caption': 'TV Shows',
 
   'tvshows-group-by': 'Group by',
@@ -299,6 +296,9 @@ export default {
 
   'tvshows-group-title-latest': 'Latest Added',
   'tvshows-group-latest-title': 'Latest TV Shows',
+
+  'tvshows-group-title-recommendations': 'Recommendations',
+  'tvshows-group-recommendations-title': 'My recommendations',
 
   'tvshows-group-title-name': 'Name',
   'tvshows-group-name-title': 'A — Z',

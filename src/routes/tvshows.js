@@ -7,6 +7,7 @@ import {
   getAllTVShows,
   getCountriesList,
   getLatestTvShows,
+  getMyRecommendations,
 } from '../request/soap';
 
 import {
@@ -28,6 +29,7 @@ const LATEST = 'latest';
 const GENRES = 'genres';
 const COUNTRY = 'country';
 const COMPLETENESS = 'completeness';
+const RECOMMENDATIONS = 'recommendations';
 
 const sections = {
   [LATEST]: {
@@ -37,6 +39,21 @@ const sections = {
         {
           title: i18n('tvshows-group-latest-title'),
           items: getLatestTvShows(list),
+        },
+      ];
+    },
+  },
+
+  [RECOMMENDATIONS]: {
+    title: 'tvshows-group-title-recommendations',
+    disabled: !user.isExtended(),
+    reducer(list, { recommendations }) {
+      return [
+        {
+          title: i18n('tvshows-group-recommendations-title'),
+          items: recommendations.map(recommendation =>
+            list.find(item => item.sid === recommendation.id),
+          ),
         },
       ];
     },
@@ -178,11 +195,10 @@ const sections = {
       ];
     },
   },
-};
 
-if (user.isExtended()) {
-  sections[UHD] = {
+  [UHD]: {
     title: 'tvshows-group-title-uhd',
+    disabled: !user.isExtended(),
     reducer(list) {
       return [
         {
@@ -191,8 +207,8 @@ if (user.isExtended()) {
         },
       ];
     },
-  };
-}
+  },
+};
 
 export default function tvShowsRoute() {
   return TVDML.createPipeline().pipe(
@@ -263,32 +279,35 @@ export default function tvShowsRoute() {
         shouldComponentUpdate: deepEqualShouldUpdate,
 
         loadData() {
-          return Promise.all([getAllTVShows(), getCountriesList()]).then(
-            ([tvshows, contries]) => {
-              const genresDict = {};
+          return Promise.all([
+            getAllTVShows(),
+            getCountriesList(),
+            user.isExtended() ? getMyRecommendations() : Promise.resolve([]),
+          ]).then(([tvshows, contries, recommendations]) => {
+            const genresDict = {};
 
-              tvshows.forEach(tvshow => {
-                tvshow.genres.forEach(genre => {
-                  if (!genresDict[genre]) {
-                    genresDict[genre] = {
-                      id: genre,
-                      title: capitalizeText(genre),
-                    };
-                  }
-                });
+            tvshows.forEach(tvshow => {
+              tvshow.genres.forEach(genre => {
+                if (!genresDict[genre]) {
+                  genresDict[genre] = {
+                    id: genre,
+                    title: capitalizeText(genre),
+                  };
+                }
               });
+            });
 
-              const genres = Object.entries(genresDict)
-                .sort(([a], [b]) => a.localeCompare(b))
-                .map(([, genre]) => genre);
+            const genres = Object.entries(genresDict)
+              .sort(([a], [b]) => a.localeCompare(b))
+              .map(([, genre]) => genre);
 
-              return {
-                tvshows,
-                contries,
-                [this.getSubGroupStatePath(GENRES, ['options'])]: genres,
-              };
-            },
-          );
+            return {
+              tvshows,
+              contries,
+              recommendations,
+              [this.getSubGroupStatePath(GENRES, ['options'])]: genres,
+            };
+          });
         },
 
         render() {
@@ -296,10 +315,10 @@ export default function tvShowsRoute() {
             return <Loader />;
           }
 
-          const { tvshows, groupId, contries } = this.state;
+          const { tvshows, groupId, contries, recommendations } = this.state;
 
           const { title: titleCode, reducer, useSubFilter } = sections[groupId];
-          const groups = reducer(tvshows, { contries });
+          const groups = reducer(tvshows, { contries, recommendations });
 
           const subGroupId = this.getSubGroupId(groupId);
           const subGroupTitle = this.getSubGroupTitle(groupId, subGroupId);
@@ -419,10 +438,12 @@ export default function tvShowsRoute() {
         },
 
         onSwitchGroup() {
-          const sectionsList = Object.keys(sections).map(id => ({
-            id,
-            title: sections[id].title,
-          }));
+          const sectionsList = Object.keys(sections)
+            .filter(section => !section.disabled)
+            .map(id => ({
+              id,
+              title: sections[id].title,
+            }));
 
           TVDML.renderModal(
             <document>

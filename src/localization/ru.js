@@ -12,7 +12,6 @@ export default {
   'menu-search': '🔍',
   'menu-account': 'Аккаунт',
   'menu-settings': 'Настройки',
-  'menu-recomendations': 'Рекомендации',
 
   'user-caption': 'Аккаунт',
   'user-description': ({ till }) => `Расширенный аккаунт истекает ${till}`,
@@ -210,6 +209,7 @@ export default {
   'movies-group-title-country': 'Стране',
 
   'movies-group-title-favorite': 'Избранному',
+  'movies-group-name-favorite': 'Мое избранное',
 
   'movies-group-title-genres': 'Жанру',
   'movies-group-by-genres-title': ({ title }) => `Фильтровать по ${title}`,
@@ -289,9 +289,6 @@ export default {
     'Ты можешь начать с добавления каких-нибудь сериалов из раздела "Сериалы"',
   'my-empty-list-button': 'Перейти в раздел "Сериалы"',
 
-  'my-recomendations': 'Мои рекомендации',
-  'my-empty-recomendations': 'У тебя пока что нет никаких рекомендаций',
-
   'tvshows-caption': 'Сериалы',
 
   'tvshows-group-by': 'Группировать по',
@@ -299,6 +296,9 @@ export default {
 
   'tvshows-group-title-latest': 'Последние Добавленные',
   'tvshows-group-latest-title': 'Последние Сериалы',
+
+  'tvshows-group-title-recommendations': 'Рекомендациям',
+  'tvshows-group-recommendations-title': 'Мои рекомендации',
 
   'tvshows-group-title-name': 'Имени',
   'tvshows-group-name-title': 'A — Z',
