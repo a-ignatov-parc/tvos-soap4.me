@@ -24,9 +24,8 @@ import movieDirectorRoute from './routes/movie-director';
 import searchRoute from './routes/search';
 import settingsRoute from './routes/settings';
 import speedTestRoute from './routes/speedtest';
-import myRecomendations from './routes/recomendations';
 
-import { AUTH, BASIC, GUEST } from './routes/menu/constants';
+import { AUTH, GUEST } from './routes/menu/constants';
 
 import Loader from './components/loader';
 
@@ -97,10 +96,6 @@ TVDML.handleRoute('main').pipe(
       hidden: GUEST,
     },
     {
-      route: 'recomendations',
-      hidden: [GUEST, BASIC],
-    },
-    {
       route: 'settings',
     },
   ]),
@@ -133,5 +128,3 @@ TVDML.handleRoute('actor').pipe(actorRoute());
 TVDML.handleRoute('speedtest').pipe(speedTestRoute());
 
 TVDML.handleRoute('user').pipe(userRoute());
-
-TVDML.handleRoute('recomendations').pipe(myRecomendations());

@@ -166,7 +166,7 @@ export default function tvShowRoute() {
                   seasons,
                   schedule,
                   tvshow,
-                  recomendations,
+                  recommendations,
                 ] = payload;
 
                 return Promise.all([
@@ -179,7 +179,7 @@ export default function tvShowRoute() {
                   schedule,
                   trailers,
                   contries,
-                  recomendations,
+                  recommendations,
                 }));
               })
               .then(payload => ({
@@ -206,7 +206,7 @@ export default function tvShowRoute() {
                     <heroImg src={this.state.tvshow.covers.big} />
                   </banner>
                   {this.renderSeasons()}
-                  {this.renderRecomendations()}
+                  {this.renderRecommendations()}
                   {this.renderRatings()}
                   {this.renderCrew()}
                   {this.renderAdditionalInfo()}
@@ -530,8 +530,8 @@ export default function tvShowRoute() {
               .then(TVDML.removeModal);
           },
 
-          renderRecomendations() {
-            if (!this.state.recomendations.length) return null;
+          renderRecommendations() {
+            if (!this.state.recommendations.length) return null;
 
             return (
               <shelf>
@@ -539,7 +539,7 @@ export default function tvShowRoute() {
                   <title>{i18n('tvshow-also-watched')}</title>
                 </header>
                 <section>
-                  {this.state.recomendations.map(tvshow => {
+                  {this.state.recommendations.map(tvshow => {
                     const {
                       sid,
                       covers: { big: poster },

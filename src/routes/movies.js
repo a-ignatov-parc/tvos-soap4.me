@@ -38,6 +38,19 @@ const sections = {
     },
   },
 
+  [FAVORITE]: {
+    title: 'movies-group-title-favorite',
+    disabled: !user.isExtended(),
+    reducer(list) {
+      return [
+        {
+          title: i18n('movies-group-name-favorite'),
+          items: sortMovies(list).filter(item => item.liked),
+        },
+      ];
+    },
+  },
+
   [NAME]: {
     title: 'movies-group-title-name',
     reducer(list) {
@@ -186,18 +199,6 @@ const sections = {
           title: country.full,
           items: sortMovies(collection[country.short]),
         }));
-    },
-  },
-
-  [FAVORITE]: {
-    title: 'movies-group-title-favorite',
-    reducer(list) {
-      return [
-        {
-          title: i18n('movies-group-name-title'),
-          items: sortMovies(list).filter(item => item.liked),
-        },
-      ];
     },
   },
 };
@@ -424,10 +425,12 @@ export default function moviesRoute() {
         },
 
         onSwitchGroup() {
-          const sectionsList = Object.keys(sections).map(id => ({
-            id,
-            title: sections[id].title,
-          }));
+          const sectionsList = Object.keys(sections)
+            .filter(section => !section.disabled)
+            .map(id => ({
+              id,
+              title: sections[id].title,
+            }));
 
           TVDML.renderModal(
             <document>
