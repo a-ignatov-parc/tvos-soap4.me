@@ -500,6 +500,10 @@ export function getAllMovies() {
   return get(`${API_URL}/movies/`);
 }
 
+export function getPopularMovies() {
+  return get(`${API_URL}/movies/popular/`);
+}
+
 export function getFranchiseMovies(franchiseName) {
   return get(`${API_URL}/movies/franchise/${encodeNameForUrl(franchiseName)}/`);
 }

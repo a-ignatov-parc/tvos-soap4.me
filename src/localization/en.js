@@ -196,6 +196,9 @@ export default {
   'movies-group-title-latest': 'Latest Added',
   'movies-group-latest-title': 'Latest Movies',
 
+  'movies-group-title-recommendations': 'Recommendations',
+  'movies-group-recommendations-title': 'My recommendations',
+
   'movies-group-title-name': 'Name',
   'movies-group-name-title': 'A — Z',
 
