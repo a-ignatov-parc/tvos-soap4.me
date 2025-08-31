@@ -191,6 +191,9 @@ export default {
   'movies-group-title-latest': 'Последние Добавленные',
   'movies-group-latest-title': 'Последние Фильмы',
 
+  'movies-group-title-recommendations': 'Рекомендациям',
+  'movies-group-recommendations-title': 'Мои рекомендации',
+
   'movies-group-title-name': 'Имени',
   'movies-group-name-title': 'A — Z',
 

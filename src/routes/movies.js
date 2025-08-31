@@ -7,6 +7,7 @@ import {
   getAllMovies,
   getCountriesList,
   getLatestMovies,
+  getPopularMovies,
 } from '../request/soap';
 
 import { isMenuButtonPressNavigatedTo, movieIsUHD, sortMovies } from '../utils';
@@ -24,6 +25,7 @@ const GENRES = 'genres';
 const COUNTRY = 'country';
 const FAVORITE = 'favorite';
 const FRANCHISE = 'franchise';
+const RECOMMENDATIONS = 'recommendations';
 
 const sections = {
   [LATEST]: {
@@ -46,6 +48,19 @@ const sections = {
         {
           title: i18n('movies-group-name-favorite'),
           items: sortMovies(list).filter(item => item.liked),
+        },
+      ];
+    },
+  },
+
+  [RECOMMENDATIONS]: {
+    title: 'movies-group-title-recommendations',
+    disabled: !user.isExtended(),
+    reducer(list, { recommendations }) {
+      return [
+        {
+          title: i18n('movies-group-recommendations-title'),
+          items: recommendations,
         },
       ];
     },
@@ -272,32 +287,35 @@ export default function moviesRoute() {
         shouldComponentUpdate: deepEqualShouldUpdate,
 
         loadData() {
-          return Promise.all([getAllMovies(), getCountriesList()]).then(
-            ([movies, contries]) => {
-              const genresDict = {};
+          return Promise.all([
+            getAllMovies(),
+            getCountriesList(),
+            getPopularMovies(),
+          ]).then(([movies, contries, popularMovies]) => {
+            const genresDict = {};
 
-              movies.forEach(movie => {
-                movie.interests.forEach(interest => {
-                  if (!genresDict[interest.name]) {
-                    genresDict[interest.name] = {
-                      id: interest.url_name,
-                      title: interest.name,
-                    };
-                  }
-                });
+            movies.forEach(movie => {
+              movie.interests.forEach(interest => {
+                if (!genresDict[interest.name]) {
+                  genresDict[interest.name] = {
+                    id: interest.url_name,
+                    title: interest.name,
+                  };
+                }
               });
+            });
 
-              const genres = Object.entries(genresDict)
-                .sort(([a], [b]) => a.localeCompare(b))
-                .map(([, genre]) => genre);
+            const genres = Object.entries(genresDict)
+              .sort(([a], [b]) => a.localeCompare(b))
+              .map(([, genre]) => genre);
 
-              return {
-                movies,
-                contries,
-                [this.getSubGroupStatePath(GENRES, ['options'])]: genres,
-              };
-            },
-          );
+            return {
+              movies,
+              contries,
+              [this.getSubGroupStatePath(GENRES, ['options'])]: genres,
+              recommendations: popularMovies,
+            };
+          });
         },
 
         render() {
@@ -305,10 +323,10 @@ export default function moviesRoute() {
             return <Loader />;
           }
 
-          const { movies, groupId, contries } = this.state;
+          const { movies, groupId, contries, recommendations } = this.state;
 
           const { title: titleCode, reducer, useSubFilter } = sections[groupId];
-          const groups = reducer(movies, { contries });
+          const groups = reducer(movies, { contries, recommendations });
 
           const subGroupId = this.getSubGroupId(groupId);
           const subGroupTitle = this.getSubGroupTitle(groupId, subGroupId);
