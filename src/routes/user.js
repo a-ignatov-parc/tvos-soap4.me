@@ -65,13 +65,16 @@ export default function userRoute() {
             onError: defaultErrorHandlers,
 
             // eslint-disable-next-line consistent-return
-            onSuccess: ({ token, till, login }) => {
+            onSuccess: session => {
               const dismiss = this.authHelper.dismiss.bind(this.authHelper);
 
-              user.set({ token, till, logged: 1 });
+              user.set(session);
 
               if (!user.isExtended()) {
-                user.set({ family: [{ name: login, fid: 0 }], selected: null });
+                user.set({
+                  family: [{ name: session.login, fid: 0 }],
+                  selected: null,
+                });
                 this.setState(this.getUserState());
                 return promisedTimeout(RENDERING_DELAY).then(dismiss);
               }
@@ -270,10 +273,8 @@ export default function userRoute() {
           logout()
             .then(user.clear)
             .then(checkSession)
-            .then(({ logged, token, till }) => {
-              const family = null;
-              const selected = null;
-              user.set({ logged, token, till, family, selected });
+            .then(session => {
+              user.set({ ...session, family: null, selected: null });
               this.setState(this.getUserState());
             })
             .then(promisedTimeout(RENDERING_DELAY))

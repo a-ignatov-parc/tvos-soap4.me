@@ -255,6 +255,10 @@ export default {
   'movie-title-more': 'More',
   'movie-mark-as-unwatched': 'Mark Movie as Unwatched',
 
+  'movie-title-subscription-warning': 'Insufficient subscription',
+  'movie-subscription-warning':
+    'Movies are only accessible with a "4k UHD + Фильмы" subscription',
+
   'movie-franchise-title': ({ franchise }) => `Franchise: ${franchise}`,
 
   'movie-imdb-title': 'IMDB',

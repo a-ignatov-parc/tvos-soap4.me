@@ -10,7 +10,7 @@ const cache = {
   payload: JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'),
 };
 
-const contract = ['till', 'token', 'logged', 'family', 'selected'];
+const contract = ['till', 'token', 'logged', 'family', 'selected', '4k'];
 
 export const subscription = bus.subscription.bind(bus);
 
@@ -59,6 +59,10 @@ export function getLogin() {
 
 export function isExtended() {
   return Date.now() / 1000 < get().till;
+}
+
+export function isExtended4k() {
+  return isExtended() && Boolean(get()['4k']);
 }
 
 export function isAuthorized() {

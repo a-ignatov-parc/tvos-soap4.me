@@ -111,6 +111,7 @@ export default function movieRoute() {
                 movie,
                 franchiseMovies,
                 likes: +movie.likes,
+                has4kSubscription: user.isExtended4k(),
               })),
             );
           },
@@ -192,12 +193,15 @@ export default function movieRoute() {
           },
 
           renderInfo() {
-            const { likes, movie } = this.state;
+            const { likes, movie, has4kSubscription } = this.state;
 
             const watchBtn = (
               <buttonLockup onPlay={this.onWatch} onSelect={this.onWatch}>
                 <badge src="resource://button-play" />
-                <title>{i18n('movie-control-watch')}</title>
+                <title>
+                  {has4kSubscription ? '' : '🚫'}
+                  {i18n('movie-control-watch')}
+                </title>
               </buttonLockup>
             );
 
@@ -510,7 +514,12 @@ export default function movieRoute() {
           },
 
           onWatch() {
-            const { movie } = this.state;
+            const { movie, has4kSubscription } = this.state;
+
+            if (!has4kSubscription) {
+              this.showSubscriptionWarning();
+              return;
+            }
 
             const player = new Player();
 
@@ -573,6 +582,19 @@ export default function movieRoute() {
             player.playlist.push(video);
 
             player.play();
+          },
+
+          showSubscriptionWarning() {
+            TVDML.renderModal(
+              <document>
+                <alertTemplate>
+                  <title>{i18n('movie-title-subscription-warning')}</title>
+                  <description>
+                    {i18n('movie-subscription-warning')}
+                  </description>
+                </alertTemplate>
+              </document>,
+            ).sink();
           },
 
           onRate() {

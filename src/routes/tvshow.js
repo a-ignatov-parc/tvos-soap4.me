@@ -856,9 +856,9 @@ export default function tvShowRoute() {
             if (!authorized) {
               const authHelper = authFactory({
                 onError: defaultErrorHandlers,
-                onSuccess: ({ token, till, login }) => {
-                  user.set({ token, till, logged: 1 });
-                  processFamilyAccount(login)
+                onSuccess: session => {
+                  user.set(session);
+                  processFamilyAccount(session.login)
                     .then(this.loadData.bind(this))
                     .then(payload => {
                       this.setState(payload);
