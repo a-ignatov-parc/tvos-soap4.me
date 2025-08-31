@@ -53,12 +53,10 @@ TVDML.subscribe(TVDML.event.LAUNCH).pipe(params => {
 TVDML.handleRoute('get-token')
   .pipe(TVDML.render(<Loader title={i18n('auth-checking')} />))
   .pipe(checkSession)
-  .pipe(payload => {
-    const { logged, token, till } = payload;
-    user.set({ logged, token, till });
-    return payload;
+  .pipe(session => {
+    user.set(session);
+    return processFamilyAccount(session.login);
   })
-  .pipe(({ login }) => processFamilyAccount(login))
   .pipe(() => {
     TVDML.redirect('main');
 

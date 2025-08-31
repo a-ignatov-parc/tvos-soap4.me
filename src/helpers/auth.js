@@ -249,8 +249,9 @@ export default function auth(options = {}) {
 
       return promise
         .then(response => {
-          if (response.ok) {
-            onSuccess.call(instance, response);
+          const { ok, sid, ...details } = response;
+          if (ok) {
+            onSuccess.call(instance, { ...details, logged: 1 });
           } else {
             const error = new Error('Wrong login or password');
             error.code = 'EBADCREDENTIALS';
